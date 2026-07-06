@@ -56,18 +56,42 @@ export function CartDrawer(state) {
               : items.map(item => `
                   <article class="cart-item">
 
+                    <img src="${item.icon}" alt="${item.name}" class="cart-item__icon" />
+
                     <h4 class="cart-item__title">
                       ${item.name}
                     </h4>
 
-                    <p class="cart-item__qty">
-                      تعداد: ${item.qty}
-                    </p>
+                    <div class="cart-item__qty-controls">
+                      <button
+                        id="decreaseQty-${item.id}"
+                        class="cart-item__qty-control"
+                        type="button"
+                      >
+                        -
+                      </button>
+                      <span class="cart-item__qty-value">${item.qty}</span>
+                      <button
+                        id="increaseQty-${item.id}"
+                        class="cart-item__qty-control"
+                        type="button"
+                      >
+                        +
+                      </button>
+                    </div>
 
                     <p class="cart-item__price">
                       ${Number(item.price).toLocaleString("fa-IR")}
                       تومان
                     </p>
+
+                    <button
+                      id="removeItem-${item.id}"
+                      class="cart-item__remove"
+                      type="button"
+                    >
+                      حذف
+                    </button>
 
                   </article>
                 `).join("")

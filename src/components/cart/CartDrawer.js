@@ -65,7 +65,7 @@ export function CartDrawer(state) {
                     <div class="cart-item__qty-controls">
                       <button
                         id="decreaseQty-${item.id}"
-                        class="cart-item__qty-control"
+                        class="cart-item__qty-control decreaseQty"
                         type="button"
                       >
                         -
@@ -73,7 +73,7 @@ export function CartDrawer(state) {
                       <span class="cart-item__qty-value">${item.qty}</span>
                       <button
                         id="increaseQty-${item.id}"
-                        class="cart-item__qty-control"
+                        class="cart-item__qty-control increaseQty"
                         type="button"
                       >
                         +
@@ -103,5 +103,24 @@ export function CartDrawer(state) {
 
     </div>
   `;
+
+  // Add event listeners for quantity controls and remove button
+  document.querySelectorAll('.cart-item__qty-control').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const productId = e.target.id.split('-')[2];
+      if (e.target.classList.contains('increaseQty')) {
+        CartService.add(productId);
+      } else if (e.target.classList.contains('decreaseQty')) {
+        CartService.remove(productId);
+      }
+    });
+  });
+
+  document.querySelectorAll('.cart-item__remove').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const productId = e.target.id.split('-')[2];
+      CartService.remove(productId);
+    });
+  });
 
 }

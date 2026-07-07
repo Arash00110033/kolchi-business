@@ -94,15 +94,16 @@ function render() {
       ${page}
     </main>
   `;
+
   const searchInput = document.getElementById("search");
 
-if (searchInput) {
-  searchInput.focus();
-  searchInput.setSelectionRange(
-    searchInput.value.length,
-    searchInput.value.length
-  );
-}  
+  if (searchInput) {
+    searchInput.focus();
+    searchInput.setSelectionRange(
+      searchInput.value.length,
+      searchInput.value.length
+    );
+  }
 }
 
 /* =========================
@@ -127,40 +128,59 @@ function bindEvents() {
       actions.setCategory(e.target.value);
     }
     if (e.target.id === "brand") {
-  console.log("Brand:", e.target.value);
-  actions.setBrand(e.target.value);
+      console.log("Brand:", e.target.value);
+      actions.setBrand(e.target.value);
     }
     if (e.target.id === "sort") {
-      console.log("sort:", e.target.value);
+      console.log("Sort:", e.target.value);
       actions.setSort(e.target.value);
     }
-    
 
   });
 
   document.addEventListener("click", (e) => {
 
-  if (e.target.id === "cartBtn") {
-    actions.toggleCart();
-    return;
-  }
+    if (e.target.id === "cartBtn") {
+      actions.toggleCart();
+      return;
+    }
 
-  const closeBtn = e.target.closest("#closeCart");
+    const closeBtn = e.target.closest("#closeCart");
 
-  if (closeBtn) {
-    actions.closeCart();
-    return;
-  }
+    if (closeBtn) {
+      actions.closeCart();
+      return;
+    }
 
-  const btn = e.target.closest(".add");
+    const btn = e.target.closest(".add");
 
-  if (!btn) return;
+    if (!btn) return;
 
-  actions.addToCart(btn.dataset.id);
+    actions.addToCart(btn.dataset.id);
 
-});
+    // Handle increaseQty
+    const increaseQtyBtn = e.target.closest(".increaseQty");
+    if (increaseQtyBtn) {
+      CartService.increaseQuantity(increaseQtyBtn.dataset.id);
+      return;
+    }
 
+    // Handle decreaseQty
+    const decreaseQtyBtn = e.target.closest(".decreaseQty");
+    if (decreaseQtyBtn) {
+      CartService.decreaseQuantity(decreaseQtyBtn.dataset.id);
+      return;
+    }
+
+    // Handle cart-item__remove
+    const removeItemBtn = e.target.closest(".cart-item__remove");
+    if (removeItemBtn) {
+      CartService.removeItem(removeItemBtn.dataset.id);
+      return;
+    }
+  });
 }
+
 /* =========================
    EXPORT
 ========================= */

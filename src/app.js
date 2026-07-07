@@ -10,6 +10,7 @@ import { Header } from "./components/layout/Header.js";
 import { HomePage } from "./pages/home.js";
 import { ShopPage } from "./pages/shop.js";
 import { CartDrawer } from "./components/cart/CartDrawer.js";
+import { CartService } from "./services/cart.service.js"; // Import CartService
 
 /* =========================
    ROOT
@@ -161,7 +162,7 @@ function bindEvents() {
     // Handle increaseQty
     const increaseQtyBtn = e.target.closest(".increaseQty");
     if (increaseQtyBtn) {
-      CartService.increaseQuantity(increaseQtyBtn.dataset.id);
+      CartService.increaseQuantity(increaseQtyBtn.dataset.id); // Use existing API
       return;
     }
 

@@ -18,25 +18,6 @@ export function CartDrawer(state) {
     })
     .filter(Boolean);
 
-  // Add event listeners for quantity controls and remove button
-  document.querySelectorAll('.cart-item__qty-control').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const productId = e.target.id.split('-')[2];
-      if (e.target.classList.contains('increaseQty')) {
-        CartService.add(productId);
-      } else if (e.target.classList.contains('decreaseQty')) {
-        CartService.decreaseQuantity(productId);
-      }
-    });
-  });
-
-  document.querySelectorAll('.cart-item__remove').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const productId = e.target.id.split('-')[2];
-      CartService.removeItem(productId);
-    });
-  });
-
   return `
     <div class="cart-overlay ${state.isCartOpen ? "open" : ""}">
 

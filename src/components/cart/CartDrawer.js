@@ -53,12 +53,13 @@ export function CartDrawer(state) {
 
                     <h4 class="cart-item__title">
                       ${item.name}
-                    </h4>
+                    </4>
 
                     <div class="cart-item__qty-controls">
                       <button
                         id="decreaseQty-${item.id}"
                         class="cart-item__qty-control decreaseQty"
+                        data-id="${item.id}" <!-- Add this line -->
                         type="button"
                       >
                         -
@@ -67,6 +68,7 @@ export function CartDrawer(state) {
                       <button
                         id="increaseQty-${item.id}"
                         class="cart-item__qty-control increaseQty"
+                        data-id="${item.id}" <!-- Add this line -->
                         type="button"
                       >
                         +
@@ -81,6 +83,7 @@ export function CartDrawer(state) {
                     <button
                       id="removeItem-${item.id}"
                       class="cart-item__remove"
+                      data-id="${item.id}" <!-- Add this line -->
                       type="button"
                     >
                       حذف

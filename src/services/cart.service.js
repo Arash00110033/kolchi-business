@@ -21,18 +21,16 @@ export const CartService = {
     actions.addToCart(productId);
   },
 
-  remove(productId) {
+  decreaseQuantity(productId) {
+    const cartItem = getState().cart.find(item => item.id === productId);
+
+    if (cartItem && cartItem.qty > 1) {
+      actions.updateCartItemQty(productId, cartItem.qty - 1);
+    }
+  },
+
+  removeItem(productId) {
     actions.removeFromCart(productId);
-  },
-
-  clear() {
-    actions.clearCart();
-  },
-
-  has(productId) {
-    return getState().cart.some(
-      item => item.id === productId
-    );
   }
 
 };

@@ -1,12 +1,5 @@
-/**
- * -------------------------------------------------------
- * Kolchi Business
- * Cart Drawer
- * Layer: Component
- * -------------------------------------------------------
- */
-
 import { ProductService } from "../../services/product.service.js";
+import { actions } from "../../store/store.js";
 
 export function CartDrawer(state) {
 
@@ -24,6 +17,25 @@ export function CartDrawer(state) {
 
     })
     .filter(Boolean);
+
+  // Add event listeners for quantity controls and remove button
+  document.querySelectorAll('.cart-item__qty-control').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const productId = e.target.id.split('-')[2];
+      if (e.target.classList.contains('increaseQty')) {
+        CartService.add(productId);
+      } else if (e.target.classList.contains('decreaseQty')) {
+        CartService.decreaseQuantity(productId);
+      }
+    });
+  });
+
+  document.querySelectorAll('.cart-item__remove').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const productId = e.target.id.split('-')[2];
+      CartService.removeItem(productId);
+    });
+  });
 
   return `
     <div class="cart-overlay ${state.isCartOpen ? "open" : ""}">
@@ -103,24 +115,4 @@ export function CartDrawer(state) {
 
     </div>
   `;
-
-  // Add event listeners for quantity controls and remove button
-  document.querySelectorAll('.cart-item__qty-control').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const productId = e.target.id.split('-')[2];
-      if (e.target.classList.contains('increaseQty')) {
-        CartService.add(productId);
-      } else if (e.target.classList.contains('decreaseQty')) {
-        CartService.remove(productId);
-      }
-    });
-  });
-
-  document.querySelectorAll('.cart-item__remove').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const productId = e.target.id.split('-')[2];
-      CartService.remove(productId);
-    });
-  });
-
 }

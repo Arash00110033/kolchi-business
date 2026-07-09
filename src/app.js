@@ -112,14 +112,24 @@ function render() {
 ========================= */
 
 function bindEvents() {
-
+  let searchDebounceTimer = null;
   document.addEventListener("input", (e) => {
 
     if (e.target.id === "search") {
-      console.log("Search:", e.target.value);
-      actions.setQuery(e.target.value);
-    }
 
+     console.log("Search:", e.target.value);
+
+  clearTimeout(searchDebounceTimer);
+
+      const value = e.target.value;
+
+      searchDebounceTimer = setTimeout(() => {
+
+    actions.setQuery(value);
+
+   }, 300);
+
+   }
   });
 
   document.addEventListener("change", (e) => {

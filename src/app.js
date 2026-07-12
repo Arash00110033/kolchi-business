@@ -189,10 +189,10 @@ function bindEvents() {
       CartService.removeItem(removeItemBtn.dataset.id);
       return;
     }
-  });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.id === "clearSearch") {
+    // Handle clearSearch
+    const clearSearchBtn = e.target.closest("#clearSearch");
+    if (clearSearchBtn) {
       const input = document.getElementById("search");
       if (input) {
         input.value = "";

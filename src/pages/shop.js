@@ -12,7 +12,7 @@ import { getState } from "../store/store.js";
 export function ShopPage() {
 
   const state = getState();
-console.log("Shop state:", state);
+  // console.log("Shop state:", state); // Removed this line
   const products = ProductService.getProducts({
     query: state.query,
     category: state.category,

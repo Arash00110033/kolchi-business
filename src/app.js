@@ -190,6 +190,16 @@ function bindEvents() {
       return;
     }
   });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "clearSearch") {
+      const input = document.getElementById("search");
+      if (input) {
+        input.value = "";
+      }
+      actions.setQuery("");
+    }
+  });
 }
 
 /* =========================

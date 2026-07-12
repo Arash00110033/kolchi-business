@@ -22,6 +22,13 @@ export function ShopPage() {
   return `
     <section class="shop-page">
 
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Search..." value="${state.query}" />
+        <button id="clearSearch" ${state.query ? "" : "style='display:none'"}>
+          Clear
+        </button>
+      </div>
+
       ${ProductGrid(products)}
 
     </section>

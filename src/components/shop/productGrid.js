@@ -21,6 +21,18 @@ export function ProductGrid(products = []) {
   }
 
   return `
+  const count = products.length;
+  return 
+  <div class="product-grid-header">
+    <span class="product-count">
+      ${count} محصول یافت شد
+    </span>
+  </div>
+
+  <section class="product-grid">
+    ${products.map(ProductCard).join("")}
+  </section>
+   ;
     <section class="product-grid">
 
       ${products.map(ProductCard).join("")}

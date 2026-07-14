@@ -16,8 +16,10 @@ export function ShopPage() {
   const products = ProductService.getProducts({
     query: state.query,
     category: state.category,
-    brand: state.brand
+    brand: state.brand,
+    sort: state.sort
   });
+   const resultCount = products.length;
 
   return `
     <section class="shop-page">
@@ -28,7 +30,9 @@ export function ShopPage() {
           Clear
         </button>
       </div>
-
+      <div class="shop-result-count">
+        ${resultCount} محصول پیدا شد
+      </div>
       ${ProductGrid(products)}
 
     </section>

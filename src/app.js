@@ -112,7 +112,16 @@ function render() {
 ========================= */
 
 function bindEvents() {
+  
   let searchDebounceTimer = null;
+  
+  document.addEventListener("keydown", (e) => {
+
+    if (e.key === "Escape") {
+      actions.closeCart();
+    }
+
+  });
   document.addEventListener("input", (e) => {
 
     if (e.target.id === "search") {
@@ -149,57 +158,69 @@ function bindEvents() {
 
   });
 
-  document.addEventListener("click", (e) => {
+ document.addEventListener("click", (e) => {
 
-    if (e.target.id === "cartBtn") {
-      actions.toggleCart();
-      return;
+  // Open cart
+  if (e.target.id === "cartBtn") {
+    actions.toggleCart();
+    return;
+  }
+
+  // Close cart
+  const closeBtn = e.target.closest("#closeCart");
+  if (closeBtn) {
+    actions.closeCart();
+    return;
+  }
+  const overlay = e.target.closest(".cart-overlay");
+
+  if (overlay && e.target === overlay) {
+    actions.closeCart();
+    return;
+}
+
+  // Add to cart
+  const addBtn = e.target.closest(".add");
+  if (addBtn) {
+    actions.addToCart(addBtn.dataset.id);
+    return;
+  }
+
+  // Increase quantity
+  const increaseQtyBtn = e.target.closest(".increaseQty");
+  if (increaseQtyBtn) {
+    CartService.increaseQuantity(increaseQtyBtn.dataset.id);
+    return;
+  }
+
+  // Decrease quantity
+  const decreaseQtyBtn = e.target.closest(".decreaseQty");
+  if (decreaseQtyBtn) {
+    CartService.decreaseQuantity(decreaseQtyBtn.dataset.id);
+    return;
+  }
+
+  // Remove item
+  const removeItemBtn = e.target.closest(".cart-item__remove");
+  if (removeItemBtn) {
+    CartService.removeItem(removeItemBtn.dataset.id);
+    return;
+  }
+
+  // Clear search
+  const clearSearchBtn = e.target.closest("#clearSearch");
+  if (clearSearchBtn) {
+    const input = document.getElementById("search");
+
+    if (input) {
+      input.value = "";
     }
 
-    const closeBtn = e.target.closest("#closeCart");
+    actions.setQuery("");
+    return;
+  }
 
-    if (closeBtn) {
-      actions.closeCart();
-      return;
-    }
-
-    const btn = e.target.closest(".add");
-
-    if (!btn) return;
-
-    actions.addToCart(btn.dataset.id);
-
-    // Handle increaseQty
-    const increaseQtyBtn = e.target.closest(".increaseQty");
-    if (increaseQtyBtn) {
-      CartService.increaseQuantity(increaseQtyBtn.dataset.id); // Use existing API
-      return;
-    }
-
-    // Handle decreaseQty
-    const decreaseQtyBtn = e.target.closest(".decreaseQty");
-    if (decreaseQtyBtn) {
-      CartService.decreaseQuantity(decreaseQtyBtn.dataset.id);
-      return;
-    }
-
-    // Handle cart-item__remove
-    const removeItemBtn = e.target.closest(".cart-item__remove");
-    if (removeItemBtn) {
-      CartService.removeItem(removeItemBtn.dataset.id);
-      return;
-    }
-
-    // Handle clearSearch
-    const clearSearchBtn = e.target.closest("#clearSearch");
-    if (clearSearchBtn) {
-      const input = document.getElementById("search");
-      if (input) {
-        input.value = "";
-      }
-      actions.setQuery("");
-    }
-  });
+});
 }
 
 /* =========================

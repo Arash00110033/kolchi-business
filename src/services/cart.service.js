@@ -21,11 +21,31 @@ export const CartService = {
     actions.addToCart(productId);
   },
 
-  decreaseQuantity(productId) {
-    const cartItem = getState().cart.find(item => item.id === productId);
+  increaseQuantity(productId) {
+    const cartItem = getState().cart.find(
+      item => item.id === productId
+    );
 
-    if (cartItem && cartItem.qty > 1) {
-      actions.updateCartItemQty(productId, cartItem.qty - 1);
+    if (!cartItem) return;
+
+    actions.updateCartItemQty(
+      productId,
+      cartItem.qty + 1
+    );
+  },
+
+  decreaseQuantity(productId) {
+    const cartItem = getState().cart.find(
+      item => item.id === productId
+    );
+
+    if (!cartItem) return;
+
+    if (cartItem.qty > 1) {
+      actions.updateCartItemQty(
+        productId,
+        cartItem.qty - 1
+      );
     }
   },
 

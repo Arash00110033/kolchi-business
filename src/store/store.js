@@ -93,6 +93,20 @@ export function dispatch(action) {
       }
       break;
     }
+    case "UPDATE_CART_ITEM_QTY": {
+      const { id, qty} = action.payload;
+
+      state = {
+        ...state,
+        cart: state.cart.map(item =>
+          item.id === id
+            ? { ...item,qty }
+            : item
+        )
+      };
+
+      break;
+    }
 
     case "REMOVE_FROM_CART": {
       const id = action.payload;
@@ -167,6 +181,7 @@ export const actions = {
       payload: valiu
     }),
   addToCart: (id) => dispatch({ type: "ADD_TO_CART", payload: id }),
+  updateCartItemQty: (id, qty) => dispatch({type: "UPDATE_CART_ITEM_QTY", payload: {id,qty}}),
   removeFromCart: (id) => dispatch({ type: "REMOVE_FROM_CART", payload: id }),
   clearCart: () => dispatch({ type: "CLEAR_CART" }),
   toggleCart: () =>

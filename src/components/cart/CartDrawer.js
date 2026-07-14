@@ -1,7 +1,18 @@
 import { ProductService } from "../../services/product.service.js";
-import { actions } from "../../store/store.js";
-
+import { CartItem } from "./CartItem.js";
+import { CartFooter } from "./CartFooter.js";
+import { CartEmpty } from "./CartEmpty.js";
 export function CartDrawer(state) {
+
+  const totalPrice = state.cart.reduce((total, cartItem) => {
+
+    const product = ProductService.getById(cartItem.id);
+
+    if (!product) return total;
+
+    return total + (product.price * cartItem.qty);
+
+  }, 0);
 
   const items = state.cart
     .map(item => {
@@ -41,59 +52,22 @@ export function CartDrawer(state) {
 
           ${
             items.length === 0
-              ? `
-                <p class="cart-empty">
-                  سبد خرید خالی است.
-                </p>
-              `
-              : items.map(item => `
-                  <article class="cart-item">
-
-                    <img src="${item.icon}" alt="${item.name}" class="cart-item__icon" />
-
-                    <h4 class="cart-item__title">
-                      ${item.name}
-                    </4>
-
-                    <div class="cart-item__qty-controls">
-                      <button
-                        id="decreaseQty-${item.id}"
-                        class="cart-item__qty-control decreaseQty"
-                        data-id="${item.id}" <!-- Add this line -->
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <span class="cart-item__qty-value">${item.qty}</span>
-                      <button
-                        id="increaseQty-${item.id}"
-                        class="cart-item__qty-control increaseQty"
-                        data-id="${item.id}" <!-- Add this line -->
-                        type="button"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <p class="cart-item__price">
-                      ${Number(item.price).toLocaleString("fa-IR")}
-                      تومان
-                    </p>
-
-                    <button
-                      id="removeItem-${item.id}"
-                      class="cart-item__remove"
-                      data-id="${item.id}" <!-- Add this line -->
-                      type="button"
-                    >
-                      حذف
-                    </button>
-
-                  </article>
-                `).join("")
+              ? CartEmpty()
+              : items.map(item =>
+                CartItem(item)).join("")
           }
 
         </div>
+
+        ${
+          items.length > 0
+            ? `
+              ${items.length > 0 ?
+              CartFooter(totalPrice) : ""}
+              }
+            `
+            : ""
+        }
 
       </aside>
 

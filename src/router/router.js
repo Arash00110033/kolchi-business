@@ -1,49 +1,103 @@
-import { renderApp } from "../app.js";
+/* ==================================================
+   ROUTER
+================================================== */
 
-/* =========================
+
+/* ==================================================
    ROUTES STATE
-========================= */
+================================================== */
 
-let currentRoute = "/";
+let currentRoute =
+  window.location.pathname;
 
-/* =========================
+
+/* ==================================================
    INIT ROUTER
-========================= */
+================================================== */
 
 export function initRouter() {
-  window.addEventListener("popstate", () => {
-    currentRoute = window.location.pathname;
-    renderApp(currentRoute);
-  });
 
-  document.addEventListener("click", (e) => {
-    const link = e.target.closest("[data-link]");
-    if (!link) return;
 
-    e.preventDefault();
+  /* ==================================================
+     BROWSER BACK / FORWARD
+  ================================================== */
 
-    const url = link.getAttribute("href");
+  window.addEventListener(
+    "popstate",
+    () => {
 
-    navigate(url);
-  });
+      currentRoute =
+        window.location.pathname;
+
+    }
+  );
+
+
+  /* ==================================================
+     INTERNAL NAVIGATION
+  ================================================== */
+
+  document.addEventListener(
+    "click",
+    (event) => {
+
+
+      const link =
+        event.target.closest(
+          "[data-link]"
+        );
+
+
+      if (!link) {
+
+        return;
+
+      }
+
+
+      event.preventDefault();
+
+
+      const url =
+        link.getAttribute(
+          "href"
+        );
+
+
+      navigate(url);
+
+    }
+  );
+
 }
 
-/* =========================
+
+/* ==================================================
    NAVIGATE
-========================= */
+================================================== */
 
 export function navigate(url) {
-  window.history.pushState({}, "", url);
 
-  currentRoute = url;
 
-  renderApp(currentRoute);
+  window.history.pushState(
+    {},
+    "",
+    url
+  );
+
+
+  currentRoute =
+    url;
+
 }
 
-/* =========================
+
+/* ==================================================
    GET ROUTE
-========================= */
+================================================== */
 
 export function getRoute() {
+
   return currentRoute;
+
 }

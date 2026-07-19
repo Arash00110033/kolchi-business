@@ -2,17 +2,15 @@ import { ProductService } from "../../services/product.service.js";
 import { CartItem } from "./CartItem.js";
 import { CartFooter } from "./CartFooter.js";
 import { CartEmpty } from "./CartEmpty.js";
+import { CartService } from "../../services/cart.service.js";
+
+/* ==========================================
+   CART DRAWER
+========================================== */
+
 export function CartDrawer(state) {
 
-  const totalPrice = state.cart.reduce((total, cartItem) => {
-
-    const product = ProductService.getById(cartItem.id);
-
-    if (!product) return total;
-
-    return total + (product.price * cartItem.qty);
-
-  }, 0);
+  const totalPrice = CartService.getTotalPrice();
 
   const items = state.cart
     .map(item => {
@@ -30,20 +28,37 @@ export function CartDrawer(state) {
     .filter(Boolean);
 
   return `
-    <div class="cart-overlay ${state.isCartOpen ? "open" : ""}">
+    <div
+      class="cart-overlay ${state.isCartOpen ? "open" : ""}"
+      aria-hidden="${state.isCartOpen ? "false" : "true"}"
+    >
 
-      <aside class="cart-drawer">
+      <aside
+        class="cart-drawer"
+        aria-label="سبد خرید"
+      >
 
         <header class="cart-drawer__header">
 
-          <h2>سبد خرید</h2>
+          <div class="cart-drawer__title">
+
+            <h2>
+              سبد خرید
+            </h2>
+
+            <span class="cart-drawer__count">
+              ${CartService.getTotalItems()} کالا
+            </span>
+
+          </div>
 
           <button
             id="closeCart"
             class="cart-close"
             type="button"
+            aria-label="بستن سبد خرید"
           >
-            ✕
+            ×
           </button>
 
         </header>
@@ -53,19 +68,16 @@ export function CartDrawer(state) {
           ${
             items.length === 0
               ? CartEmpty()
-              : items.map(item =>
-                CartItem(item)).join("")
+              : items
+                  .map(item => CartItem(item))
+                  .join("")
           }
 
         </div>
 
         ${
           items.length > 0
-            ? `
-              ${items.length > 0 ?
-              CartFooter(totalPrice) : ""}
-              }
-            `
+            ? CartFooter(totalPrice)
             : ""
         }
 

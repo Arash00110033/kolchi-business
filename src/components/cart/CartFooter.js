@@ -4,15 +4,21 @@ export function CartFooter(totalPrice) {
     <footer class="cart-footer">
 
       <div class="cart-footer__row">
-
         <span>جمع کل</span>
 
         <strong>
           ${totalPrice.toLocaleString("fa-IR")}
           تومان
         </strong>
-
       </div>
+
+      <button
+        id="clearCart"
+        class="btn btn-ghost btn-block"
+        type="button"
+      >
+        🗑 پاک کردن سبد خرید
+      </button>
 
       <button
         class="btn btn-primary btn-block"

@@ -9,6 +9,8 @@ const initialState = {
   sort:"default",
   cart: [],
   isCartOpen: false,
+  selectedProduct: null,
+  isProductModalOpen: false,
   wishlist: [],
   compare: [],
 
@@ -132,6 +134,27 @@ case "CLOSE_CART":
     isCartOpen: false
   };
   break;
+
+  case "OPEN_PRODUCT_MODAL":
+
+  state = {
+    ...state,
+    selectedProduct: action.payload,
+    isProductModalOpen: true
+  };
+
+  break;
+
+case "CLOSE_PRODUCT_MODAL":
+
+  state = {
+    ...state,
+    selectedProduct: null,
+    isProductModalOpen: false
+  };
+
+  break;
+
     /* ---------- USER ---------- */
     case "SET_USER":
       state = {
@@ -175,10 +198,10 @@ export const actions = {
   setQuery: (value) => dispatch({ type: "SET_QUERY", payload: value }),
   setCategory: (value) => dispatch({ type: "SET_CATEGORY", payload: value }),
   setBrand: (value) => dispatch({ type: "SET_BRAND", payload: value }),
-  setSort: (valiu) =>
+  setSort: (value) =>
     dispatch({
       type: "SET_SORT",
-      payload: valiu
+      payload: value
     }),
   addToCart: (id) => dispatch({ type: "ADD_TO_CART", payload: id }),
   updateCartItemQty: (id, qty) => dispatch({type: "UPDATE_CART_ITEM_QTY", payload: {id,qty}}),
@@ -193,5 +216,15 @@ export const actions = {
     dispatch({
       type: "CLOSE_CART"
    }),
+  openProductModal: (product) =>
+    dispatch({
+      type: "OPEN_PRODUCT_MODAL",
+      payload: product
+    }),
+  closeProductModal: ( ) =>
+    dispatch({
+      type: "CLOSE_PRODUCT_MODAL"
+    }),
   setUser: (user) => dispatch({ type: "SET_USER", payload: user })
+  
 };

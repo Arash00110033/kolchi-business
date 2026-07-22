@@ -1,373 +1,140 @@
-import {
-  getState,
-  actions
-} from "../store/store.js";
+import { actions } from "../store/store.js"; 
+import { CartService } from "../services/cart.service.js"; 
+import { ProductService } from "../services/product.service.js"; 
+import { showSuccessToast } from "../services/toast.service.js";
 
-import { CartService } from "../services/cart.service.js";
+/**
 
-import { ProductService } from "../services/product.service.js";
+Global click event delegation */ export function bindClickEvents() { document.addEventListener("click", (event) => { const target = event.target;
 
+if (!(target instanceof Element)) { return; }
 
-/* ==================================================
-   CLICK EVENTS
-================================================== */
+/* ================================================== OPEN CART ================================================== */
 
-export function bindClickEvents() {
+const cartButton = target.closest("#cartBtn");
 
+if (cartButton) { actions.toggleCart(); return; }
 
-  document.addEventListener(
-    "click",
-    (event) => {
+/* ================================================== CONTINUE SHOPPING ================================================== */
 
+const continueShoppingButton = target.closest("#continueShopping");
 
-      /* ==================================================
-         OPEN CART
-      ================================================== */
+if (continueShoppingButton) { actions.closeCart(); return; }
 
-      const cartButton =
-        event.target.closest("#cartBtn");
+/* ================================================== ADD TO CART ================================================== */
 
+const addToCartButton = target.closest('[data-action="add-to-cart"]');
 
-      if (cartButton) {
+if (addToCartButton) { event.stopPropagation();
 
-        actions.toggleCart();
+const productId = addToCartButton.dataset.id;
 
-        return;
+if (!productId) { return; }
 
-      }
+actions.addToCart(productId);
 
+showSuccessToast( "محصول با موفقیت به سبد خرید اضافه شد" );
 
-      /* ==================================================
-         CONTINUE SHOPPING
-      ================================================== */
+const originalText = addToCartButton.textContent;
 
-      const continueShoppingButton =
-        event.target.closest(
-          "#continueShopping"
-        );
+addToCartButton.classList.add("is-added");
 
+addToCartButton.textContent = "✓ اضافه شد";
 
-      if (continueShoppingButton) {
+addToCartButton.disabled = true;
 
-        actions.closeCart();
+setTimeout(() => { addToCartButton.classList.remove("is-added");
 
-        return;
+ addToCartButton.textContent =
+   originalText;
 
-      }
+ addToCartButton.disabled = false;
+}, 1200);
 
+return; }
 
-      /* ==================================================
-         ADD TO CART
-      ================================================== */
+/* ================================================== OPEN PRODUCT MODAL ================================================== */
 
-      const addToCartButton =
-        event.target.closest(
-          '[data-action="add-to-cart"]'
-        );
+const productCard = target.closest('[data-action="open-product-modal"]');
 
+if (productCard) { const productId = productCard.dataset.productId;
 
-      if (addToCartButton) {
+if (!productId) { return; }
 
+const product = ProductService.getById(productId);
 
-        event.stopPropagation();
+if (product) { actions.openProductModal(product); }
 
+return; }
 
-        const productId =
-          addToCartButton.dataset.id;
+/* ================================================== CLOSE PRODUCT MODAL ================================================== */
 
+const closeProductModalButton = target.closest("#closeProductModal");
 
-        actions.addToCart(productId);
+if (closeProductModalButton) { actions.closeProductModal(); return; }
 
+/* ================================================== CLOSE PRODUCT MODAL BY OVERLAY ================================================== */
 
-        /* =========================
-           VISUAL FEEDBACK
-        ========================= */
+const modalOverlay = target.closest(".modal");
 
-        const originalText =
-          addToCartButton.textContent;
+if ( modalOverlay && target === modalOverlay ) { actions.closeProductModal(); return; }
 
+/* ================================================== CLOSE CART ================================================== */
 
-        addToCartButton.classList.add(
-          "is-added"
-        );
+const closeCartButton = target.closest("#closeCart");
 
+if (closeCartButton) { actions.closeCart(); return; }
 
-        addToCartButton.textContent =
-          "✓ اضافه شد";
+/* ================================================== CLOSE CART BY OVERLAY ================================================== */
 
+const cartOverlay = target.closest(".cart-overlay");
 
-        addToCartButton.disabled =
-          true;
+if ( cartOverlay && target === cartOverlay ) { actions.closeCart(); return; }
 
+/* ================================================== INCREASE QUANTITY ================================================== */
 
-        setTimeout(() => {
+const increaseQuantityButton = target.closest(".increaseQty");
 
+if (increaseQuantityButton) { const productId = increaseQuantityButton.dataset.id;
 
-          addToCartButton.classList.remove(
-            "is-added"
-          );
+if (productId) { CartService.increaseQuantity(productId); }
 
+return; }
 
-          addToCartButton.textContent =
-            originalText;
+/* ================================================== DECREASE QUANTITY ================================================== */
 
+const decreaseQuantityButton = target.closest(".decreaseQty");
 
-          addToCartButton.disabled =
-            false;
+if (decreaseQuantityButton) { const productId = decreaseQuantityButton.dataset.id;
 
+if (productId) { CartService.decreaseQuantity(productId); }
 
-        }, 1200);
+return; }
 
+/* ================================================== REMOVE ITEM ================================================== */
 
-        return;
+const removeItemButton = target.closest(".cart-item__remove");
 
-      }
+if (removeItemButton) { const productId = removeItemButton.dataset.id;
 
+if (productId) { CartService.removeItem(productId); }
 
-      /* ==================================================
-         OPEN PRODUCT MODAL
-      ================================================== */
+return; }
 
-      const productCard =
-        event.target.closest(
-          '[data-action="open-product-modal"]'
-        );
+/* ================================================== CLEAR CART ================================================== */
 
+const clearCartButton = target.closest("#clearCart");
 
-      if (productCard) {
+if (clearCartButton) { CartService.clear(); return; }
 
+/* ================================================== CLEAR SEARCH ================================================== */
 
-        const productId =
-          productCard.dataset.productId;
+const clearSearchButton = target.closest("#clearSearch");
 
+if (clearSearchButton) { const searchInput = document.getElementById("search");
 
-        const product =
-          ProductService.getById(productId);
+if (searchInput) { searchInput.value = ""; }
 
+actions.setQuery("");
 
-        if (product) {
-
-          actions.openProductModal(product);
-
-        }
-
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLOSE PRODUCT MODAL
-      ================================================== */
-
-      const closeProductModalButton =
-        event.target.closest(
-          "#closeProductModal"
-        );
-
-
-      if (closeProductModalButton) {
-
-        actions.closeProductModal();
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLOSE PRODUCT MODAL
-         BY OVERLAY
-      ================================================== */
-
-      const modalOverlay =
-        event.target.closest(".modal");
-
-
-      if (
-        modalOverlay &&
-        event.target === modalOverlay
-      ) {
-
-        actions.closeProductModal();
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLOSE CART
-      ================================================== */
-
-      const closeCartButton =
-        event.target.closest(
-          "#closeCart"
-        );
-
-
-      if (closeCartButton) {
-
-        actions.closeCart();
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLOSE CART
-         BY OVERLAY
-      ================================================== */
-
-      const cartOverlay =
-        event.target.closest(
-          ".cart-overlay"
-        );
-
-
-      if (
-        cartOverlay &&
-        event.target === cartOverlay
-      ) {
-
-        actions.closeCart();
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         INCREASE QUANTITY
-      ================================================== */
-
-      const increaseQuantityButton =
-        event.target.closest(
-          ".increaseQty"
-        );
-
-
-      if (increaseQuantityButton) {
-
-
-        CartService.increaseQuantity(
-          increaseQuantityButton.dataset.id
-        );
-
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         DECREASE QUANTITY
-      ================================================== */
-
-      const decreaseQuantityButton =
-        event.target.closest(
-          ".decreaseQty"
-        );
-
-
-      if (decreaseQuantityButton) {
-
-
-        CartService.decreaseQuantity(
-          decreaseQuantityButton.dataset.id
-        );
-
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         REMOVE ITEM
-      ================================================== */
-
-      const removeItemButton =
-        event.target.closest(
-          ".cart-item__remove"
-        );
-
-
-      if (removeItemButton) {
-
-
-        CartService.removeItem(
-          removeItemButton.dataset.id
-        );
-
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLEAR CART
-      ================================================== */
-
-      const clearCartButton =
-        event.target.closest(
-          "#clearCart"
-        );
-
-
-      if (clearCartButton) {
-
-
-        CartService.clear();
-
-
-        return;
-
-      }
-
-
-      /* ==================================================
-         CLEAR SEARCH
-      ================================================== */
-
-      const clearSearchButton =
-        event.target.closest(
-          "#clearSearch"
-        );
-
-
-      if (clearSearchButton) {
-
-
-        const searchInput =
-          document.getElementById(
-            "search"
-          );
-
-
-        if (searchInput) {
-
-          searchInput.value =
-            "";
-
-        }
-
-
-        actions.setQuery(
-          ""
-        );
-
-
-        return;
-
-      }
-
-    }
-  );
-
-}
-
-
+return; } }); }

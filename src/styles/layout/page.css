@@ -1,0 +1,71 @@
+.page {
+  width: min(
+    var(--max),
+    calc(100% - 32px)
+  );
+
+  margin-inline: auto;
+
+  padding: 24px 0 30px;
+
+  display: grid;
+
+  gap: 22px;
+}
+
+.section {
+  display: grid;
+
+  gap: 16px;
+
+  padding: 22px;
+
+  border-radius: 28px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.7
+    );
+
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow);
+}
+
+.section-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: end;
+
+  gap: 16px;
+
+  flex-wrap: wrap;
+}
+
+.section-head h2 {
+  margin: 6px 0 0;
+
+  font-size:
+    clamp(
+      1.25rem,
+      2vw,
+      1.8rem
+    );
+}
+
+.section-meta {
+  display: flex;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  color: var(--muted);
+
+  font-size: 0.92rem;
+}

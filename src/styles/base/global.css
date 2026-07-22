@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(192, 138, 79, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      #fbf7f2 0%,
+      #f4ede5 100%
+    );
+
+  color: var(--text);
+
+  font-family:
+    "Vazirmatn",
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  line-height: 1.8;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.muted {
+  color: var(--muted);
+}

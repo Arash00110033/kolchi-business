@@ -1,20 +1,8 @@
-/**
- * -------------------------------------------------------
- * Kolchi Business
- * Product Card
- * -------------------------------------------------------
- * Layer: Components
- *
- * Responsibilities:
- * - نمایش اطلاعات محصول
- * - باز کردن Modal با کلیک روی کارت
- * - افزودن مستقیم محصول به سبد خرید با دکمه مستقل
- * -------------------------------------------------------
- */
-
 export function ProductCard(product) {
 
-  if (!product) return "";
+  if (!product) {
+    return "";
+  }
 
   return `
     <article

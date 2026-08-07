@@ -2,7 +2,7 @@ import { actions } from "../store/store.js";
 import { CartService } from "../services/cart.service.js"; 
 import { ProductService } from "../services/product.service.js"; 
 import { showSuccessToast } from "../services/toast.service.js";
-
+import { navigate } from "../router/router.js";
 /**
 
 Global click event delegation */ export function bindClickEvents() { document.addEventListener("click", (event) => { const target = event.target;
@@ -19,7 +19,29 @@ if (cartButton) { actions.toggleCart(); return; }
 
 const continueShoppingButton = target.closest("#continueShopping");
 
-if (continueShoppingButton) { actions.closeCart(); return; }
+if (continueShoppingButton) { 
+
+  actions.closeCart();
+
+  navigate("/shop");
+  
+  return;
+}
+
+/* ==================================================
+   CHECKOUT
+================================================== */
+
+const checkoutButton =
+  target.closest("#checkoutButton");
+
+if (checkoutButton) {
+
+  navigate("/checkout");
+
+  return;
+
+}
 
 /* ================================================== ADD TO CART ================================================== */
 
@@ -52,6 +74,29 @@ setTimeout(() => { addToCartButton.classList.remove("is-added");
 }, 1200);
 
 return; }
+
+/* ==================================================
+   TOGGLE WISHLIST
+================================================== */
+
+const wishlistButton =
+  target.closest('[data-action="toggle-wishlist"]');
+
+if (wishlistButton) {
+
+  event.stopPropagation();
+
+  const productId =
+    wishlistButton.dataset.id;
+
+  if (!productId) {
+    return;
+  }
+
+  actions.toggleWishlist(productId);
+
+  return;
+}
 
 /* ================================================== OPEN PRODUCT MODAL ================================================== */
 

@@ -15,25 +15,49 @@
  * -------------------------------------------------------
  */
 
-export function Header(state, cartCount) {
+export function Header(
+  state,
+  cartCount,
+  wishlistCount,
+  currentRoute
+) {
+
+  const isHome =
+  currentRoute === "/";
+
+  const isShop =
+  currentRoute === "/shop";
+
+  const isWishlist =
+  currentRoute === "/wishlist";
 
   return `
     <header class="topbar">
 
-      <div class="brand">
+      <div class="brand-block">
 
-        <a href="#/">
+        <a
+         href="/"
+         data-link
+        >
 
-          <span class="brand-logo">☕️</span>
+          <span class="brand-mark">☕️</span>
 
-          <span class="brand-name">
-            Kolchi
+          <span class="brand-copy">
+            <strong>
+              Kolchi
+            </strong>
+
+            <p>
+              Coffee Store
+            </p>
+
           </span>
 
         </a>
 
       </div>
-
+    <div class="topbar-center">
       <div class="searchbox">
 
         <input
@@ -96,14 +120,44 @@ export function Header(state, cartCount) {
     نام محصول
   </option>
 
-</select>
+          </select>
+
+        </div>
+
       </div>
+
+      <div class="topbar-right">
 
       <nav class="top-menu">
 
-        <a href="#/">خانه</a>
+        <a
+         href="/"
+         data-link
+         class="${isHome ? "active" : ""}"
+        >
+         خانه
+        </a>
 
-        <a href="#/shop">فروشگاه</a>
+        <a
+         href="/shop"
+         data-link
+         class="${isShop ? "active" : ""}"
+        >
+         فروشگاه
+        </a>
+
+        <a
+          href="/wishlist"
+          data-link
+          class="${isWishlist ? "active" : ""}"
+        >
+          ♡ علاقه‌مندی‌ها
+
+          <span class="wishlist-count">
+            ${wishlistCount}
+          </span>
+
+        </a>
 
       </nav>
 
@@ -119,6 +173,8 @@ export function Header(state, cartCount) {
         </span>
 
       </button>
+
+    </div>
 
     </header>
   `;

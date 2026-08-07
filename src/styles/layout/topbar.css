@@ -184,3 +184,126 @@
 
   cursor: pointer;
 }
+/* ==========================================
+   TOP MENU
+========================================== */
+
+.top-menu {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.top-menu a {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  text-decoration: none;
+
+  color: var(--text);
+
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+}
+
+
+.top-menu a:hover {
+
+  background: var(--surface-2);
+
+  transform: translateY(-1px);
+
+}
+
+
+.top-menu a.active {
+
+  background: var(--primary);
+
+  color: #fff;
+
+}
+
+
+/* ==========================================
+   BADGES
+========================================== */
+
+.wishlist-count,
+.cart-count {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 22px;
+
+  height: 22px;
+
+  padding: 0 6px;
+
+  border-radius: 999px;
+
+  background: var(--surface-2);
+
+  color: var(--primary);
+
+  font-size: 0.75rem;
+
+  font-weight: 800;
+
+}
+.topbar {
+
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(300px, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 20px;
+
+}
+
+
+.topbar-center {
+
+  display: flex;
+
+  justify-content: center;
+
+}
+
+
+.topbar-right {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+}

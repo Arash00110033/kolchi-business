@@ -79,7 +79,17 @@ export function initApp() {
 
   });
 
+  /*
+   * Re-render on route change.
+   */
 
+  window.addEventListener(
+    "routechange",
+    () => {
+
+      renderApp(app);
+  }
+);
   /*
    * Initial render.
    */

@@ -21,6 +21,7 @@ export function CartFooter(totalPrice) {
       </button>
 
       <button
+        id="continueShopping"
         class="btn btn-primary btn-block"
         type="button"
       >

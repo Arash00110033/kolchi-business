@@ -1,8 +1,35 @@
+import { getState } from "../../store/store.js";
+
+/**
+* -------------------------------------------------------
+* Kolchi Business
+* Product Card
+* Layer: Components / Shop
+* -------------------------------------------------------
+*
+* مسئولیت:
+* - نمایش اطلاعات محصول
+* - نمایش وضعیت Wishlist
+* - فراهم کردن تعامل با محصول
+*
+* منطق Wishlist در:
+*
+* src/store/store.js
+*
+* مدیریت می‌شود.
+* -------------------------------------------------------
+*/
+
 export function ProductCard(product) {
 
   if (!product) {
     return "";
   }
+
+  const state = getState();
+
+  const isInWishlist =
+    state.wishlist.includes(product.id);
 
   return `
     <article
@@ -18,6 +45,23 @@ export function ProductCard(product) {
         <span class="product-card__icon">
           ${product.icon ?? "☕️"}
         </span>
+
+        <button
+          class="product-card__wishlist ${
+            isInWishlist ? "is-active" : ""
+          }"
+          data-action="toggle-wishlist"
+          data-id="${product.id}"
+          type="button"
+          aria-label="${
+            isInWishlist
+              ? "حذف از علاقه‌مندی‌ها"
+              : "افزودن به علاقه‌مندی‌ها"
+          }"
+          aria-pressed="${isInWishlist}"
+        >
+          ${isInWishlist ? "♥" : "♡"}
+        </button>
 
       </div>
 

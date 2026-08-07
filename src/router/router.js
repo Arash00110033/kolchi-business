@@ -29,6 +29,10 @@ export function initRouter() {
       currentRoute =
         window.location.pathname;
 
+      window.dispatchEvent(
+        new Event("routechange")
+      )
+
     }
   );
 
@@ -89,6 +93,9 @@ export function navigate(url) {
   currentRoute =
     url;
 
+  window.dispatchEvent(
+    new PopStateEvent("popstate")
+  );
 }
 
 

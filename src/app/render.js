@@ -6,9 +6,13 @@ import { Header } from "../components/layout/Header.js";
 
 import { HomePage } from "../pages/home.js";
 import { ShopPage } from "../pages/shop.js";
+import { CartPage } from "../pages/cart.js";
+import { WishlistPage } from "../pages/wishlist.js";
+import { CheckoutPage } from "../pages/checkout.js";
 
 import { CartDrawer } from "../components/cart/CartDrawer.js";
 import { ProductModal } from "../components/shop/ProductModal.js";
+
 
 
 /* ==================================================
@@ -30,7 +34,7 @@ export function renderApp(app) {
     (total, item) => total + item.qty,
     0
   );
-
+  const wishlistCount = state.wishlist.length;
 
   /* ==================================================
      PAGE
@@ -57,19 +61,19 @@ export function renderApp(app) {
 
     case "/cart":
 
-      page = `
+      page = CartPage();
 
-        <section class="section">
+      break;
 
-          <h2>سبد خرید</h2>
+    case "/wishlist":
 
-          <p>
-            این صفحه در Sprint بعدی تکمیل خواهد شد.
-          </p>
+      page = WishlistPage();
 
-        </section>
+      break;
 
-      `;
+    case "/checkout":
+
+      page = CheckoutPage();
 
       break;
 
@@ -99,7 +103,12 @@ export function renderApp(app) {
 
   app.innerHTML = `
 
-    ${Header(state, cartCount)}
+    ${Header(
+      state,
+      cartCount,
+      wishlistCount,
+      route
+    )}
 
     ${CartDrawer(state)}
 

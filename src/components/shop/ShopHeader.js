@@ -17,10 +17,11 @@ export function ShopPage() {
   const products = ProductService.getProducts({
     query: state.query,
     category: state.category,
-    brand: state.brand
+    brand: state.brand,
+    sort: state.sort
   });
 
-  return 
+  return `
     <section class="section">
 
       ${ShopHeader(products.length)}
@@ -40,6 +41,6 @@ export function ShopPage() {
       </div>
 
     </section>
-  ;
+  `;
 
 }

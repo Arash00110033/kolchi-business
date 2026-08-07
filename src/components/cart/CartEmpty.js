@@ -1,27 +1,41 @@
-export function CartEmpty() {
-  return `
-    <div class="cart-empty">
+/**
+ * -------------------------------------------------------
+ * Kolchi Business
+ * Cart Empty State
+ * -------------------------------------------------------
+ */
 
-      <div class="cart-empty__icon">
+export function CartEmpty() {
+
+  return `
+
+    <div class="empty-state cart-empty">
+
+      <div class="empty-state__icon">
         🛒
       </div>
 
-      <h3 class="cart-empty__title">
+
+      <h3>
         سبد خرید شما خالی است
       </h3>
 
-      <p class="cart-empty__text">
+
+      <p>
         هنوز محصولی به سبد خرید اضافه نکرده‌اید.
       </p>
 
-      <button
-        class="btn btn-primary btn-block"
-        id="continueShopping"
-        type="button"
+
+      <a
+        href="/shop"
+        data-link
+        class="btn btn-primary"
       >
         مشاهده محصولات
-      </button>
+      </a>
 
     </div>
+
   `;
+
 }

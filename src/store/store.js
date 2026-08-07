@@ -6,40 +6,117 @@ const initialState = {
   query: "",
   category: "all",
   brand: "all",
-  sort:"default",
+  sort: "default",
+
   cart: [],
+
   isCartOpen: false,
+
   selectedProduct: null,
   isProductModalOpen: false,
+
   wishlist: [],
+
   compare: [],
 
   user: null
 };
 
+
+/* =========================
+   PERSISTENCE
+========================= */
+
+const STORAGE_KEY =
+  "kolchi-business-state";
+
+
+function loadPersistedState() {
+
+  try {
+
+    const savedState =
+      localStorage.getItem(STORAGE_KEY);
+
+    if (!savedState) {
+
+      return structuredClone(initialState);
+
+    }
+
+    const parsedState =
+      JSON.parse(savedState);
+
+
+    return {
+
+      ...structuredClone(initialState),
+
+      cart: Array.isArray(parsedState.cart)
+        ? parsedState.cart
+        : [],
+
+      wishlist: Array.isArray(parsedState.wishlist)
+        ? parsedState.wishlist
+        : [],
+
+      compare: Array.isArray(parsedState.compare)
+        ? parsedState.compare
+        : [],
+
+      user: parsedState.user ?? null
+
+    };
+
+  } catch (error) {
+
+    console.warn(
+      "Failed to load persisted state:",
+      error
+    );
+
+    return structuredClone(initialState);
+
+  }
+
+}
+
+
 /* =========================
    INTERNAL STATE
 ========================= */
 
-let state = structuredClone(initialState);
-const listeners = new Set();
+let state =
+  loadPersistedState();
+
+const listeners =
+  new Set();
+
 
 /* =========================
    GET STATE (READ ONLY)
 ========================= */
 
 export function getState() {
+
   return state;
+
 }
+
 
 /* =========================
    RESET STATE
 ========================= */
 
 export function resetState() {
-  state = structuredClone(initialState);
+
+  state =
+    structuredClone(initialState);
+
   notify();
+
 }
+
 
 /* =========================
    DISPATCH (CORE ENGINE)
@@ -47,184 +124,651 @@ export function resetState() {
 ========================= */
 
 export function dispatch(action) {
+
   if (!action || !action.type) {
-    console.warn("Invalid action");
+
+    console.warn(
+      "Invalid action"
+    );
+
     return;
+
   }
+
 
   switch (action.type) {
 
+
     /* ---------- UI STATE ---------- */
+
     case "SET_QUERY":
+
       state = {
+
         ...state,
+
         query: action.payload
+
       };
+
       break;
+
 
     case "SET_CATEGORY":
+
       state = {
+
         ...state,
+
         category: action.payload
+
       };
+
       break;
+
 
     case "SET_BRAND":
+
       state = {
+
         ...state,
+
         brand: action.payload
+
       };
+
       break;
 
-      case "SET_SORT":
-        state = {
-          ...state,
-          sort: action.payload
-        };
+
+    case "SET_SORT":
+
+      state = {
+
+        ...state,
+
+        sort: action.payload
+
+      };
+
       break;
+
+
+    /* ---------- WISHLIST ---------- */
+
+    case "TOGGLE_WISHLIST": {
+
+      const id =
+        action.payload;
+
+
+      const isInWishlist =
+        state.wishlist.includes(id);
+
+
+      state = {
+
+        ...state,
+
+        wishlist: isInWishlist
+
+          ? state.wishlist.filter(
+
+              productId =>
+                productId !== id
+
+            )
+
+          : [
+
+              ...state.wishlist,
+
+              id
+
+            ]
+
+      };
+
+
+      break;
+
+    }
+
+
     /* ---------- CART ---------- */
-    case "ADD_TO_CART": {
-      const id = action.payload;
 
-      const existing = state.cart.find(i => i.id === id);
+    case "ADD_TO_CART": {
+
+      const id =
+        action.payload;
+
+
+      const existing =
+        state.cart.find(
+
+          item =>
+            item.id === id
+
+        );
+
 
       if (existing) {
-        existing.qty += 1;
+
+        state = {
+
+          ...state,
+
+          cart: state.cart.map(
+
+            item =>
+
+              item.id === id
+
+                ? {
+
+                    ...item,
+
+                    qty: item.qty + 1
+
+                  }
+
+                : item
+
+          )
+
+        };
+
       } else {
-        state.cart = [...state.cart, { id, qty: 1 }];
+
+        state = {
+
+          ...state,
+
+          cart: [
+
+            ...state.cart,
+
+            {
+
+              id,
+
+              qty: 1
+
+            }
+
+          ]
+
+        };
+
       }
+
+
       break;
+
     }
+
+
     case "UPDATE_CART_ITEM_QTY": {
-      const { id, qty} = action.payload;
+
+      const {
+
+        id,
+
+        qty
+
+      } = action.payload;
+
 
       state = {
+
         ...state,
-        cart: state.cart.map(item =>
-          item.id === id
-            ? { ...item,qty }
-            : item
+
+        cart: state.cart.map(
+
+          item =>
+
+            item.id === id
+
+              ? {
+
+                  ...item,
+
+                  qty
+
+                }
+
+              : item
+
         )
+
       };
 
+
       break;
+
     }
+
 
     case "REMOVE_FROM_CART": {
-      const id = action.payload;
-      state.cart = state.cart.filter(i => i.id !== id);
+
+      const id =
+        action.payload;
+
+
+      state = {
+
+        ...state,
+
+        cart: state.cart.filter(
+
+          item =>
+            item.id !== id
+
+        )
+
+      };
+
+
       break;
+
     }
 
+
     case "CLEAR_CART":
-      state.cart = [];
+
+      state = {
+
+        ...state,
+
+        cart: []
+
+      };
+
       break;
-    
-      /* ---------- CART DRAWER ---------- */
+
+
+    /* ---------- CART DRAWER ---------- */
 
     case "TOGGLE_CART":
+
       state = {
+
         ...state,
-       isCartOpen: !state.isCartOpen
-       };
-    break;
-case "CLOSE_CART":
-  state = {
-    ...state,
-    isCartOpen: false
-  };
-  break;
 
-  case "OPEN_PRODUCT_MODAL":
+        isCartOpen:
+          !state.isCartOpen
 
-  state = {
-    ...state,
-    selectedProduct: action.payload,
-    isProductModalOpen: true
-  };
-
-  break;
-
-case "CLOSE_PRODUCT_MODAL":
-
-  state = {
-    ...state,
-    selectedProduct: null,
-    isProductModalOpen: false
-  };
-
-  break;
-
-    /* ---------- USER ---------- */
-    case "SET_USER":
-      state = {
-        ...state,
-        user: action.payload
       };
+
       break;
 
+
+    case "CLOSE_CART":
+
+      state = {
+
+        ...state,
+
+        isCartOpen: false
+
+      };
+
+      break;
+
+
+    /* ---------- PRODUCT MODAL ---------- */
+
+    case "OPEN_PRODUCT_MODAL":
+
+      state = {
+
+        ...state,
+
+        selectedProduct:
+          action.payload,
+
+        isProductModalOpen:
+          true
+
+      };
+
+      break;
+
+
+    case "CLOSE_PRODUCT_MODAL":
+
+      state = {
+
+        ...state,
+
+        selectedProduct:
+          null,
+
+        isProductModalOpen:
+          false
+
+      };
+
+      break;
+
+
+    /* ---------- USER ---------- */
+
+    case "SET_USER":
+
+      state = {
+
+        ...state,
+
+        user:
+          action.payload
+
+      };
+
+      break;
+
+
+    /* ---------- UNKNOWN ACTION ---------- */
+
     default:
-      console.warn(`Unknown action type: ${action.type}`);
+
+      console.warn(
+
+        `Unknown action type: ${action.type}`
+
+      );
+
       return;
+
   }
 
+
   notify();
+
 }
+
 
 /* =========================
    SUBSCRIBE SYSTEM
 ========================= */
 
 export function subscribe(listener) {
+
   listeners.add(listener);
 
+
   // return unsubscribe function
-  return () => listeners.delete(listener);
+
+  return () =>
+    listeners.delete(listener);
+
 }
+
+
+/* =========================
+   PERSIST STATE
+========================= */
+
+function persistState() {
+
+  try {
+
+    const persistedState = {
+
+      cart:
+        state.cart,
+
+      wishlist:
+        state.wishlist,
+
+      compare:
+        state.compare,
+
+      user:
+        state.user
+
+    };
+
+
+    localStorage.setItem(
+
+      STORAGE_KEY,
+
+      JSON.stringify(
+        persistedState
+      )
+
+    );
+
+  } catch (error) {
+
+    console.warn(
+
+      "Failed to persist state:",
+
+      error
+
+    );
+
+  }
+
+}
+
 
 /* =========================
    NOTIFY RENDERERS
 ========================= */
 
 function notify() {
-  listeners.forEach(listener => listener(state));
+
+
+  persistState();
+
+
+  listeners.forEach(
+
+    listener =>
+      listener(state)
+
+  );
+
 }
 
+
 /* =========================
-   HELPERS (optional future use)
+   ACTION HELPERS
 ========================= */
 
 export const actions = {
-  setQuery: (value) => dispatch({ type: "SET_QUERY", payload: value }),
-  setCategory: (value) => dispatch({ type: "SET_CATEGORY", payload: value }),
-  setBrand: (value) => dispatch({ type: "SET_BRAND", payload: value }),
-  setSort: (value) =>
+
+
+  /* ---------- SEARCH ---------- */
+
+  setQuery: (value) =>
+
     dispatch({
-      type: "SET_SORT",
-      payload: value
+
+      type:
+        "SET_QUERY",
+
+      payload:
+        value
+
     }),
-  addToCart: (id) => dispatch({ type: "ADD_TO_CART", payload: id }),
-  updateCartItemQty: (id, qty) => dispatch({type: "UPDATE_CART_ITEM_QTY", payload: {id,qty}}),
-  removeFromCart: (id) => dispatch({ type: "REMOVE_FROM_CART", payload: id }),
-  clearCart: () => dispatch({ type: "CLEAR_CART" }),
-  toggleCart: () =>
+
+
+  /* ---------- FILTERS ---------- */
+
+  setCategory: (value) =>
+
     dispatch({
-      type: "TOGGLE_CART"
-   }),
+
+      type:
+        "SET_CATEGORY",
+
+      payload:
+        value
+
+    }),
+
+
+  setBrand: (value) =>
+
+    dispatch({
+
+      type:
+        "SET_BRAND",
+
+      payload:
+        value
+
+    }),
+
+
+  /* ---------- SORT ---------- */
+
+  setSort: (value) =>
+
+    dispatch({
+
+      type:
+        "SET_SORT",
+
+      payload:
+        value
+
+    }),
+
+
+  /* ---------- CART ---------- */
+
+  addToCart: (id) =>
+
+    dispatch({
+
+      type:
+        "ADD_TO_CART",
+
+      payload:
+        id
+
+    }),
+
+
+  updateCartItemQty: (id, qty) =>
+
+    dispatch({
+
+      type:
+        "UPDATE_CART_ITEM_QTY",
+
+      payload: {
+
+        id,
+
+        qty
+
+      }
+
+    }),
+
+
+  removeFromCart: (id) =>
+
+    dispatch({
+
+      type:
+        "REMOVE_FROM_CART",
+
+      payload:
+        id
+
+    }),
+
+
+  clearCart: () =>
+
+    dispatch({
+
+      type:
+        "CLEAR_CART"
+
+    }),
+
+
+  /* ---------- CART DRAWER ---------- */
+
+  toggleCart: () =>
+
+    dispatch({
+
+      type:
+        "TOGGLE_CART"
+
+    }),
+
 
   closeCart: () =>
+
     dispatch({
-      type: "CLOSE_CART"
-   }),
+
+      type:
+        "CLOSE_CART"
+
+    }),
+
+
+  /* ---------- PRODUCT MODAL ---------- */
+
   openProductModal: (product) =>
+
     dispatch({
-      type: "OPEN_PRODUCT_MODAL",
-      payload: product
+
+      type:
+        "OPEN_PRODUCT_MODAL",
+
+      payload:
+        product
+
     }),
-  closeProductModal: ( ) =>
+
+
+  closeProductModal: () =>
+
     dispatch({
-      type: "CLOSE_PRODUCT_MODAL"
+
+      type:
+        "CLOSE_PRODUCT_MODAL"
+
     }),
-  setUser: (user) => dispatch({ type: "SET_USER", payload: user })
-  
+
+
+  /* ---------- WISHLIST ---------- */
+
+  toggleWishlist: (id) =>
+
+    dispatch({
+
+      type:
+        "TOGGLE_WISHLIST",
+
+      payload:
+        id
+
+    }),
+
+
+  /* ---------- USER ---------- */
+
+  setUser: (user) =>
+
+    dispatch({
+
+      type:
+        "SET_USER",
+
+      payload:
+        user
+
+    })
+
 };

@@ -14,6 +14,7 @@
 @import "./components/products.css";
 @import "./components/product-modal.css";
 @import "./components/cart.css";
+@import "./components/cart-page.css";
 @import "./components/toast.css";
 
 @import "./responsive.css";

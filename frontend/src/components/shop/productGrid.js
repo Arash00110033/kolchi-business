@@ -19,7 +19,7 @@ export function ProductGrid(
     <section class="product-grid">
 
       ${Array.from({ length: 6 })
-        .map(() => 
+        .map(() => `
 
           <article class="product-card skeleton">
 
@@ -33,7 +33,7 @@ export function ProductGrid(
 
           </article>
 
-        )
+        `)
         .join("")}
 
     </section>

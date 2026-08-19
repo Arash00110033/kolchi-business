@@ -1,5 +1,9 @@
-from rest_framework import generics, permissions
+# User authentication API views: register, login, logout, refresh, and profile.
+
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .serializers import (
@@ -33,6 +37,37 @@ class LoginAPIView(generics.GenericAPIView):
         token_data = serializer.create_token_response()
 
         return Response(token_data)
+
+
+class LogoutAPIView(generics.GenericAPIView):
+    """
+    Blacklist the user's refresh token and invalidate the session.
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.data.get("refresh")
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            return Response(
+                {"detail": "Invalid or expired refresh token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {"detail": "Logout successful."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class MeAPIView(generics.RetrieveAPIView):

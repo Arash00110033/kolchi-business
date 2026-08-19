@@ -1,7 +1,10 @@
+# Authentication API routes for user registration, login, logout, refresh, and profile.
+
 from django.urls import path
 
 from .views import (
     LoginAPIView,
+    LogoutAPIView,
     MeAPIView,
     RefreshTokenAPIView,
     RegisterAPIView,
@@ -18,6 +21,11 @@ urlpatterns = [
         "login/",
         LoginAPIView.as_view(),
         name="auth-login",
+    ),
+    path(
+        "logout/",
+        LogoutAPIView.as_view(),
+        name="auth-logout",
     ),
     path(
         "refresh/",

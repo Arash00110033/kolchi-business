@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.users",
     "apps.catalog",
+    "apps.cart",
 ]
 
 

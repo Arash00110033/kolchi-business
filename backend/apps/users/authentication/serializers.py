@@ -1,6 +1,9 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.db import IntegrityError
+
 from rest_framework import serializers
+
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 User = get_user_model()
@@ -104,3 +107,69 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
 
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=150,
+    )
+
+    password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+    )
+
+    def validate(self, attrs):
+        username = attrs["username"].strip()
+        password = attrs["password"]
+
+        if not username or not password:
+            raise serializers.ValidationError(
+                "Username and password are required."
+            )
+
+        user = authenticate(
+            username=username,
+            password=password,
+        )
+
+        if user is None:
+            raise serializers.ValidationError(
+                "Invalid username or password."
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                "This account is inactive."
+            )
+
+        attrs["user"] = user
+
+        return attrs
+
+    def create_token_response(self):
+        user = self.validated_data["user"]
+
+        refresh = RefreshToken.for_user(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "phone_number",
+            "email",
+        )
+        read_only_fields = (
+            "id",
+            "username",
+            "phone_number",
+            "email",
+        )

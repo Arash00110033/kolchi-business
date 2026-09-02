@@ -64,3 +64,6 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.filter(
         is_active=True,
     ).select_related("category")
+
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"

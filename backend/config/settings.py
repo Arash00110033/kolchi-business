@@ -2,7 +2,7 @@
 Django settings for Kolchi Business.
 
 Production-oriented configuration with environment-based secrets,
-PostgreSQL, DRF, JWT authentication, and security-ready defaults.
+PostgreSQL, DRF, JWT authentication, CORS, and security hardening.
 """
 
 from datetime import timedelta
@@ -109,6 +109,7 @@ TEMPLATES = [
     },
 ]
 
+
 # ============================================================
 # Database
 # PostgreSQL is used for development and production.
@@ -120,8 +121,14 @@ DATABASES = {
         "NAME": env("POSTGRES_DB"),
         "USER": env("POSTGRES_USER"),
         "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_HOST", default="127.0.0.1"),
-        "PORT": env("POSTGRES_PORT", default="5432"),
+        "HOST": env(
+            "POSTGRES_HOST",
+            default="127.0.0.1",
+        ),
+        "PORT": env(
+            "POSTGRES_PORT",
+            default="5432",
+        ),
     }
 }
 
@@ -135,7 +142,6 @@ AUTH_USER_MODEL = "users.User"
 
 # ============================================================
 # Password Security
-# Argon2 is preferred, with PBKDF2 as fallback.
 # ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -173,7 +179,6 @@ PASSWORD_HASHERS = [
 
 # ============================================================
 # Django REST Framework
-# JWT authentication is the default API authentication method.
 # ============================================================
 
 REST_FRAMEWORK = {
@@ -192,7 +197,6 @@ REST_FRAMEWORK = {
 
 # ============================================================
 # JWT Configuration
-# Short-lived access tokens + rotating refresh tokens.
 # ============================================================
 
 SIMPLE_JWT = {
@@ -211,6 +215,95 @@ SIMPLE_JWT = {
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
 }
+
+
+# ============================================================
+# CORS
+# ============================================================
+
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+)
+
+
+# ============================================================
+# CSRF Trusted Origins
+# ============================================================
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+)
+
+
+# ============================================================
+# Security Hardening
+#
+# Development:
+# - HTTP is allowed.
+# - Secure cookies are disabled.
+# - HTTPS redirect is disabled.
+#
+# Production:
+# - HTTPS is enforced.
+# - Secure cookies are enabled.
+# - HSTS is enabled.
+# ============================================================
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_REFERRER_POLICY = "same-origin"
+
+X_FRAME_OPTIONS = "DENY"
+
+SECURE_BROWSER_XSS_FILTER = True
+
+
+if DEBUG:
+    # --------------------------------------------------------
+    # Development security settings
+    # --------------------------------------------------------
+
+    SECURE_SSL_REDIRECT = False
+
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False
+
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+else:
+    # --------------------------------------------------------
+    # Production security settings
+    # --------------------------------------------------------
+
+    SECURE_SSL_REDIRECT = True
+
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False
+
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    SECURE_PROXY_SSL_HEADER = (
+        "HTTP_X_FORWARDED_PROTO",
+        "https",
+    )
 
 
 # ============================================================

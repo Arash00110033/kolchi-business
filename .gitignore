@@ -1,21 +1,51 @@
-# ================================
+﻿# ================================
 # Kolchi Business - Git Ignore
 # ================================
 
+# ================================
 # Backend / Python
+# ================================
 backend/.venv/
-backend/__pycache__/
-backend/*/__pycache__/
-backend/*/*/__pycache__/
+backend/**/__pycache__/
 backend/*.py[cod]
 backend/**/*.py[cod]
+
+# Environment / secrets
 backend/.env
+backend/.env.*
+!.env.example
+
+# Local databases
 backend/db.sqlite3
 backend/*.sqlite3
+
+# Django generated files
 backend/media/
 backend/staticfiles/
 
-# Frontend / Node
+# ================================
+# Frontend - Next.js
+# ================================
+frontend-next/node_modules/
+frontend-next/.next/
+frontend-next/out/
+frontend-next/build/
+
+# Environment / secrets
+frontend-next/.env
+frontend-next/.env.*
+!frontend-next/.env.example
+
+# Logs
+frontend-next/*.log
+frontend-next/npm-debug.log*
+frontend-next/yarn-debug.log*
+frontend-next/yarn-error.log*
+frontend-next/pnpm-debug.log*
+
+# ================================
+# Old Frontend
+# ================================
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
@@ -23,23 +53,33 @@ frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 
+# ================================
 # IDE
+# ================================
 .vscode/
 .idea/
 
+# ================================
 # OS
+# ================================
 .DS_Store
 Thumbs.db
 
+# ================================
 # Aider
+# ================================
 .aider/
 .aider.*
 .aider.tags.cache.v4/
 
+# ================================
 # Logs
+# ================================
 *.log
 
+# ================================
 # Testing / Coverage
+# ================================
 .coverage
 htmlcov/
 .pytest_cache/

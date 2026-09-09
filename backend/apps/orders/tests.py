@@ -68,6 +68,11 @@ class OrderAPITestCase(TestCase):
 
         response = self.client.post(
             "/api/v1/orders/",
+            {
+                "shipping_address": "Test Address",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
         )
 
         self.assertEqual(
@@ -121,6 +126,11 @@ class OrderAPITestCase(TestCase):
 
         response = self.client.post(
             "/api/v1/orders/",
+            {
+                "shipping_address": "Test Address",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
         )
 
         self.assertEqual(
@@ -146,6 +156,11 @@ class OrderAPITestCase(TestCase):
 
         response = self.client.post(
             "/api/v1/orders/",
+            {
+                "shipping_address": "Test Address",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
         )
 
         self.assertEqual(

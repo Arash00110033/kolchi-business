@@ -68,7 +68,7 @@ class CatalogAPITestCase(TestCase):
 
     def test_product_detail_endpoint(self):
         response = self.client.get(
-            f"/api/v1/products/{self.product_cheap.id}/"
+            f"/api/v1/products/{self.product_cheap.slug}/"
         )
 
         self.assertEqual(response.status_code, 200)

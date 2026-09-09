@@ -1,19 +1,3 @@
-/*
-=========================================================
-PRODUCT DETAILS
-=========================================================
-
-Responsibility:
-- Manage product-page state
-- Normalize API product data
-- Handle loading and error states
-- Compose product UI modules
-
-This component does NOT perform API calls.
-
-=========================================================
-*/
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -23,31 +7,11 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductLoading from "@/components/product/ProductLoading";
 
-/*
-=========================================================
-PRODUCT NORMALIZER
-=========================================================
-
-Backend currently provides:
-- id
-- category
-- category_name
-- name
-- slug
-- description
-- price
-- stock
-- image_url
-- is_active
-
-Coffee-specific fields are intentionally not fabricated.
-=========================================================
-*/
+import authService from "@/services/auth.service";
+import cartService from "@/services/cart.service";
 
 function normalizeProduct(product) {
-  if (!product) {
-    return null;
-  }
+  if (!product) return null;
 
   const stock = Number(product.stock || 0);
 
@@ -60,35 +24,21 @@ function normalizeProduct(product) {
 
   return {
     ...product,
-
     name: product.name || "محصول",
-
     category_name:
       product.category_name ||
       product.category ||
       "دسته‌بندی",
-
     description: product.description || "",
-
     price:
       product.price !== undefined && product.price !== null
         ? Number(product.price)
         : 0,
-
     stock,
-
-    available:
-      Boolean(product.is_active) && stock > 0,
-
+    available: Boolean(product.is_active) && stock > 0,
     images,
   };
 }
-
-/*
-=========================================================
-ERROR VIEW
-=========================================================
-*/
 
 function ProductError({ error }) {
   return (
@@ -103,20 +53,13 @@ function ProductError({ error }) {
           </h1>
 
           <p className="mt-3 text-sm text-[#756961]">
-            {error?.message ||
-              "امکان دریافت اطلاعات محصول وجود ندارد."}
+            {error?.message || "امکان دریافت اطلاعات محصول وجود ندارد."}
           </p>
         </div>
       </div>
     </main>
   );
 }
-
-/*
-=========================================================
-PRODUCT DETAILS
-=========================================================
-*/
 
 export default function ProductDetails({
   product = null,
@@ -127,31 +70,22 @@ export default function ProductDetails({
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-
-  /*
-  -------------------------------------------------------
-  Reset image and quantity when product changes
-  -------------------------------------------------------
-  */
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState("");
+  const [cartError, setCartError] = useState("");
 
   useEffect(() => {
     setSelectedImage(0);
     setQuantity(1);
+    setCartMessage("");
+    setCartError("");
   }, [normalizedProduct?.id]);
-
-  /*
-  -------------------------------------------------------
-  Quantity Controls
-  -------------------------------------------------------
-  */
 
   const increaseQuantity = () => {
     setQuantity((current) => {
       const stock = Number(normalizedProduct?.stock || 0);
 
-      if (stock <= 0) {
-        return 1;
-      }
+      if (stock <= 0) return 1;
 
       return Math.min(current + 1, stock);
     });
@@ -161,41 +95,52 @@ export default function ProductDetails({
     setQuantity((current) => Math.max(1, current - 1));
   };
 
-  /*
-  -------------------------------------------------------
-  Loading
-  -------------------------------------------------------
-  */
+  const handleAddToCart = async () => {
+    if (!normalizedProduct?.available || addingToCart) {
+      return;
+    }
+
+    const token = authService.getStoredAccessToken();
+
+    if (!token) {
+      setCartError("برای افزودن محصول به سبد خرید ابتدا وارد حساب شوید.");
+      setCartMessage("");
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      setCartMessage("");
+      setCartError("");
+
+      await cartService.addItem(
+        token,
+        normalizedProduct.id,
+        quantity
+      );
+
+      setCartMessage("محصول با موفقیت به سبد خرید اضافه شد.");
+    } catch (err) {
+      setCartError(
+        err?.data?.detail ||
+          "افزودن محصول به سبد خرید ناموفق بود."
+      );
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   if (loading) {
     return <ProductLoading />;
   }
 
-  /*
-  -------------------------------------------------------
-  Error
-  -------------------------------------------------------
-  */
-
   if (error) {
     return <ProductError error={error} />;
   }
 
-  /*
-  -------------------------------------------------------
-  Empty Product Guard
-  -------------------------------------------------------
-  */
-
   if (!normalizedProduct) {
     return <ProductLoading />;
   }
-
-  /*
-  -------------------------------------------------------
-  Main UI
-  -------------------------------------------------------
-  */
 
   return (
     <main
@@ -218,6 +163,10 @@ export default function ProductDetails({
               quantity={quantity}
               onIncrease={increaseQuantity}
               onDecrease={decreaseQuantity}
+              onAddToCart={handleAddToCart}
+              addingToCart={addingToCart}
+              cartMessage={cartMessage}
+              cartError={cartError}
             />
           </div>
         </section>

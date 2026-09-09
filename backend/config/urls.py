@@ -1,4 +1,4 @@
-from django.contrib import admin
+﻿from django.contrib import admin
 from django.urls import include, path
 
 from apps.core.views import health_check
@@ -26,6 +26,16 @@ urlpatterns = [
     path(
         "api/v1/cart/",
         include("apps.cart.urls"),
+    ),
+
+    path(
+        "api/v1/wishlist/",
+        include("apps.wishlist.urls"),
+    ),
+
+    path(
+        "api/v1/payments/",
+        include("apps.payments.urls"),
     ),
 
     path(

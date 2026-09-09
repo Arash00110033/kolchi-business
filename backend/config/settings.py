@@ -1,4 +1,4 @@
-"""
+﻿"""
 Django settings for Kolchi Business.
 
 Production-oriented configuration with environment-based secrets,
@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.catalog",
     "apps.cart",
+    "apps.wishlist",
+    "apps.payments",
     "apps.orders",
 ]
 
@@ -336,3 +338,9 @@ STATIC_URL = "static/"
 # ============================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+
+
+

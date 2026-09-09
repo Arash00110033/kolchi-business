@@ -83,3 +83,13 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# ================================
+# Project Archive
+# ================================
+archive/
+
+# Temporary audit/helper files
+audit_project.ps1
+frontend-next/_header.txt
+

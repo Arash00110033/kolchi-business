@@ -24,6 +24,26 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        shipping_address = str(
+            request.data.get("shipping_address", "")
+        ).strip()
+
+        shipping_phone = str(
+            request.data.get("shipping_phone", "")
+        ).strip()
+
+        if not shipping_address:
+            return Response(
+                {"detail": "Shipping address is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not shipping_phone:
+            return Response(
+                {"detail": "Shipping phone is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         cart = get_object_or_404(
             Cart.objects.prefetch_related(
                 "items__product",
@@ -78,6 +98,8 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
             user=request.user,
             status=Order.Status.PENDING,
             total=0,
+            shipping_address=shipping_address,
+            shipping_phone=shipping_phone,
         )
 
         total = 0

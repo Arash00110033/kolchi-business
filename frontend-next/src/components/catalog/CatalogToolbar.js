@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 export default function CatalogToolbar({
   categories = [],
@@ -32,6 +32,7 @@ export default function CatalogToolbar({
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
             placeholder="جستجوی محصول..."
+            aria-label="جستجوی محصول"
             className="h-12 w-full rounded-xl border border-[#ded5ce] bg-white px-4 text-sm text-[#2d211d] outline-none transition placeholder:text-[#a49a93] focus:border-[#8d6856] focus:ring-2 focus:ring-[#8d6856]/10"
           />
         </div>
@@ -39,10 +40,15 @@ export default function CatalogToolbar({
         {/* Category */}
         <select
           value={category}
-          onChange={(event) => onCategoryChange?.(event.target.value)}
+          onChange={(event) =>
+            onCategoryChange?.(event.target.value)
+          }
+          aria-label="فیلتر دسته‌بندی"
           className="h-12 rounded-xl border border-[#ded5ce] bg-white px-4 text-sm font-medium text-[#49332a] outline-none transition focus:border-[#8d6856]"
         >
-          <option value="all">همه دسته‌بندی‌ها</option>
+          <option value="all">
+            همه دسته‌بندی‌ها
+          </option>
 
           {categories.map((item) => (
             <option key={item.id} value={item.slug}>
@@ -54,7 +60,10 @@ export default function CatalogToolbar({
         {/* Sort */}
         <select
           value={sort}
-          onChange={(event) => onSortChange?.(event.target.value)}
+          onChange={(event) =>
+            onSortChange?.(event.target.value)
+          }
+          aria-label="مرتب‌سازی محصولات"
           className="h-12 rounded-xl border border-[#ded5ce] bg-white px-4 text-sm font-medium text-[#49332a] outline-none transition focus:border-[#8d6856]"
         >
           <option value="">جدیدترین</option>

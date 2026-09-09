@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import catalogService from "@/services/catalog.service";
+import StoreHeader from "@/components/layout/StoreHeader";
 import CatalogHeader from "@/components/catalog/CatalogHeader";
 import ProductGrid from "@/components/catalog/ProductGrid";
 import CatalogToolbar from "@/components/catalog/CatalogToolbar";
@@ -15,56 +16,56 @@ export default function MainPage() {
   const [sort, setSort] = useState("");
 
   useEffect(() => {
-  async function loadCatalog() {
-    try {
-      setLoading(true);
-      setError("");
+    async function loadCatalog() {
+      try {
+        setLoading(true);
+        setError("");
 
-      const params = {};
+        const params = {};
 
-      if (query.trim()) {
-        params.query = query.trim();
+        if (query.trim()) {
+          params.query = query.trim();
+        }
+
+        if (category !== "all") {
+          params.category = category;
+        }
+
+        if (sort) {
+          params.sort = sort;
+        }
+
+        const productsResponse = await catalogService.getProducts(params);
+
+        setProducts(productsResponse?.results || []);
+      } catch (err) {
+        console.error("Products loading error:", err);
+
+        setError(
+          "خطایی در دریافت محصولات رخ داد. لطفاً دوباره تلاش کنید."
+        );
+      } finally {
+        setLoading(false);
       }
-
-      if (category !== "all") {
-        params.category = category;
-      }
-
-      if (sort) {
-        params.sort = sort;
-      }
-
-      const productsResponse = await catalogService.getProducts(params);
-
-      setProducts(productsResponse?.results || []);
-    } catch (err) {
-      console.error("Products loading error:", err);
-
-      setError(
-        "خطایی در دریافت محصولات رخ داد. لطفاً دوباره تلاش کنید."
-      );
-    } finally {
-      setLoading(false);
     }
-  }
 
-  loadCatalog();
-}, [query, category, sort]);
+    loadCatalog();
+  }, [query, category, sort]);
 
   useEffect(() => {
-  async function loadCategories() {
-    try {
-      const categoriesResponse =
-        await catalogService.getCategories();
+    async function loadCategories() {
+      try {
+        const categoriesResponse =
+          await catalogService.getCategories();
 
-      setCategories(categoriesResponse?.results || []);
-    } catch (err) {
-      console.error("Categories loading error:", err);
+        setCategories(categoriesResponse?.results || []);
+      } catch (err) {
+        console.error("Categories loading error:", err);
+      }
     }
-  }
 
-  loadCategories();
-}, []);
+    loadCategories();
+  }, []);
 
   return (
     <main
@@ -72,8 +73,10 @@ export default function MainPage() {
       className="min-h-screen bg-[#f7f3ee] px-4 py-5 sm:px-6 lg:px-10"
     >
       <div className="mx-auto max-w-[1540px]">
+        {/* Store Header */}
+        <StoreHeader />
 
-        {/* Header */}
+        {/* Catalog Header */}
         <CatalogHeader categories={categories} />
 
         {/* Hero */}
@@ -100,7 +103,6 @@ export default function MainPage() {
 
         {/* Products */}
         <section className="mt-6 rounded-[32px] border border-[#e7e0d9] bg-white p-6 shadow-[0_12px_40px_rgba(70,45,30,0.05)] sm:p-8 lg:p-10">
-
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <span className="text-sm font-semibold text-[#a06b45]">
@@ -124,10 +126,10 @@ export default function MainPage() {
             query={query}
             category={category}
             sort={sort}
-           onQueryChange={setQuery}
-           onCategoryChange={setCategory}
-           onSortChange={setSort}
-/>
+            onQueryChange={setQuery}
+            onCategoryChange={setCategory}
+            onSortChange={setSort}
+          />
 
           {/* Loading */}
           {loading && (
@@ -189,7 +191,6 @@ export default function MainPage() {
         {/* Categories */}
         {!loading && !error && categories.length > 0 && (
           <section className="mt-6 rounded-[32px] border border-[#e7e0d9] bg-white p-6 shadow-[0_12px_40px_rgba(70,45,30,0.04)] sm:p-8 lg:p-10">
-
             <div className="mb-7">
               <span className="text-sm font-semibold text-[#a06b45]">
                 Categories

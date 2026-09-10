@@ -1,31 +1,31 @@
 ﻿# Kolchi Business Audit Report
 
-- Generated: 2026-09-09 03:38:52
+- Generated: 2026-09-09 21:05:26
 - Root: frontend-next
 - Branch: master
-- Last commit: 86f8cb7 feat: migrate frontend to Next.js
+- Last commit: 9b5fd94 test: align catalog and order API tests
 
 ## Summary
 
 | Metric | Value |
 |---|---:|
-| PASS | 72 |
-| WARN | 19 |
+| PASS | 73 |
+| WARN | 18 |
 | FAIL | 0 |
 | BLOCKER | 0 |
 | INFO | 1 |
 | TOTAL | 92 |
-| Verified Audit Score | 78% |
+| Verified Audit Score | 79% |
 | Production Readiness | 42% |
 
 ## Codebase
 
 - Backend files: 86
-- Backend lines: 3551
+- Backend lines: 3566
 - Frontend files: 50
 - Frontend lines: 4976
 - Total active files: 136
-- Total active lines: 8527
+- Total active lines: 8542
 
 ## Security
 
@@ -43,10 +43,10 @@
 | STRUCTURE | Backend | PASS | backend/ exists |
 | STRUCTURE | Next.js frontend | PASS | frontend-next/ exists |
 | STRUCTURE | Legacy frontend | PASS | Old frontend/ directory removed |
-| SIZE | Active codebase inventory | PASS | 136 active files / 8527 active lines |
+| SIZE | Active codebase inventory | PASS | 136 active files / 8542 active lines |
 | GIT | Branch | PASS | master |
-| GIT | Last commit | PASS | 86f8cb7 feat: migrate frontend to Next.js |
-| GIT | Working tree | WARN | 34 uncommitted item(s) |
+| GIT | Last commit | PASS | 9b5fd94 test: align catalog and order API tests |
+| GIT | Working tree | PASS | Working tree clean |
 | NEXT.JS | package.json | PASS | package.json detected |
 | NEXT.JS | package-lock | PASS | package-lock.json detected |
 | NEXT.JS | Next config | PASS | next.config.mjs detected |
@@ -71,7 +71,7 @@
 | INFRA | Backend Dockerfile | WARN | backend/Dockerfile not found |
 | INFRA | PostgreSQL configuration | PASS | PostgreSQL reference detected in Compose |
 | INFRA | Docker engine | PASS | Docker version 29.6.2, build dfc4efb |
-| INFRA | PostgreSQL container | PASS | kolchi-postgres\|Up 7 days (healthy) |
+| INFRA | PostgreSQL container | PASS | kolchi-postgres\|Up 8 days (healthy) |
 | API | Route resolution | PASS | 20 API routes resolved from Django URL resolver |
 | API | api/v1/health/ | PASS | api/v1/health/\|health-check\|function\|GET |
 | API | api/v1/categories/ | PASS | api/v1/categories/\|category-list\|CategoryListAPIView\|GET,OPTIONS |

@@ -1,6 +1,6 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 
-from .models import Category, Product
+from .models import Category, Product, ProductAttribute
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -22,9 +22,26 @@ class CategorySerializer(serializers.ModelSerializer):
         )
 
 
+class ProductAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttribute
+        fields = (
+            "id",
+            "key",
+            "value",
+            "value_type",
+        )
+        read_only_fields = ("id",)
+
+
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.name",
+        read_only=True,
+    )
+
+    attributes = ProductAttributeSerializer(
+        many=True,
         read_only=True,
     )
 
@@ -41,12 +58,14 @@ class ProductSerializer(serializers.ModelSerializer):
             "stock",
             "image_url",
             "is_active",
+            "attributes",
             "created_at",
             "updated_at",
         )
         read_only_fields = (
             "id",
             "category_name",
+            "attributes",
             "created_at",
             "updated_at",
         )

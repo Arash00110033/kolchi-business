@@ -1,4 +1,4 @@
-from django.db import models
+﻿from django.db import models
 
 
 class Category(models.Model):
@@ -51,3 +51,39 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductAttribute(models.Model):
+    class ValueType(models.TextChoices):
+        TEXT = "text", "Text"
+        NUMBER = "number", "Number"
+        BOOLEAN = "boolean", "Boolean"
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="attributes",
+    )
+
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=500)
+    value_type = models.CharField(
+        max_length=20,
+        choices=ValueType.choices,
+        default=ValueType.TEXT,
+    )
+
+    class Meta:
+        ordering = ["id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product", "key"],
+                name="unique_product_attribute_key",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["product", "key"]),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.key}"

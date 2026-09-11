@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -18,6 +19,8 @@ class RegisterAPIView(generics.CreateAPIView):
 
     serializer_class = RegisterSerializer
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth_register"
 
 
 class LoginAPIView(generics.GenericAPIView):
@@ -27,6 +30,8 @@ class LoginAPIView(generics.GenericAPIView):
 
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth_login"
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -46,6 +51,8 @@ class LogoutAPIView(generics.GenericAPIView):
     """
 
     permission_classes = (permissions.IsAuthenticated,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth_logout"
 
     def post(self, request, *args, **kwargs):
         refresh_token = request.data.get("refresh")
@@ -89,3 +96,5 @@ class RefreshTokenAPIView(TokenRefreshView):
     """
 
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth_refresh"

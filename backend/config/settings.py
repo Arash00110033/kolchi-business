@@ -194,6 +194,13 @@ REST_FRAMEWORK = {
         "rest_framework.pagination.PageNumberPagination"
     ),
     "PAGE_SIZE": 20,
+
+    "DEFAULT_THROTTLE_RATES": {
+        "auth_login": "5/min",
+        "auth_register": "3/min",
+        "auth_refresh": "10/min",
+        "auth_logout": "10/min",
+    },
 }
 
 

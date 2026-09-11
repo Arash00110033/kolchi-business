@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 
 from rest_framework import status
@@ -11,6 +12,8 @@ User = get_user_model()
 
 class AuthenticationAPITestCase(TestCase):
     def setUp(self):
+        cache.clear()
+
         self.client = APIClient()
 
         self.user_data = {
@@ -135,6 +138,70 @@ class AuthenticationAPITestCase(TestCase):
 
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
+
+    def test_login_rate_limit(self):
+        self.create_user()
+
+        payload = {
+            "username": self.user_data["username"],
+            "password": self.user_data["password"],
+        }
+
+        for _ in range(5):
+            response = self.client.post(
+                "/api/v1/auth/login/",
+                payload,
+                format="json",
+            )
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_200_OK,
+            )
+
+        response = self.client.post(
+            "/api/v1/auth/login/",
+            payload,
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_429_TOO_MANY_REQUESTS,
+        )
+
+    def test_register_rate_limit(self):
+        for index in range(3):
+            data = self.user_data.copy()
+            data["username"] = f"ratelimituser{index}"
+            data["phone_number"] = f"0912333000{index}"
+            data["email"] = f"ratelimit{index}@example.com"
+
+            response = self.client.post(
+                "/api/v1/auth/register/",
+                data,
+                format="json",
+            )
+
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_201_CREATED,
+            )
+
+        data = self.user_data.copy()
+        data["username"] = "ratelimitblocked"
+        data["phone_number"] = "09123330009"
+        data["email"] = "blocked@example.com"
+
+        response = self.client.post(
+            "/api/v1/auth/register/",
+            data,
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_429_TOO_MANY_REQUESTS,
+        )
 
     def test_login_invalid_password(self):
         self.create_user()

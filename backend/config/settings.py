@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
     # Local apps
     "apps.core",
+    "apps.stores",
     "apps.users",
     "apps.catalog",
     "apps.cart",
@@ -345,6 +346,7 @@ STATIC_URL = "static/"
 # ============================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 
 

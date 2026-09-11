@@ -92,6 +92,35 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
             for product in products
         }
 
+        store_ids = {
+            product.store_id
+            for product in products_by_id.values()
+            if product.store_id is not None
+        }
+
+        if len(store_ids) != 1:
+            return Response(
+                {
+                    "detail": (
+                        "All products in an order must belong to "
+                        "the same store."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        store_id = next(iter(store_ids))
+
+        store = Store.objects.filter(
+            id=store_id,
+            is_active=True,
+        ).first()
+
+        if store is None:
+            return Response(
+                {"detail": "Store is unavailable."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         for cart_item in cart_items:
             product = products_by_id.get(cart_item.product_id)
 
@@ -119,6 +148,7 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
 
         order = Order.objects.create(
             user=request.user,
+            store=store,
             status=Order.Status.PENDING,
             total=0,
             shipping_address=shipping_address,
@@ -238,4 +268,6 @@ class OrderCancelAPIView(generics.UpdateAPIView):
             OrderSerializer(order).data,
             status=status.HTTP_200_OK,
         )
+
+
 

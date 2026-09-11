@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import include, path
 
 from .views import (
     CategoryListAPIView,
@@ -8,6 +8,7 @@ from .views import (
 
 
 urlpatterns = [
+    path("admin/", include("apps.catalog.admin_urls")),
     path(
         "categories/",
         CategoryListAPIView.as_view(),

@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 
 from apps.cart.models import Cart, CartItem
 from apps.catalog.models import Category, Product
+from apps.stores.models import Store
 
 from .models import Order, OrderItem
 
@@ -22,12 +23,20 @@ class OrderAPITestCase(TestCase):
             password="TestPass123!",
         )
 
+        self.store = Store.objects.create(
+            owner=self.user,
+            name="Test Store",
+            slug="test-store",
+        )
+
         self.category = Category.objects.create(
+            store=self.store,
             name="Coffee",
             slug="coffee",
         )
 
         self.product = Product.objects.create(
+            store=self.store,
             category=self.category,
             name="Ethiopian",
             slug="ethiopian",
@@ -179,7 +188,6 @@ class OrderAPITestCase(TestCase):
             ).exists()
         )
 
-
     def test_create_order_with_short_address_fails(self):
         cart = Cart.objects.create(
             user=self.user,
@@ -239,9 +247,11 @@ class OrderAPITestCase(TestCase):
             response.data["detail"],
             "Invalid shipping phone.",
         )
+
     def test_get_order_detail(self):
         order = Order.objects.create(
             user=self.user,
+            store=self.store,
             total="900000.00",
         )
 
@@ -281,6 +291,7 @@ class OrderAPITestCase(TestCase):
     def test_user_cannot_access_another_users_order(self):
         order = Order.objects.create(
             user=self.user,
+            store=self.store,
             total="900000.00",
         )
 
@@ -316,6 +327,241 @@ class OrderAPITestCase(TestCase):
         self.assertEqual(
             response.status_code,
             401,
+        )
+
+    def test_owner_can_cancel_pending_order_and_restore_stock(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            total="900000.00",
+        )
+
+        OrderItem.objects.create(
+            order=order,
+            product=self.product,
+            product_name=self.product.name,
+            unit_price=self.product.price,
+            quantity=2,
+            subtotal="900000.00",
+        )
+
+        self.product.stock = 7
+        self.product.save()
+
+        response = self.client.patch(
+            f"/api/v1/orders/{order.id}/cancel/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        order.refresh_from_db()
+        self.product.refresh_from_db()
+
+        self.assertEqual(order.status, Order.Status.CANCELLED)
+        self.assertEqual(self.product.stock, 9)
+
+    def test_cancelled_order_cannot_be_cancelled_again(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            status=Order.Status.CANCELLED,
+            total="900000.00",
+        )
+
+        response = self.client.patch(
+            f"/api/v1/orders/{order.id}/cancel/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_paid_order_cannot_be_cancelled(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            status=Order.Status.PAID,
+            total="900000.00",
+        )
+
+        response = self.client.patch(
+            f"/api/v1/orders/{order.id}/cancel/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_user_cannot_cancel_another_users_order(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            total="900000.00",
+        )
+
+        another_user = User.objects.create_user(
+            username="cancelother",
+            email="cancelother@example.com",
+            phone_number="09125555555",
+            password="TestPass123!",
+        )
+
+        self.client.force_authenticate(user=another_user)
+
+        response = self.client.patch(
+            f"/api/v1/orders/{order.id}/cancel/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_valid_order_state_transitions(self):
+        valid_paths = [
+            (Order.Status.PENDING, Order.Status.CONFIRMED),
+            (Order.Status.PENDING, Order.Status.PAID),
+            (Order.Status.PENDING, Order.Status.CANCELLED),
+            (Order.Status.CONFIRMED, Order.Status.PAID),
+            (Order.Status.CONFIRMED, Order.Status.SHIPPED),
+            (Order.Status.CONFIRMED, Order.Status.CANCELLED),
+            (Order.Status.PAID, Order.Status.SHIPPED),
+            (Order.Status.SHIPPED, Order.Status.DELIVERED),
+        ]
+
+        for current, target in valid_paths:
+            order = Order.objects.create(
+                user=self.user,
+                store=self.store,
+                status=current,
+                total="100000.00",
+            )
+
+            self.assertTrue(order.can_transition_to(target))
+
+    def test_invalid_order_state_transitions(self):
+        invalid_paths = [
+            (Order.Status.CANCELLED, Order.Status.PAID),
+            (Order.Status.CANCELLED, Order.Status.SHIPPED),
+            (Order.Status.DELIVERED, Order.Status.PAID),
+            (Order.Status.DELIVERED, Order.Status.CANCELLED),
+            (Order.Status.PAID, Order.Status.CONFIRMED),
+            (Order.Status.SHIPPED, Order.Status.PAID),
+        ]
+
+        for current, target in invalid_paths:
+            order = Order.objects.create(
+                user=self.user,
+                store=self.store,
+                status=current,
+                total="100000.00",
+            )
+
+            self.assertFalse(order.can_transition_to(target))
+
+    def test_transition_to_updates_status(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            status=Order.Status.PENDING,
+            total="100000.00",
+        )
+
+        order.transition_to(Order.Status.CONFIRMED)
+        order.refresh_from_db()
+
+        self.assertEqual(
+            order.status,
+            Order.Status.CONFIRMED,
+        )
+
+    def test_transition_to_rejects_invalid_transition(self):
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            status=Order.Status.CANCELLED,
+            total="100000.00",
+        )
+
+        with self.assertRaises(ValueError):
+            order.transition_to(Order.Status.PAID)
+
+    def test_failed_order_creation_does_not_change_stock(self):
+        cart = Cart.objects.create(
+            user=self.user,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            product=self.product,
+            quantity=10,
+        )
+
+        stock_before = self.product.stock
+
+        response = self.client.post(
+            "/api/v1/orders/",
+            {
+                "shipping_address": "Test Address",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
+        )
+
+        self.product.refresh_from_db()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.product.stock, stock_before)
+        self.assertFalse(
+            Order.objects.filter(user=self.user).exists()
+        )
+
+    def test_order_creation_is_atomic_when_cart_contains_unavailable_product(self):
+        cart = Cart.objects.create(
+            user=self.user,
+        )
+
+        inactive = Product.objects.create(
+            store=self.store,
+            category=self.category,
+            name="Inactive Coffee",
+            slug="inactive-coffee",
+            description="Inactive product.",
+            price="300000.00",
+            stock=5,
+            is_active=False,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            product=self.product,
+            quantity=1,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            product=inactive,
+            quantity=1,
+        )
+
+        stock_before = self.product.stock
+
+        response = self.client.post(
+            "/api/v1/orders/",
+            {
+                "shipping_address": "Test Address",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
+        )
+
+        self.product.refresh_from_db()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.product.stock, stock_before)
+        self.assertFalse(
+            Order.objects.filter(user=self.user).exists()
         )
 
 
@@ -393,3 +639,4 @@ class OrderModelTestCase(TestCase):
             self.order.items.count(),
             1,
         )
+        

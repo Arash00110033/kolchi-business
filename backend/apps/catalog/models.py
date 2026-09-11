@@ -1,7 +1,15 @@
-﻿from django.db import models
+﻿from apps.stores.models import Store
+from django.db import models
 
 
 class Category(models.Model):
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.PROTECT,
+        related_name="categories",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True)
     description = models.TextField(blank=True)
@@ -20,6 +28,13 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.PROTECT,
+        related_name="products",
+        null=True,
+        blank=True,
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
@@ -87,3 +102,4 @@ class ProductAttribute(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.key}"
+

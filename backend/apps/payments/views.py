@@ -136,6 +136,12 @@ class PaymentConfirmAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if not order.can_transition_to(Order.Status.PAID):
+            return Response(
+                {"detail": "Order cannot transition to paid status."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         payment.status = Payment.Status.PAID
         payment.transaction_id = uuid4().hex
         payment.save(
@@ -146,13 +152,7 @@ class PaymentConfirmAPIView(APIView):
             ],
         )
 
-        order.status = Order.Status.PAID
-        order.save(
-            update_fields=[
-                "status",
-                "updated_at",
-            ],
-        )
+        order.transition_to(Order.Status.PAID)
 
         return Response(
             PaymentSerializer(payment).data,

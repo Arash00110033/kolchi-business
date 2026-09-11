@@ -1,6 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 import ProductBreadcrumb from "@/components/product/ProductBreadcrumb";
 import ProductGallery from "@/components/product/ProductGallery";
@@ -53,7 +52,8 @@ function ProductError({ error }) {
           </h1>
 
           <p className="mt-3 text-sm text-[#756961]">
-            {error?.message || "امکان دریافت اطلاعات محصول وجود ندارد."}
+            {error?.message ||
+              "امکان دریافت اطلاعات محصول وجود ندارد."}
           </p>
         </div>
       </div>
@@ -103,7 +103,9 @@ export default function ProductDetails({
     const token = authService.getStoredAccessToken();
 
     if (!token) {
-      setCartError("برای افزودن محصول به سبد خرید ابتدا وارد حساب شوید.");
+      setCartError(
+        "برای افزودن محصول به سبد خرید ابتدا وارد حساب کاربری شوید."
+      );
       setCartMessage("");
       return;
     }
@@ -119,7 +121,9 @@ export default function ProductDetails({
         quantity
       );
 
-      setCartMessage("محصول با موفقیت به سبد خرید اضافه شد.");
+      setCartMessage(
+        "محصول با موفقیت به سبد خرید اضافه شد."
+      );
     } catch (err) {
       setCartError(
         err?.data?.detail ||

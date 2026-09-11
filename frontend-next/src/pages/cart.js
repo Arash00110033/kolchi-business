@@ -8,6 +8,10 @@ import cartService from "@/services/cart.service";
 import orderService from "@/services/order.service";
 import paymentService from "@/services/payment.service";
 
+function isValidIranianPhone(phone) {
+  return /^(09\d{9}|\+989\d{9})$/.test(phone);
+}
+
 export default function CartPage() {
   const { loading: authLoading, isAuthenticated } = useAuth();
 
@@ -119,15 +123,29 @@ export default function CartPage() {
       return;
     }
 
+    if (address.length < 10) {
+      setError("آدرس ارسال باید حداقل ۱۰ کاراکتر باشد.");
+      return;
+    }
+
     if (!phone) {
       setError("لطفاً شماره تماس را وارد کنید.");
+      return;
+    }
+
+    if (!isValidIranianPhone(phone)) {
+      setError(
+        "شماره تماس معتبر نیست. نمونه صحیح: 09123456789"
+      );
       return;
     }
 
     const token = authService.getStoredAccessToken();
 
     if (!token) {
-      setError("برای ثبت سفارش ابتدا وارد حساب کاربری شوید.");
+      setError(
+        "برای ثبت سفارش ابتدا وارد حساب کاربری شوید."
+      );
       return;
     }
 
@@ -143,14 +161,23 @@ export default function CartPage() {
         }
       );
 
-      setCreatedOrder(order);
-
       const payment = await paymentService.createPayment(
         token,
         order.id
       );
 
-      setCreatedPayment(payment);
+      const confirmedPayment =
+        await paymentService.confirmPayment(
+          token,
+          payment.id
+        );
+
+      setCreatedOrder({
+        ...order,
+        status: "paid",
+      });
+
+      setCreatedPayment(confirmedPayment);
 
       setCart({
         ...cart,
@@ -163,7 +190,7 @@ export default function CartPage() {
     } catch (err) {
       setError(
         err?.data?.detail ||
-          "ثبت سفارش یا ایجاد پرداخت ناموفق بود."
+          "ثبت سفارش یا پرداخت ناموفق بود."
       );
     } finally {
       setCheckoutLoading(false);
@@ -221,11 +248,11 @@ export default function CartPage() {
           </div>
 
           <h1 className="text-3xl font-black text-[#432a22]">
-            سفارش با موفقیت ثبت شد
+            پرداخت با موفقیت انجام شد
           </h1>
 
           <p className="mt-3 text-[#75665d]">
-            سفارش شما ایجاد شده و برای پرداخت آماده است.
+            سفارش شما با موفقیت ثبت و پرداخت شد.
           </p>
 
           <div className="mt-8 space-y-3 rounded-2xl bg-[#faf8f5] p-5 text-right">
@@ -233,6 +260,7 @@ export default function CartPage() {
               <span className="text-[#75665d]">
                 شماره سفارش
               </span>
+
               <strong className="text-[#432a22]">
                 #{createdOrder.id}
               </strong>
@@ -242,6 +270,7 @@ export default function CartPage() {
               <span className="text-[#75665d]">
                 مبلغ سفارش
               </span>
+
               <strong className="text-[#432a22]">
                 {Number(createdOrder.total || 0).toLocaleString(
                   "fa-IR"
@@ -252,10 +281,11 @@ export default function CartPage() {
 
             <div className="flex justify-between gap-4">
               <span className="text-[#75665d]">
-                پرداخت
+                وضعیت سفارش
               </span>
-              <strong className="text-amber-700">
-                در انتظار پرداخت
+
+              <strong className="text-green-700">
+                پرداخت شده
               </strong>
             </div>
 
@@ -263,8 +293,19 @@ export default function CartPage() {
               <span className="text-[#75665d]">
                 شماره پرداخت
               </span>
+
               <strong className="text-[#432a22]">
                 #{createdPayment.id}
+              </strong>
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <span className="text-[#75665d]">
+                شناسه تراکنش
+              </span>
+
+              <strong className="break-all text-xs text-[#432a22]">
+                {createdPayment.transaction_id}
               </strong>
             </div>
           </div>
@@ -359,14 +400,16 @@ export default function CartPage() {
                       قیمت واحد:{" "}
                       {Number(item.unit_price).toLocaleString(
                         "fa-IR"
-                      )}
+                      )}{" "}
+                      تومان
                     </p>
 
                     <p className="mt-1 text-sm font-semibold text-[#432a22]">
                       جمع:{" "}
                       {Number(item.subtotal).toLocaleString(
                         "fa-IR"
-                      )}
+                      )}{" "}
+                      تومان
                     </p>
                   </div>
 
@@ -405,7 +448,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
-                      className="mr-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                      className="mr-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                     >
                       حذف
                     </button>
@@ -432,11 +475,13 @@ export default function CartPage() {
                 <input
                   id="shipping-phone"
                   type="tel"
+                  inputMode="numeric"
+                  dir="ltr"
                   value={shippingPhone}
                   onChange={(event) =>
                     setShippingPhone(event.target.value)
                   }
-                  placeholder="مثلاً 09123456789"
+                  placeholder="09123456789"
                   className="w-full rounded-xl border border-[#ded3ca] bg-[#faf8f5] px-4 py-3 text-sm outline-none transition focus:border-[#8d6855]"
                 />
               </div>
@@ -484,8 +529,8 @@ export default function CartPage() {
               className="mt-6 w-full rounded-xl bg-[#432a22] px-4 py-3 font-bold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {checkoutLoading
-                ? "در حال ثبت سفارش..."
-                : "ثبت سفارش"}
+                ? "در حال پردازش پرداخت..."
+                : "ثبت سفارش و پرداخت"}
             </button>
           </aside>
         </div>

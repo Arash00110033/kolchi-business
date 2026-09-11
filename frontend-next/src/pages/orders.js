@@ -88,7 +88,7 @@ export default function OrdersPage() {
 
           <Link
             href="/login"
-            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white"
+            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
           >
             ورود
           </Link>
@@ -102,14 +102,23 @@ export default function OrdersPage() {
       dir="rtl"
       className="mx-auto max-w-5xl px-5 py-10"
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-[#432a22]">
-          سفارش‌های من
-        </h1>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-black text-[#432a22]">
+            سفارش‌های من
+          </h1>
 
-        <p className="mt-2 text-sm text-[#75665d]">
-          {orders.length} سفارش ثبت شده
-        </p>
+          <p className="mt-2 text-sm text-[#75665d]">
+            {orders.length.toLocaleString("fa-IR")} سفارش ثبت شده
+          </p>
+        </div>
+
+        <Link
+          href="/"
+          className="w-fit rounded-xl border border-[#d8ccc3] px-4 py-2.5 text-sm font-bold text-[#432a22] transition hover:bg-[#f7f0eb]"
+        >
+          ← بازگشت به فروشگاه
+        </Link>
       </div>
 
       {error && (
@@ -130,7 +139,7 @@ export default function OrdersPage() {
 
           <Link
             href="/"
-            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white"
+            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
           >
             بازگشت به فروشگاه
           </Link>

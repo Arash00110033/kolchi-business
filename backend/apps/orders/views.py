@@ -1,3 +1,4 @@
+﻿import re
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
@@ -32,15 +33,36 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
             request.data.get("shipping_phone", "")
         ).strip()
 
+
         if not shipping_address:
             return Response(
                 {"detail": "Shipping address is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if len(shipping_address) < 10 or len(shipping_address) > 500:
+            return Response(
+                {
+                    "detail": (
+                        "Shipping address must be between "
+                        "10 and 500 characters."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if not shipping_phone:
             return Response(
                 {"detail": "Shipping phone is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not re.fullmatch(
+            r"(09\d{9}|\+989\d{9})",
+            shipping_phone,
+        ):
+            return Response(
+                {"detail": "Invalid shipping phone."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

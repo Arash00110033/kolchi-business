@@ -1,3 +1,5 @@
+﻿import { useRouter } from "next/router";
+
 export default function ProductInfo({
   product,
   quantity,
@@ -8,6 +10,8 @@ export default function ProductInfo({
   cartMessage,
   cartError,
 }) {
+  const router = useRouter();
+
   if (!product) {
     return null;
   }
@@ -112,9 +116,29 @@ export default function ProductInfo({
       )}
 
       {cartMessage && (
-        <div className="mt-5 rounded-2xl border border-[#cfe4d0] bg-[#f1f8f1] px-4 py-3 text-sm font-semibold text-[#356139]">
-          {cartMessage}
-        </div>
+        <>
+          <div className="mt-5 rounded-2xl border border-[#cfe4d0] bg-[#f1f8f1] px-4 py-3 text-sm font-semibold text-[#356139]">
+            {cartMessage}
+          </div>
+
+          <div className="mt-3 flex gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/cart")}
+              className="flex-1 rounded-xl bg-[#5b382b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#45291f]"
+            >
+              مشاهده سبد خرید
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="flex-1 rounded-xl border border-[#5b382b] px-4 py-3 text-sm font-bold text-[#5b382b] transition hover:bg-[#f8f1ec]"
+            >
+              ادامه خرید
+            </button>
+          </div>
+        </>
       )}
 
       {cartError && (

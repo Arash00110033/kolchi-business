@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+﻿from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -179,6 +179,66 @@ class OrderAPITestCase(TestCase):
             ).exists()
         )
 
+
+    def test_create_order_with_short_address_fails(self):
+        cart = Cart.objects.create(
+            user=self.user,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            product=self.product,
+            quantity=1,
+        )
+
+        response = self.client.post(
+            "/api/v1/orders/",
+            {
+                "shipping_address": "خیابان",
+                "shipping_phone": "09120000000",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            400,
+        )
+
+        self.assertEqual(
+            response.data["detail"],
+            "Shipping address must be between 10 and 500 characters.",
+        )
+
+    def test_create_order_with_invalid_phone_fails(self):
+        cart = Cart.objects.create(
+            user=self.user,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            product=self.product,
+            quantity=1,
+        )
+
+        response = self.client.post(
+            "/api/v1/orders/",
+            {
+                "shipping_address": "خیابان اصلی، پلاک ۱۰",
+                "shipping_phone": "12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            400,
+        )
+
+        self.assertEqual(
+            response.data["detail"],
+            "Invalid shipping phone.",
+        )
     def test_get_order_detail(self):
         order = Order.objects.create(
             user=self.user,

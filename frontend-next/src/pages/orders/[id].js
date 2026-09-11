@@ -15,6 +15,42 @@ const STATUS_LABELS = {
   cancelled: "لغو شده",
 };
 
+const TRACKING_STEPS = [
+  {
+    status: "pending",
+    label: "ثبت سفارش",
+    icon: "🛍️",
+  },
+  {
+    status: "confirmed",
+    label: "تأیید سفارش",
+    icon: "✓",
+  },
+  {
+    status: "paid",
+    label: "پرداخت",
+    icon: "💳",
+  },
+  {
+    status: "shipped",
+    label: "ارسال",
+    icon: "🏍️",
+  },
+  {
+    status: "delivered",
+    label: "تحویل",
+    icon: "📦",
+  },
+];
+
+const TRACKING_INDEX = {
+  pending: 0,
+  confirmed: 1,
+  paid: 2,
+  shipped: 3,
+  delivered: 4,
+};
+
 export default function OrderDetailPage() {
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
@@ -113,12 +149,21 @@ export default function OrderDetailPage() {
             {error || "سفارش پیدا نشد."}
           </p>
 
-          <Link
-            href="/orders"
-            className="mt-5 inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
-          >
-            بازگشت به سفارش‌ها
-          </Link>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/orders"
+              className="rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
+            >
+              بازگشت به سفارش‌ها
+            </Link>
+
+            <Link
+              href="/"
+              className="rounded-xl border border-[#432a22] px-5 py-3 font-semibold text-[#432a22] transition hover:bg-[#f7f0eb]"
+            >
+              ادامه خرید
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -136,17 +181,34 @@ export default function OrderDetailPage() {
     0
   );
 
+  const trackingIndex =
+    TRACKING_INDEX[order.status] ?? -1;
+
+  const isCancelled = order.status === "cancelled";
+
+  const progressPercent =
+    trackingIndex >= 0
+      ? (trackingIndex / (TRACKING_STEPS.length - 1)) * 100
+      : 0;
+
   return (
     <main
       dir="rtl"
       className="mx-auto max-w-4xl px-5 py-10"
     >
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/orders"
           className="text-sm font-semibold text-[#704b3a] transition hover:text-[#432a22] hover:underline"
         >
           ← بازگشت به سفارش‌ها
+        </Link>
+
+        <Link
+          href="/"
+          className="rounded-xl border border-[#d8ccc3] px-4 py-2 text-sm font-bold text-[#432a22] transition hover:bg-[#f7f0eb]"
+        >
+          ادامه خرید
         </Link>
       </div>
 
@@ -176,6 +238,123 @@ export default function OrderDetailPage() {
               {statusLabel}
             </span>
           </div>
+        </div>
+
+        {/* Order Tracking */}
+        <div className="border-b border-[#eee7e1] p-6 sm:p-8">
+          <div className="mb-7">
+            <h2 className="text-lg font-black text-[#432a22]">
+              پیگیری سفارش
+            </h2>
+
+            <p className="mt-1 text-sm text-[#8a7b72]">
+              وضعیت سفارش بر اساس آخرین مرحله ثبت‌شده نمایش داده می‌شود.
+            </p>
+          </div>
+
+          {isCancelled ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-xl">
+                  ×
+                </span>
+
+                <div>
+                  <p className="font-black text-red-700">
+                    سفارش لغو شده است
+                  </p>
+
+                  <p className="mt-1 text-sm text-red-600">
+                    این سفارش در مسیر ارسال قرار نگرفته است.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="relative px-2 sm:px-4">
+                <div className="absolute right-6 left-6 top-6 h-1 rounded-full bg-[#e8dfd8] sm:right-10 sm:left-10" />
+
+                <div
+                  className="absolute right-6 top-6 h-1 rounded-full bg-[#704b3a] transition-all duration-700 sm:right-10"
+                  style={{
+                    width: `calc(${progressPercent}% - ${
+                      progressPercent === 100 ? "0px" : "0px"
+                    })`,
+                  }}
+                />
+
+                <div className="relative flex items-start justify-between">
+                  {TRACKING_STEPS.map((step, index) => {
+                    const completed = index <= trackingIndex;
+                    const active = index === trackingIndex;
+
+                    return (
+                      <div
+                        key={step.status}
+                        className="flex w-20 flex-col items-center text-center sm:w-24"
+                      >
+                        <div
+                          className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white text-base shadow-sm transition-all duration-500 ${
+                            completed
+                              ? "bg-[#704b3a] text-white"
+                              : "bg-[#eee7e1] text-[#9a8d85]"
+                          } ${
+                            active
+                              ? "ring-4 ring-[#f0e5de]"
+                              : ""
+                          }`}
+                        >
+                          {step.icon}
+                        </div>
+
+                        <span
+                          className={`mt-3 text-xs font-bold leading-5 sm:text-sm ${
+                            completed
+                              ? "text-[#432a22]"
+                              : "text-[#9a8d85]"
+                          }`}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Rider */}
+                <div
+                  className="pointer-events-none absolute top-0 z-20 -translate-x-1/2 transition-all duration-1000 ease-out"
+                  style={{
+                    left: `${100 - progressPercent}%`,
+                  }}
+                  aria-hidden="true"
+                >
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xl shadow-md ${
+                      order.status === "delivered"
+                        ? "bg-[#356139]"
+                        : "bg-[#704b3a]"
+                    }`}
+                  >
+                    {order.status === "delivered"
+                      ? "✓"
+                      : "🏍️"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-2xl bg-[#faf8f5] px-4 py-3 text-center">
+                <span className="text-sm font-semibold text-[#6b5b52]">
+                  وضعیت فعلی:{" "}
+                </span>
+
+                <span className="text-sm font-black text-[#432a22]">
+                  {statusLabel}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Shipping Information */}
@@ -274,6 +453,23 @@ export default function OrderDetailPage() {
                 تومان
               </span>
             </span>
+          </div>
+
+          {/* Bottom Actions */}
+          <div className="mt-6 flex flex-col gap-3 border-t border-[#eee7e1] pt-6 sm:flex-row">
+            <Link
+              href="/"
+              className="flex-1 rounded-xl bg-[#432a22] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#5a382d]"
+            >
+              ادامه خرید
+            </Link>
+
+            <Link
+              href="/orders"
+              className="flex-1 rounded-xl border border-[#d8ccc3] px-5 py-3 text-center text-sm font-bold text-[#432a22] transition hover:bg-[#f7f0eb]"
+            >
+              مشاهده همه سفارش‌ها
+            </Link>
           </div>
         </div>
       </div>

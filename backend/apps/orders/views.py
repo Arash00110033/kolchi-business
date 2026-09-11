@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from apps.cart.models import Cart
 from apps.catalog.models import Product
+from apps.stores.models import Store
 
 from .models import Order, OrderItem
 from .serializers import OrderSerializer
@@ -176,3 +177,65 @@ class OrderDetailAPIView(generics.RetrieveAPIView):
         ).prefetch_related(
             "items",
         )
+
+
+class OrderCancelAPIView(generics.UpdateAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user,
+        ).prefetch_related("items")
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        order = get_object_or_404(
+            Order.objects.select_for_update(),
+            id=kwargs["pk"],
+            user=request.user,
+        )
+
+        if order.status == Order.Status.CANCELLED:
+            return Response(
+                {"detail": "Order is already cancelled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if order.status not in (
+            Order.Status.PENDING,
+            Order.Status.CONFIRMED,
+        ):
+            return Response(
+                {"detail": "This order cannot be cancelled in its current status."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        items = list(order.items.all())
+
+        products = Product.objects.select_for_update().filter(
+            id__in=[item.product_id for item in items],
+        )
+
+        products_by_id = {
+            product.id: product
+            for product in products
+        }
+
+        for item in items:
+            product = products_by_id[item.product_id]
+            product.stock += item.quantity
+            product.save(
+                update_fields=["stock", "updated_at"],
+            )
+
+        order.status = Order.Status.CANCELLED
+        order.save(
+            update_fields=["status", "updated_at"],
+        )
+
+        return Response(
+            OrderSerializer(order).data,
+            status=status.HTTP_200_OK,
+        )
+

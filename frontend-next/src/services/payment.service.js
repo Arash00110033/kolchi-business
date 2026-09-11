@@ -17,9 +17,18 @@ async function createPayment(token, orderId) {
   );
 }
 
+async function confirmPayment(token, paymentId) {
+  return apiClient.post(
+    `/payments/${paymentId}/confirm/`,
+    {},
+    apiClient.withAuth(token)
+  );
+}
+
 const paymentService = {
   getPayments,
   createPayment,
+  confirmPayment,
 };
 
 export default paymentService;

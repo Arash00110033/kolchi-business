@@ -1,8 +1,50 @@
-﻿import Link from "next/link";
+﻿import { useEffect, useState } from "react";
+import Link from "next/link";
+
 import useAuth from "@/hooks/useAuth";
+import adminService from "@/services/admin.service";
+import authService from "@/services/auth.service";
 
 export default function StoreHeader() {
   const { user, loading, isAuthenticated, logout } = useAuth();
+
+  const [canAccessAdmin, setCanAccessAdmin] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function checkAdminAccess() {
+      if (!isAuthenticated) {
+        setCanAccessAdmin(false);
+        return;
+      }
+
+      const token = authService.getStoredAccessToken();
+
+      if (!token) {
+        setCanAccessAdmin(false);
+        return;
+      }
+
+      try {
+        await adminService.getStore(1, token);
+
+        if (mounted) {
+          setCanAccessAdmin(true);
+        }
+      } catch {
+        if (mounted) {
+          setCanAccessAdmin(false);
+        }
+      }
+    }
+
+    checkAdminAccess();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAuthenticated]);
 
   return (
     <header
@@ -47,6 +89,15 @@ export default function StoreHeader() {
               >
                 سفارش‌های من
               </Link>
+
+              {canAccessAdmin && (
+                <Link
+                  href="/admin"
+                  className="font-bold text-[#a06b45] transition hover:text-[#432a22]"
+                >
+                  پنل مدیریت
+                </Link>
+              )}
             </>
           )}
         </nav>

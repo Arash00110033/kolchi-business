@@ -22,10 +22,19 @@ async function createOrder(token, shippingData) {
   );
 }
 
+async function cancelOrder(token, orderId) {
+  return apiClient.patch(
+    `/orders/${orderId}/cancel/`,
+    {},
+    apiClient.withAuth(token)
+  );
+}
+
 const orderService = {
   getOrders,
   getOrder,
   createOrder,
+  cancelOrder,
 };
 
 export default orderService;

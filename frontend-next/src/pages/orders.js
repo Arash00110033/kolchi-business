@@ -14,27 +14,41 @@ const STATUS_LABELS = {
   cancelled: "لغو شده",
 };
 
+function getStatusLabel(status) {
+  return STATUS_LABELS[status] || status || "نامشخص";
+}
+
+function canCancelOrder(status) {
+  return status === "pending" || status === "confirmed";
+}
+
 export default function OrdersPage() {
   const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancelLoadingId, setCancelLoadingId] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
 
     if (!isAuthenticated) {
+      setOrders([]);
       setLoading(false);
       return;
     }
+
+    let active = true;
 
     async function loadOrders() {
       const token = authService.getStoredAccessToken();
 
       if (!token) {
-        setOrders([]);
-        setLoading(false);
+        if (active) {
+          setOrders([]);
+          setLoading(false);
+        }
         return;
       }
 
@@ -43,20 +57,90 @@ export default function OrdersPage() {
 
         const data = await orderService.getOrders(token);
 
-        setOrders(
-          Array.isArray(data)
-            ? data
-            : data?.results || []
-        );
+        const normalizedOrders = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.results)
+            ? data.results
+            : [];
+
+        if (active) {
+          setOrders(normalizedOrders);
+        }
       } catch (err) {
-        setError("دریافت سفارش‌ها ناموفق بود.");
+        if (active) {
+          setOrders([]);
+          setError(
+            err?.data?.detail ||
+              err?.message ||
+              "دریافت سفارش‌ها ناموفق بود."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     loadOrders();
+
+    return () => {
+      active = false;
+    };
   }, [authLoading, isAuthenticated]);
+
+  async function handleCancel(order) {
+    if (
+      !order ||
+      cancelLoadingId !== null ||
+      !canCancelOrder(order.status)
+    ) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `آیا از لغو سفارش #${order.id} مطمئن هستید؟`
+    );
+
+    if (!confirmed) return;
+
+    const token = authService.getStoredAccessToken();
+
+    if (!token) {
+      setError("برای لغو سفارش باید وارد حساب کاربری باشید.");
+      return;
+    }
+
+    try {
+      setCancelLoadingId(order.id);
+      setError("");
+
+      const updatedOrder = await orderService.cancelOrder(
+        token,
+        order.id
+      );
+
+      setOrders((currentOrders) =>
+        currentOrders.map((currentOrder) =>
+          currentOrder.id === order.id
+            ? {
+                ...currentOrder,
+                ...(updatedOrder || {}),
+                status: updatedOrder?.status || "cancelled",
+              }
+            : currentOrder
+        )
+      );
+    } catch (err) {
+      setError(
+        err?.data?.detail ||
+          err?.message ||
+          "لغو سفارش انجام نشد."
+      );
+    } finally {
+      setCancelLoadingId(null);
+    }
+  }
 
   if (authLoading || loading) {
     return (
@@ -146,84 +230,108 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-5">
-          {orders.map((order) => (
-            <article
-              key={order.id}
-              className="rounded-3xl border border-[#e7e0d9] bg-white p-6 shadow-sm"
-            >
-              <div className="flex flex-col gap-4 border-b border-[#eee7e1] pb-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-lg font-black text-[#432a22]">
-                    سفارش #{order.id}
-                  </h2>
+          {orders.map((order) => {
+            const canCancel = canCancelOrder(order.status);
+            const isCancelling = cancelLoadingId === order.id;
 
-                  <p className="mt-1 text-sm text-[#8a7b72]">
-                    {order.created_at
-                      ? new Date(order.created_at).toLocaleString(
-                          "fa-IR"
-                        )
-                      : "تاریخ نامشخص"}
-                  </p>
-                </div>
+            return (
+              <article
+                key={order.id}
+                className="rounded-3xl border border-[#e7e0d9] bg-white p-6 shadow-sm"
+              >
+                <div className="flex flex-col gap-4 border-b border-[#eee7e1] pb-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-black text-[#432a22]">
+                      سفارش #{order.id}
+                    </h2>
 
-                <span className="w-fit rounded-full bg-[#f4ebe4] px-4 py-2 text-sm font-bold text-[#704b3a]">
-                  {STATUS_LABELS[order.status] ||
-                    order.status ||
-                    "نامشخص"}
-                </span>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {(order.items || []).map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-[#faf8f5] px-4 py-3"
-                  >
-                    <div>
-                      <p className="font-semibold text-[#432a22]">
-                        {item.product_name}
-                      </p>
-
-                      <p className="mt-1 text-xs text-[#8a7b72]">
-                        تعداد: {item.quantity}
-                      </p>
-                    </div>
-
-                    <p className="text-sm font-bold text-[#5f4539]">
-                      {Number(item.subtotal || 0).toLocaleString(
-                        "fa-IR"
-                      )}{" "}
-                      تومان
+                    <p className="mt-1 text-sm text-[#8a7b72]">
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleString(
+                            "fa-IR"
+                          )
+                        : "تاریخ نامشخص"}
                     </p>
                   </div>
-                ))}
-              </div>
 
-              <div className="mt-5 flex flex-col gap-4 border-t border-[#eee7e1] pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center justify-between gap-4 sm:justify-start">
-                  <span className="font-semibold text-[#6b5b52]">
-                    مبلغ کل
-                  </span>
-
-                  <span className="text-xl font-black text-[#432a22]">
-                    {Number(order.total || 0).toLocaleString(
-                      "fa-IR"
-                    )}{" "}
-                    <span className="text-xs font-medium">
-                      تومان
-                    </span>
+                  <span className="w-fit rounded-full bg-[#f4ebe4] px-4 py-2 text-sm font-bold text-[#704b3a]">
+                    {getStatusLabel(order.status)}
                   </span>
                 </div>
 
-                <Link
-                  href={`/orders/${order.id}`}
-                  className="rounded-xl bg-[#432a22] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#5a382d]"
-                >
-                  مشاهده جزئیات
-                </Link>
-              </div>
-            </article>
-          ))}
+                {Array.isArray(order.items) &&
+                  order.items.length > 0 && (
+                    <div className="mt-5 space-y-3">
+                      {order.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between gap-4 rounded-2xl bg-[#faf8f5] px-4 py-3"
+                        >
+                          <div>
+                            <p className="font-semibold text-[#432a22]">
+                              {item.product_name || "محصول"}
+                            </p>
+
+                            <p className="mt-1 text-xs text-[#8a7b72]">
+                              تعداد:{" "}
+                              {Number(item.quantity || 0).toLocaleString(
+                                "fa-IR"
+                              )}
+                            </p>
+                          </div>
+
+                          <p className="text-sm font-bold text-[#5f4539]">
+                            {Number(
+                              item.subtotal || 0
+                            ).toLocaleString("fa-IR")}{" "}
+                            تومان
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                <div className="mt-5 flex flex-col gap-3 border-t border-[#eee7e1] pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center justify-between gap-4 sm:justify-start">
+                    <span className="font-semibold text-[#6b5b52]">
+                      مبلغ کل
+                    </span>
+
+                    <span className="text-xl font-black text-[#432a22]">
+                      {Number(order.total || 0).toLocaleString(
+                        "fa-IR"
+                      )}{" "}
+                      <span className="text-xs font-medium">
+                        تومان
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="rounded-xl bg-[#432a22] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#5a382d]"
+                    >
+                      مشاهده جزئیات
+                    </Link>
+
+                    {canCancel && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancel(order)}
+                        disabled={isCancelling}
+                        className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isCancelling
+                          ? "در حال لغو..."
+                          : "لغو سفارش"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </main>

@@ -6,7 +6,6 @@ import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import cartService from "@/services/cart.service";
 import orderService from "@/services/order.service";
-import paymentService from "@/services/payment.service";
 
 function isValidIranianPhone(phone) {
   return /^(09\d{9}|\+989\d{9})$/.test(phone);
@@ -19,8 +18,6 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState("");
-  const [createdOrder, setCreatedOrder] = useState(null);
-  const [createdPayment, setCreatedPayment] = useState(null);
 
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingPhone, setShippingPhone] = useState("");
@@ -161,24 +158,6 @@ export default function CartPage() {
         }
       );
 
-      const payment = await paymentService.createPayment(
-        token,
-        order.id
-      );
-
-      const confirmedPayment =
-        await paymentService.confirmPayment(
-          token,
-          payment.id
-        );
-
-      setCreatedOrder({
-        ...order,
-        status: order.status,
-      });
-
-      setCreatedPayment(confirmedPayment);
-
       setCart({
         ...cart,
         items: [],
@@ -187,10 +166,12 @@ export default function CartPage() {
 
       setShippingAddress("");
       setShippingPhone("");
+
+      window.location.href = `/orders/${order.id}`;
     } catch (err) {
       setError(
         err?.data?.detail ||
-          "ثبت سفارش یا پرداخت ناموفق بود."
+          "ثبت سفارش ناموفق بود."
       );
     } finally {
       setCheckoutLoading(false);
@@ -231,100 +212,6 @@ export default function CartPage() {
           >
             ورود
           </Link>
-        </div>
-      </main>
-    );
-  }
-
-  if (createdOrder && createdPayment) {
-    return (
-      <main
-        dir="rtl"
-        className="mx-auto max-w-3xl px-5 py-10"
-      >
-        <div className="rounded-3xl border border-green-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700">
-            ✓
-          </div>
-
-          <h1 className="text-3xl font-black text-[#432a22]">
-            پرداخت با موفقیت انجام شد
-          </h1>
-
-          <p className="mt-3 text-[#75665d]">
-            سفارش شما با موفقیت ثبت و پرداخت شد.
-          </p>
-
-          <div className="mt-8 space-y-3 rounded-2xl bg-[#faf8f5] p-5 text-right">
-            <div className="flex justify-between gap-4">
-              <span className="text-[#75665d]">
-                شماره سفارش
-              </span>
-
-              <strong className="text-[#432a22]">
-                #{createdOrder.id}
-              </strong>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-[#75665d]">
-                مبلغ سفارش
-              </span>
-
-              <strong className="text-[#432a22]">
-                {Number(createdOrder.total || 0).toLocaleString(
-                  "fa-IR"
-                )}{" "}
-                تومان
-              </strong>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-[#75665d]">
-                وضعیت سفارش
-              </span>
-
-              <strong className="text-green-700">
-                پرداخت شده
-              </strong>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-[#75665d]">
-                شماره پرداخت
-              </span>
-
-              <strong className="text-[#432a22]">
-                #{createdPayment.id}
-              </strong>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-[#75665d]">
-                شناسه تراکنش
-              </span>
-
-              <strong className="break-all text-xs text-[#432a22]">
-                {createdPayment.transaction_id}
-              </strong>
-            </div>
-          </div>
-
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={`/orders/${createdOrder.id}`}
-              className="flex-1 rounded-xl bg-[#432a22] px-5 py-3 font-bold text-white transition hover:bg-[#5a382d]"
-            >
-              مشاهده سفارش
-            </Link>
-
-            <Link
-              href="/"
-              className="flex-1 rounded-xl border border-[#ded3ca] px-5 py-3 font-bold text-[#432a22] transition hover:bg-[#f7f3ee]"
-            >
-              بازگشت به فروشگاه
-            </Link>
-          </div>
         </div>
       </main>
     );
@@ -529,8 +416,8 @@ export default function CartPage() {
               className="mt-6 w-full rounded-xl bg-[#432a22] px-4 py-3 font-bold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {checkoutLoading
-                ? "در حال پردازش پرداخت..."
-                : "ثبت سفارش و پرداخت"}
+                ? "در حال ثبت سفارش..."
+                : "ثبت سفارش"}
             </button>
           </aside>
         </div>
@@ -538,4 +425,3 @@ export default function CartPage() {
     </main>
   );
 }
-

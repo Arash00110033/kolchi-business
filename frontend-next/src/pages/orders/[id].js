@@ -5,6 +5,7 @@ import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import orderService from "@/services/order.service";
+import paymentService from "@/services/payment.service";
 
 const STATUS_LABELS = {
   pending: "در انتظار بررسی",
@@ -58,6 +59,10 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
 
   useEffect(() => {
     if (authLoading || !router.isReady) return;
@@ -181,6 +186,82 @@ export default function OrderDetailPage() {
     0
   );
 
+  const handlePayment = async () => {
+    if (!order || paymentLoading) return;
+
+    try {
+      setPaymentLoading(true);
+      setPaymentError("");
+
+      const token = authService.getStoredAccessToken();
+
+      if (!token) {
+        setPaymentError(
+          "برای پرداخت ابتدا وارد حساب کاربری شوید."
+        );
+        return;
+      }
+
+      const payment = await paymentService.createPayment(
+        token,
+        order.id
+      );
+
+      await paymentService.confirmPayment(
+        token,
+        payment.id
+      );
+
+      const data = await orderService.getOrder(
+        token,
+        order.id
+      );
+
+      setOrder(data);
+    } catch (err) {
+      setPaymentError(
+        err?.data?.detail ||
+          err?.message ||
+          "پرداخت سفارش انجام نشد."
+      );
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+  const handleCancel = async () => {
+    if (!order || cancelLoading) return;
+
+    const confirmed = window.confirm(
+      "آیا از لغو این سفارش مطمئن هستید؟"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setCancelLoading(true);
+      setCancelError("");
+
+      const token = authService.getStoredAccessToken();
+
+      await orderService.cancelOrder(
+        token,
+        order.id
+      );
+
+      const data = await orderService.getOrder(
+        token,
+        order.id
+      );
+
+      setOrder(data);
+    } catch (err) {
+      setCancelError(
+        err?.message || "لغو سفارش انجام نشد."
+      );
+    } finally {
+      setCancelLoading(false);
+    }
+  };
   const trackingIndex =
     TRACKING_INDEX[order.status] ?? -1;
 
@@ -455,6 +536,51 @@ export default function OrderDetailPage() {
             </span>
           </div>
 
+          {/* Order Actions */}
+          {(order.status === "pending" ||
+            order.status === "confirmed") && (
+            <div className="mt-6 border-t border-[#eee7e1] pt-6">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  {paymentError && (
+                    <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                      {paymentError}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handlePayment}
+                    disabled={paymentLoading || cancelLoading}
+                    className="w-full rounded-xl bg-[#432a22] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {paymentLoading
+                      ? "در حال پرداخت..."
+                      : "پرداخت سفارش"}
+                  </button>
+                </div>
+
+                <div>
+                  {cancelError && (
+                    <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                      {cancelError}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    disabled={cancelLoading || paymentLoading}
+                    className="w-full rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {cancelLoading
+                      ? "در حال لغو سفارش..."
+                      : "لغو سفارش"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Bottom Actions */}
           <div className="mt-6 flex flex-col gap-3 border-t border-[#eee7e1] pt-6 sm:flex-row">
             <Link
@@ -476,3 +602,13 @@ export default function OrderDetailPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+

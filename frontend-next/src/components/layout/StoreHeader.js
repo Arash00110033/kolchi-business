@@ -59,7 +59,7 @@ export default function StoreHeader() {
           Kolchi
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm font-semibold text-[#5f514a] sm:flex">
+        <nav className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-[#5f514a] sm:gap-6">
           <Link
             href="/"
             className="transition hover:text-[#a06b45]"
@@ -141,3 +141,4 @@ export default function StoreHeader() {
     </header>
   );
 }
+

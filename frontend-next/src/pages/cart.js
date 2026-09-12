@@ -174,7 +174,7 @@ export default function CartPage() {
 
       setCreatedOrder({
         ...order,
-        status: "paid",
+        status: order.status,
       });
 
       setCreatedPayment(confirmedPayment);
@@ -538,3 +538,4 @@ export default function CartPage() {
     </main>
   );
 }
+

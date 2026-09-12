@@ -1,4 +1,4 @@
-/*
+﻿/*
 =========================================================
 API CLIENT
 =========================================================
@@ -61,7 +61,7 @@ async function request(endpoint, options = {}) {
     const error = new Error(
       typeof data === "string"
         ? data
-        : data?.detail || "خطایی در ارتباط با سرور رخ داد."
+        : data?.detail || "ط®ط·ط§غŒغŒ ط¯ط± ط§ط±طھط¨ط§ط· ط¨ط§ ط³ط±ظˆط± ط±ط® ط¯ط§ط¯."
     );
 
     error.status = response.status;

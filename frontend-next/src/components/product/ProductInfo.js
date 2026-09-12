@@ -9,6 +9,7 @@ export default function ProductInfo({
   addingToCart,
   cartMessage,
   cartError,
+  requiresLogin,
 }) {
   const router = useRouter();
 
@@ -144,6 +145,14 @@ export default function ProductInfo({
       {cartError && (
         <div className="mt-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           {cartError}
+
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="mt-3 w-full rounded-xl bg-[#5b382b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#45291f]"
+          >
+            &#1608;&#1585;&#1608;&#1583; &#1576;&#1607; &#1581;&#1587;&#1575;&#1576;
+          </button>
         </div>
       )}
 

@@ -73,12 +73,14 @@ export default function ProductDetails({
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartMessage, setCartMessage] = useState("");
   const [cartError, setCartError] = useState("");
+  const [requiresLogin, setRequiresLogin] = useState(false);
 
   useEffect(() => {
     setSelectedImage(0);
     setQuantity(1);
     setCartMessage("");
     setCartError("");
+    setRequiresLogin(false);
   }, [normalizedProduct?.id]);
 
   const increaseQuantity = () => {
@@ -171,6 +173,7 @@ export default function ProductDetails({
               addingToCart={addingToCart}
               cartMessage={cartMessage}
               cartError={cartError}
+              requiresLogin={requiresLogin}
             />
           </div>
         </section>

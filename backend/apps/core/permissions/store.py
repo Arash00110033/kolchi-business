@@ -1,4 +1,4 @@
-﻿from apps.stores.models import Store, StoreMembership
+from apps.stores.models import Store, StoreMembership
 
 
 def is_store_owner(user, store):
@@ -24,6 +24,9 @@ def get_store_role(user, store):
 
     return membership.role if membership else None
 
+
+def can_manage_store_languages(user, store):
+    return is_store_owner(user, store)
 
 def can_manage_store(user, store):
     if not user or not user.is_authenticated or not store:

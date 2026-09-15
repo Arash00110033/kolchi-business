@@ -1,12 +1,12 @@
-﻿import re
-from django.db import transaction
-from django.shortcuts import get_object_or_404
-
-from rest_framework import generics, permissions, status
+﻿from django.db import transaction
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from apps.cart.models import Cart
 from apps.catalog.models import Product
+from apps.inventory.services import InventoryError, InventoryService
 from apps.stores.models import Store
 
 from .models import Order, OrderItem
@@ -15,13 +15,14 @@ from .serializers import OrderSerializer
 
 class OrderListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(
-            user=self.request.user,
-        ).prefetch_related(
-            "items",
+        return (
+            Order.objects
+            .filter(user=self.request.user)
+            .select_related("store")
+            .prefetch_related("items")
         )
 
     @transaction.atomic
@@ -29,50 +30,36 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
         shipping_address = str(
             request.data.get("shipping_address", "")
         ).strip()
-
         shipping_phone = str(
             request.data.get("shipping_phone", "")
         ).strip()
 
-
-        if not shipping_address:
-            return Response(
-                {"detail": "Shipping address is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         if len(shipping_address) < 10 or len(shipping_address) > 500:
             return Response(
-                {
-                    "detail": (
-                        "Shipping address must be between "
-                        "10 and 500 characters."
-                    )
-                },
+                {"detail": "Shipping address must be between 10 and 500 characters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not shipping_phone:
-            return Response(
-                {"detail": "Shipping phone is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        import re
 
-        if not re.fullmatch(
-            r"(09\d{9}|\+989\d{9})",
-            shipping_phone,
-        ):
+        if not re.fullmatch(r"09\d{9}", shipping_phone):
             return Response(
                 {"detail": "Invalid shipping phone."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        cart = get_object_or_404(
-            Cart.objects.prefetch_related(
-                "items__product",
-            ),
-            user=request.user,
+        cart = (
+            Cart.objects
+            .filter(user=request.user)
+            .prefetch_related("items__product")
+            .first()
         )
+
+        if cart is None:
+            return Response(
+                {"detail": "Cart is empty."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         cart_items = list(cart.items.all())
 
@@ -92,27 +79,25 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
             for product in products
         }
 
+        if len(products_by_id) != len(cart_items):
+            return Response(
+                {"detail": "One or more products are unavailable."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         store_ids = {
-            product.store_id
-            for product in products_by_id.values()
-            if product.store_id is not None
+            products_by_id[item.product_id].store_id
+            for item in cart_items
         }
 
         if len(store_ids) != 1:
             return Response(
-                {
-                    "detail": (
-                        "All products in an order must belong to "
-                        "the same store."
-                    )
-                },
+                {"detail": "All order items must belong to one store."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        store_id = next(iter(store_ids))
-
         store = Store.objects.filter(
-            id=store_id,
+            id=next(iter(store_ids)),
             is_active=True,
         ).first()
 
@@ -121,19 +106,9 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
                 {"detail": "Store is unavailable."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        for cart_item in cart_items:
-            product = products_by_id.get(cart_item.product_id)
 
-            if product is None:
-                return Response(
-                    {
-                        "detail": (
-                            f"Product {cart_item.product_id} "
-                            "is unavailable."
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        for cart_item in cart_items:
+            product = products_by_id[cart_item.product_id]
 
             if cart_item.quantity > product.stock:
                 return Response(
@@ -149,45 +124,49 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
         order = Order.objects.create(
             user=request.user,
             store=store,
-            status=Order.Status.PENDING,
-            total=0,
             shipping_address=shipping_address,
             shipping_phone=shipping_phone,
+            status=Order.Status.PENDING,
+            total=0,
         )
 
         total = 0
 
-        for cart_item in cart_items:
-            product = products_by_id[cart_item.product_id]
+        try:
+            for cart_item in cart_items:
+                product = products_by_id[cart_item.product_id]
 
-            subtotal = product.price * cart_item.quantity
+                subtotal = product.price * cart_item.quantity
+                total += subtotal
 
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=product.name,
-                unit_price=product.price,
-                quantity=cart_item.quantity,
-                subtotal=subtotal,
-            )
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_name=product.name,
+                    unit_price=product.price,
+                    quantity=cart_item.quantity,
+                    subtotal=subtotal,
+                )
 
-            product.stock -= cart_item.quantity
-            product.save(
-                update_fields=[
-                    "stock",
-                    "updated_at",
-                ]
-            )
+                InventoryService.decrease(
+                    product,
+                    cart_item.quantity,
+                    reference=f"ORDER-{order.id}",
+                    note="Order creation",
+                )
 
-            total += subtotal
+                product.stock -= cart_item.quantity
+                product.save(
+                    update_fields=[
+                        "stock",
+                        "updated_at",
+                    ]
+                )
+        except InventoryError as exc:
+            raise ValidationError({"detail": str(exc)})
 
         order.total = total
-        order.save(
-            update_fields=[
-                "total",
-                "updated_at",
-            ]
-        )
+        order.save(update_fields=["total"])
 
         cart.items.all().delete()
 
@@ -199,28 +178,24 @@ class OrderListCreateAPIView(generics.ListCreateAPIView):
 
 class OrderDetailAPIView(generics.RetrieveAPIView):
     serializer_class = OrderSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(
-            user=self.request.user,
-        ).prefetch_related(
-            "items",
+        return (
+            Order.objects
+            .filter(user=self.request.user)
+            .select_related("store")
+            .prefetch_related("items")
         )
 
 
 class OrderCancelAPIView(generics.UpdateAPIView):
     serializer_class = OrderSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return Order.objects.filter(
-            user=self.request.user,
-        ).prefetch_related("items")
+    permission_classes = [IsAuthenticated]
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
-        order = get_object_or_404(
+        order = generics.get_object_or_404(
             Order.objects.select_for_update(),
             id=kwargs["pk"],
             user=request.user,
@@ -232,12 +207,12 @@ class OrderCancelAPIView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if order.status not in (
+        if order.status not in {
             Order.Status.PENDING,
             Order.Status.CONFIRMED,
-        ):
+        }:
             return Response(
-                {"detail": "This order cannot be cancelled in its current status."},
+                {"detail": "This order cannot be cancelled."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -252,22 +227,31 @@ class OrderCancelAPIView(generics.UpdateAPIView):
             for product in products
         }
 
-        for item in items:
-            product = products_by_id[item.product_id]
-            product.stock += item.quantity
-            product.save(
-                update_fields=["stock", "updated_at"],
-            )
+        try:
+            for item in items:
+                product = products_by_id[item.product_id]
+
+                InventoryService.increase(
+                    product,
+                    item.quantity,
+                    transaction_type="return",
+                    reference=f"ORDER-{order.id}",
+                    note="Order cancellation",
+                )
+
+                product.stock += item.quantity
+                product.save(
+                    update_fields=[
+                        "stock",
+                        "updated_at",
+                    ]
+                )
+        except InventoryError as exc:
+            raise ValidationError({"detail": str(exc)})
 
         order.status = Order.Status.CANCELLED
-        order.save(
-            update_fields=["status", "updated_at"],
-        )
+        order.save(update_fields=["status", "updated_at"])
 
-        return Response(
-            OrderSerializer(order).data,
-            status=status.HTTP_200_OK,
-        )
-
+        return Response(OrderSerializer(order).data)
 
 

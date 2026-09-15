@@ -1,10 +1,11 @@
-﻿from django.db import transaction
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from apps.catalog.models import Product
+from apps.inventory.services import InventoryError, InventoryService
 from apps.core.permissions.store import (
     can_access_store,
     can_manage_store,
@@ -158,6 +159,20 @@ class AdminOrderStatusAPIView(
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
+                try:
+                    InventoryService.increase(
+                        product,
+                        item.quantity,
+                        transaction_type="return",
+                        reference=f"ORDER-{order.id}",
+                        note="Admin order cancellation",
+                    )
+                except InventoryError as exc:
+                    return Response(
+                        {"detail": str(exc)},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 product.stock += item.quantity
                 product.save(
                     update_fields=["stock", "updated_at"],
@@ -169,4 +184,3 @@ class AdminOrderStatusAPIView(
             AdminOrderSerializer(order).data,
             status=status.HTTP_200_OK,
         )
-

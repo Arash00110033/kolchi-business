@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useI18n } from "@/i18n";
 
-import ProductBreadcrumb from "@/components/product/ProductBreadcrumb";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductLoading from "@/components/product/ProductLoading";
@@ -40,20 +40,22 @@ function normalizeProduct(product) {
 }
 
 function ProductError({ error }) {
+  const { t, isRTL } = useI18n();
+
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[#f7f4ef] px-4 py-10 sm:px-6 lg:px-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-[var(--theme-background)] px-4 py-10 sm:px-6 lg:px-10"
     >
       <div className="mx-auto max-w-[1400px]">
         <div className="rounded-[32px] border border-red-100 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-black text-[#2d211d]">
-            خطا در دریافت محصول
+          <h1 className="text-2xl font-black text-[var(--theme-foreground)]">
+            {t("common.errorTitle")}
           </h1>
 
-          <p className="mt-3 text-sm text-[#756961]">
+          <p className="mt-3 text-sm text-[var(--theme-muted)]">
             {error?.message ||
-              "امکان دریافت اطلاعات محصول وجود ندارد."}
+              t("common.error")}
           </p>
         </div>
       </div>
@@ -66,6 +68,8 @@ export default function ProductDetails({
   loading = false,
   error = null,
 }) {
+  const router = useRouter();
+  const { t, isRTL } = useI18n();
   const normalizedProduct = normalizeProduct(product);
 
   const [selectedImage, setSelectedImage] = useState(0);
@@ -106,7 +110,7 @@ export default function ProductDetails({
 
     if (!token) {
       setCartError(
-        "برای افزودن محصول به سبد خرید ابتدا وارد حساب کاربری شوید."
+        t("common.loginRequired")
       );
       setCartMessage("");
       return;
@@ -124,12 +128,12 @@ export default function ProductDetails({
       );
 
       setCartMessage(
-        "محصول با موفقیت به سبد خرید اضافه شد."
+        t("common.addedToCart")
       );
     } catch (err) {
       setCartError(
         err?.data?.detail ||
-          "افزودن محصول به سبد خرید ناموفق بود."
+          t("common.addToCartFailed")
       );
     } finally {
       setAddingToCart(false);
@@ -150,13 +154,39 @@ export default function ProductDetails({
 
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[#f7f4ef] px-4 py-8 sm:px-6 lg:px-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-[var(--theme-background)] px-4 py-8 sm:px-6 lg:px-10"
     >
       <div className="mx-auto max-w-[1400px]">
-        <ProductBreadcrumb product={normalizedProduct} />
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/");
+              }
+            }}
+            className="group inline-flex items-center gap-2 rounded-full border border-[var(--theme-border)] bg-white px-5 py-2.5 text-sm font-bold text-[var(--theme-foreground)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <span
+              aria-hidden="true"
+              className="text-lg transition-transform group-hover:-translate-x-0.5"
+            >
+              ←
+            </span>
+            <span>{t("common.back")}</span>
+          </button>
 
-        <section className="overflow-hidden rounded-[32px] border border-[#e6dfd8] bg-white shadow-[0_15px_50px_rgba(70,45,30,0.06)]">
+          {normalizedProduct.category_name && (
+            <span className="rounded-full border border-[var(--theme-border)] bg-white px-4 py-2 text-xs font-bold text-[var(--theme-muted)] shadow-sm">
+              {normalizedProduct.category_name}
+            </span>
+          )}
+        </div>
+
+        <section className="overflow-hidden rounded-[32px] border border-[var(--theme-border)] bg-white shadow-[0_15px_50px_rgba(70,45,30,0.06)]">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <ProductGallery
               product={normalizedProduct}

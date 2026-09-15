@@ -1,4 +1,4 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.db import models
 
 
@@ -11,6 +11,8 @@ class Store(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(max_length=180, unique=True)
     description = models.TextField(blank=True, default="")
+    default_locale = models.CharField(max_length=10, default="fa")
+    enabled_locales = models.JSONField(default=list)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

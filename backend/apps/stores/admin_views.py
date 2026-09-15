@@ -1,4 +1,4 @@
-﻿from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, permissions
 
@@ -41,5 +41,21 @@ class AdminStoreDetailAPIView(generics.RetrieveUpdateAPIView):
             raise PermissionDenied(
                 "You do not have permission to manage this store."
             )
+
+        language_fields = {"default_locale", "enabled_locales"}
+
+        if language_fields.intersection(request.data.keys()):
+            from apps.core.permissions.store import (
+                can_manage_store_languages,
+            )
+
+            if not can_manage_store_languages(
+                self.request.user,
+                store,
+            ):
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied(
+                    "Only the store owner can manage language settings."
+                )
 
         return super().update(request, *args, **kwargs)

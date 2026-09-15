@@ -17,6 +17,10 @@ urlpatterns = [
         "api/v1/",
         include("apps.catalog.urls"),
     ),
+    path(
+        "api/v1/",
+        include("apps.stores.urls"),
+    ),
 
     path(
         "api/v1/auth/",

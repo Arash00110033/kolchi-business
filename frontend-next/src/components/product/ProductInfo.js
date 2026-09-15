@@ -1,4 +1,5 @@
-﻿import { useRouter } from "next/router";
+import { useRouter } from "next/router";
+import { useI18n } from "@/i18n";
 
 export default function ProductInfo({
   product,
@@ -12,6 +13,7 @@ export default function ProductInfo({
   requiresLogin,
 }) {
   const router = useRouter();
+  const { t, locale, isRTL } = useI18n();
 
   if (!product) {
     return null;
@@ -21,83 +23,85 @@ export default function ProductInfo({
   const price = Number(product.price || 0);
 
   return (
-    <div className="order-2 p-6 sm:p-8 lg:p-12">
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className="order-2 p-6 sm:p-8 lg:p-12">
       <div className="mb-4">
-        <span className="rounded-full bg-[#f3e8de] px-4 py-2 text-sm font-medium text-[#694637]">
-          {product.category_name || "دسته‌بندی"}
+        <span className="rounded-full bg-[color-mix(in srgb, var(--theme-secondary) 14%, white)] px-4 py-2 text-sm font-medium text-[var(--theme-primary)]">
+          {product.category_name || t("common.category")}
         </span>
       </div>
 
-      <h1 className="text-3xl font-black tracking-tight text-[#2a201c] sm:text-4xl lg:text-5xl">
+      <h1 className="text-3xl font-black tracking-tight text-[var(--theme-foreground)] sm:text-4xl lg:text-5xl">
         {product.name}
       </h1>
 
       {product.description && (
-        <p className="mt-5 max-w-2xl text-base leading-8 text-[#6f625b]">
+        <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--theme-muted)]">
           {product.description}
         </p>
       )}
 
-      <div className="my-7 h-px bg-[#ebe5df]" />
+      <div className="my-7 h-px bg-[var(--theme-border)]" />
 
       <div
         className={`rounded-2xl border p-4 ${
           isAvailable
-            ? "border-[#dcebdc] bg-[#f3f8f3]"
+            ? "border-[color-mix(in srgb, var(--theme-success) 18%, white)] bg-[color-mix(in srgb, var(--theme-success) 8%, white)]"
             : "border-red-100 bg-red-50"
         }`}
       >
         <div className="flex items-center justify-between gap-4">
-          <span className="text-sm font-bold text-[#49332a]">
-            وضعیت موجودی
+          <span className="text-sm font-bold text-[var(--theme-foreground)]">
+            {t("common.stock")}
           </span>
 
           <span
             className={`text-sm font-bold ${
-              isAvailable ? "text-[#356139]" : "text-red-600"
+              isAvailable ? "text-[var(--theme-success)]" : "text-red-600"
             }`}
           >
             {isAvailable
-              ? `موجود — ${product.stock} عدد`
-              : "ناموجود"}
+              ? `${t("common.available")} — ${product.stock} ${t("common.productsCount")}`
+              : t("common.unavailable") }
           </span>
         </div>
       </div>
 
-      <div className="mt-5 rounded-[24px] bg-[#f7f3ee] p-5">
-        <span className="block text-sm text-[#81766f]">
-          قیمت
+      <div className="mt-5 rounded-[24px] bg-[var(--theme-background)] p-5">
+        <span className="block text-sm text-[var(--theme-muted)]">
+          {t("common.price")}
         </span>
 
         <div className="mt-2 flex items-end gap-2">
-          <span className="text-3xl font-black text-[#3d271f]">
-            {price.toLocaleString("fa-IR")}
+          <span className="text-3xl font-black text-[var(--theme-primary)]">
+            {price.toLocaleString(locale)}
           </span>
 
-          <span className="pb-1 text-sm text-[#81766f]">
-            تومان
+          <span className="pb-1 text-sm text-[var(--theme-muted)]">
+            {t("common.currency")}
           </span>
         </div>
       </div>
 
       {isAvailable && (
         <div className="mt-6">
-          <span className="mb-3 block text-sm font-bold text-[#49332a]">
-            تعداد
+          <span className="mb-3 block text-sm font-bold text-[var(--theme-foreground)]">
+            {t("common.quantity")}
           </span>
 
-          <div className="flex w-fit items-center overflow-hidden rounded-2xl border border-[#ddd3cb] bg-white">
+          <div className="flex w-fit items-center overflow-hidden rounded-2xl border border-[var(--theme-border)] bg-white">
             <button
               type="button"
               onClick={onDecrease}
               disabled={quantity <= 1 || addingToCart}
-              className="flex h-12 w-12 items-center justify-center text-xl text-[#4d3026] transition hover:bg-[#f7f3ee] disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="کاهش تعداد"
+              className="flex h-12 w-12 items-center justify-center text-xl text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label={t("common.decrease")}
             >
               −
             </button>
 
-            <span className="flex h-12 min-w-12 items-center justify-center border-x border-[#eee8e2] text-sm font-bold text-[#2d211d]">
+            <span className="flex h-12 min-w-12 items-center justify-center border-x border-[var(--theme-border)] text-sm font-bold text-[var(--theme-foreground)]">
               {quantity}
             </span>
 
@@ -107,8 +111,8 @@ export default function ProductInfo({
               disabled={
                 quantity >= product.stock || addingToCart
               }
-              className="flex h-12 w-12 items-center justify-center text-xl text-[#4d3026] transition hover:bg-[#f7f3ee] disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="افزایش تعداد"
+              className="flex h-12 w-12 items-center justify-center text-xl text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label={t("common.increase")}
             >
               +
             </button>
@@ -118,7 +122,7 @@ export default function ProductInfo({
 
       {cartMessage && (
         <>
-          <div className="mt-5 rounded-2xl border border-[#cfe4d0] bg-[#f1f8f1] px-4 py-3 text-sm font-semibold text-[#356139]">
+          <div className="mt-5 rounded-2xl border border-[color-mix(in srgb, var(--theme-success) 20%, white)] bg-[color-mix(in srgb, var(--theme-success) 8%, white)] px-4 py-3 text-sm font-semibold text-[var(--theme-success)]">
             {cartMessage}
           </div>
 
@@ -126,17 +130,17 @@ export default function ProductInfo({
             <button
               type="button"
               onClick={() => router.push("/cart")}
-              className="flex-1 rounded-xl bg-[#5b382b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#45291f]"
+              className="flex-1 rounded-xl bg-[var(--theme-primary)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)]"
             >
-              مشاهده سبد خرید
+              {t("common.viewCart")}
             </button>
 
             <button
               type="button"
               onClick={() => router.push("/")}
-              className="flex-1 rounded-xl border border-[#5b382b] px-4 py-3 text-sm font-bold text-[#5b382b] transition hover:bg-[#f8f1ec]"
+              className="flex-1 rounded-xl border border-[var(--theme-primary)] px-4 py-3 text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
             >
-              ادامه خرید
+              {t("common.continueShopping")}
             </button>
           </div>
         </>
@@ -149,9 +153,9 @@ export default function ProductInfo({
           <button
             type="button"
             onClick={() => router.push("/login")}
-            className="mt-3 w-full rounded-xl bg-[#5b382b] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#45291f]"
+            className="mt-3 w-full rounded-xl bg-[var(--theme-primary)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)]"
           >
-            &#1608;&#1585;&#1608;&#1583; &#1576;&#1607; &#1581;&#1587;&#1575;&#1576;
+            {t("common.login")}
           </button>
         </div>
       )}
@@ -160,13 +164,13 @@ export default function ProductInfo({
         type="button"
         onClick={onAddToCart}
         disabled={!isAvailable || addingToCart}
-        className="mt-6 h-14 w-full rounded-2xl bg-[#5b382b] px-6 text-base font-bold text-white transition hover:bg-[#45291f] disabled:cursor-not-allowed disabled:bg-[#b9aea7]"
+        className="mt-6 h-14 w-full rounded-2xl bg-[var(--theme-primary)] px-6 text-base font-bold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--theme-muted)]"
       >
         {addingToCart
-          ? "در حال افزودن..."
+          ? t("common.adding")
           : isAvailable
-            ? "افزودن به سبد خرید"
-            : "محصول ناموجود است"}
+            ? t("common.addToCart")
+            : t("common.unavailableProduct")}
       </button>
     </div>
   );

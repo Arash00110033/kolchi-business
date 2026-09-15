@@ -1,43 +1,45 @@
 import Link from "next/link";
+import { useI18n } from "@/i18n";
 
 export default function CatalogHeader({
   categories = [],
   activeCategory = "all",
 }) {
+  const { t, isRTL } = useI18n();
   return (
     <section
-      dir="rtl"
-      className="rounded-3xl border border-[#e7e0d9] bg-white p-6 shadow-sm sm:p-8"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="rounded-3xl border border-[var(--theme-border)] bg-white p-6 shadow-sm sm:p-8"
     >
       <div className="flex flex-col gap-6">
 
         <div>
-          <span className="text-sm font-medium text-[#a06b45]">
+          <span className="text-sm font-medium text-[var(--theme-secondary)]">
             Kolchi Store
           </span>
 
-          <h1 className="mt-1 text-3xl font-black text-[#2d211d] sm:text-4xl">
-            فروشگاه
+          <h1 className="mt-1 text-3xl font-black text-[var(--theme-foreground)] sm:text-4xl">
+            {t("common.store")}
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-[#817770] sm:text-base">
-            محصولات مورد نیازت را پیدا کن و با خیال راحت انتخاب کن.
+          <p className="mt-2 text-sm leading-6 text-[var(--theme-muted)] sm:text-base">
+            {t("common.heroText")}
           </p>
         </div>
 
         <nav
-          aria-label="دسته‌بندی محصولات"
+          aria-label={t("common.categoryProducts")}
           className="flex flex-wrap gap-2"
         >
           <Link
             href="/"
             className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
               activeCategory === "all"
-                ? "border-[#4d3026] bg-[#4d3026] text-white"
-                : "border-[#ded7d0] bg-white text-[#4d3026] hover:bg-[#f7f2ed]"
+                ? "border-[var(--theme-primary)] bg-[var(--theme-primary)] text-white"
+                : "border-[var(--theme-border)] bg-white text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
             }`}
           >
-            همه محصولات
+            {t("common.allProducts")}
           </Link>
 
           {categories.map((category) => {
@@ -49,8 +51,8 @@ export default function CatalogHeader({
                 href={`/?category=${encodeURIComponent(category.slug)}`}
                 className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                   isActive
-                    ? "border-[#4d3026] bg-[#4d3026] text-white"
-                    : "border-[#ded7d0] bg-white text-[#4d3026] hover:bg-[#f7f2ed]"
+                    ? "border-[var(--theme-primary)] bg-[var(--theme-primary)] text-white"
+                    : "border-[var(--theme-border)] bg-white text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
                 }`}
               >
                 {category.name}

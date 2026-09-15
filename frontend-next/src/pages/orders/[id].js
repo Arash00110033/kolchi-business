@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -6,14 +6,15 @@ import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import orderService from "@/services/order.service";
 import paymentService from "@/services/payment.service";
+import { useI18n } from "@/i18n";
 
-const STATUS_LABELS = {
-  pending: "در انتظار بررسی",
-  confirmed: "تأیید شده",
-  paid: "پرداخت شده",
-  shipped: "ارسال شده",
-  delivered: "تحویل شده",
-  cancelled: "لغو شده",
+const STATUS_KEYS = {
+  pending: "pending",
+  confirmed: "confirmed",
+  paid: "paid",
+  shipped: "shipped",
+  delivered: "delivered",
+  cancelled: "cancelled",
 };
 
 const TRACKING_STEPS = [
@@ -53,6 +54,7 @@ const TRACKING_INDEX = {
 };
 
 export default function OrderDetailPage() {
+  const { t, isRTL, locale } = useI18n();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
@@ -90,7 +92,7 @@ export default function OrderDetailPage() {
 
         setOrder(data);
       } catch (err) {
-        setError("دریافت جزئیات سفارش ناموفق بود.");
+        setError(t("orders.detailFetchError"));
       } finally {
         setLoading(false);
       }
@@ -107,10 +109,10 @@ export default function OrderDetailPage() {
   if (authLoading || loading) {
     return (
       <main
-        dir="rtl"
+        dir={isRTL ? "rtl" : "ltr"}
         className="mx-auto max-w-4xl px-5 py-10"
       >
-        <p className="text-[#6b5b52]">
+        <p className="text-[var(--theme-muted)]">
           در حال دریافت جزئیات سفارش...
         </p>
       </main>
@@ -120,21 +122,21 @@ export default function OrderDetailPage() {
   if (!isAuthenticated) {
     return (
       <main
-        dir="rtl"
+        dir={isRTL ? "rtl" : "ltr"}
         className="mx-auto max-w-4xl px-5 py-10"
       >
-        <div className="rounded-3xl border border-[#e7e0d9] bg-white p-8 text-center shadow-sm">
-          <h1 className="mb-3 text-2xl font-black text-[#432a22]">
+        <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-8 text-center shadow-sm">
+          <h1 className="mb-3 text-2xl font-black text-[var(--theme-primary)]">
             جزئیات سفارش
           </h1>
 
-          <p className="mb-6 text-[#6b5b52]">
+          <p className="mb-6 text-[var(--theme-muted)]">
             برای مشاهده سفارش ابتدا وارد حساب کاربری شوید.
           </p>
 
           <Link
             href="/login"
-            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
+            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
           >
             ورود
           </Link>
@@ -146,25 +148,25 @@ export default function OrderDetailPage() {
   if (error || !order) {
     return (
       <main
-        dir="rtl"
+        dir={isRTL ? "rtl" : "ltr"}
         className="mx-auto max-w-4xl px-5 py-10"
       >
         <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center">
           <p className="font-semibold text-red-700">
-            {error || "سفارش پیدا نشد."}
+            {error || t("orders.notFound")}
           </p>
 
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
               href="/orders"
-              className="rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white transition hover:bg-[#5a382d]"
+              className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
             >
               بازگشت به سفارش‌ها
             </Link>
 
             <Link
               href="/"
-              className="rounded-xl border border-[#432a22] px-5 py-3 font-semibold text-[#432a22] transition hover:bg-[#f7f0eb]"
+              className="rounded-xl border border-[var(--theme-primary)] px-5 py-3 font-semibold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
             >
               ادامه خرید
             </Link>
@@ -177,7 +179,7 @@ export default function OrderDetailPage() {
   const statusLabel =
     STATUS_LABELS[order.status] ||
     order.status ||
-    "نامشخص";
+    t("orders.unknownStatus");
 
   const items = order.items || [];
 
@@ -222,7 +224,7 @@ export default function OrderDetailPage() {
       setPaymentError(
         err?.data?.detail ||
           err?.message ||
-          "پرداخت سفارش انجام نشد."
+          t("orders.paymentFailed")
       );
     } finally {
       setPaymentLoading(false);
@@ -256,7 +258,7 @@ export default function OrderDetailPage() {
       setOrder(data);
     } catch (err) {
       setCancelError(
-        err?.message || "لغو سفارش انجام نشد."
+        err?.message || t("orders.cancelFailed")
       );
     } finally {
       setCancelLoading(false);
@@ -274,61 +276,61 @@ export default function OrderDetailPage() {
 
   return (
     <main
-      dir="rtl"
+      dir={isRTL ? "rtl" : "ltr"}
       className="mx-auto max-w-4xl px-5 py-10"
     >
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/orders"
-          className="text-sm font-semibold text-[#704b3a] transition hover:text-[#432a22] hover:underline"
+          className="text-sm font-semibold text-[var(--theme-secondary)] transition hover:text-[var(--theme-primary)] hover:underline"
         >
           ← بازگشت به سفارش‌ها
         </Link>
 
         <Link
           href="/"
-          className="rounded-xl border border-[#d8ccc3] px-4 py-2 text-sm font-bold text-[#432a22] transition hover:bg-[#f7f0eb]"
+          className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
         >
           ادامه خرید
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-[#e7e0d9] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-[var(--theme-border)] bg-white shadow-sm">
         {/* Order Header */}
-        <div className="border-b border-[#eee7e1] p-6 sm:p-8">
+        <div className="border-b border-[var(--theme-border)] p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-[#8a7b72]">
+              <p className="text-sm font-semibold text-[var(--theme-muted)]">
                 سفارش ثبت‌شده
               </p>
 
-              <h1 className="mt-1 text-2xl font-black text-[#432a22]">
+              <h1 className="mt-1 text-2xl font-black text-[var(--theme-primary)]">
                 سفارش #{order.id}
               </h1>
 
-              <p className="mt-2 text-sm text-[#8a7b72]">
+              <p className="mt-2 text-sm text-[var(--theme-muted)]">
                 {order.created_at
                   ? new Date(order.created_at).toLocaleString(
                       "fa-IR"
                     )
-                  : "تاریخ نامشخص"}
+                  : t("orders.unknownDate")}
               </p>
             </div>
 
-            <span className="w-fit rounded-full bg-[#f4ebe4] px-4 py-2 text-sm font-bold text-[#704b3a]">
+            <span className="w-fit rounded-full bg-[var(--theme-surface-muted)] px-4 py-2 text-sm font-bold text-[var(--theme-secondary)]">
               {statusLabel}
             </span>
           </div>
         </div>
 
         {/* Order Tracking */}
-        <div className="border-b border-[#eee7e1] p-6 sm:p-8">
+        <div className="border-b border-[var(--theme-border)] p-6 sm:p-8">
           <div className="mb-7">
-            <h2 className="text-lg font-black text-[#432a22]">
+            <h2 className="text-lg font-black text-[var(--theme-primary)]">
               پیگیری سفارش
             </h2>
 
-            <p className="mt-1 text-sm text-[#8a7b72]">
+            <p className="mt-1 text-sm text-[var(--theme-muted)]">
               وضعیت سفارش بر اساس آخرین مرحله ثبت‌شده نمایش داده می‌شود.
             </p>
           </div>
@@ -354,10 +356,10 @@ export default function OrderDetailPage() {
           ) : (
             <div>
               <div className="relative px-2 sm:px-4">
-                <div className="absolute right-6 left-6 top-6 h-1 rounded-full bg-[#e8dfd8] sm:right-10 sm:left-10" />
+                <div className="absolute right-6 left-6 top-6 h-1 rounded-full bg-[var(--theme-surface-muted)] sm:right-10 sm:left-10" />
 
                 <div
-                  className="absolute right-6 top-6 h-1 rounded-full bg-[#704b3a] transition-all duration-700 sm:right-10"
+                  className="absolute right-6 top-6 h-1 rounded-full bg-[var(--theme-secondary)] transition-all duration-700 sm:right-10"
                   style={{
                     width: `calc(${progressPercent}% - ${
                       progressPercent === 100 ? "0px" : "0px"
@@ -378,8 +380,8 @@ export default function OrderDetailPage() {
                         <div
                           className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white text-base shadow-sm transition-all duration-500 ${
                             completed
-                              ? "bg-[#704b3a] text-white"
-                              : "bg-[#eee7e1] text-[#9a8d85]"
+                              ? "bg-[var(--theme-secondary)] text-white"
+                              : "bg-[var(--theme-surface-muted)] text-[var(--theme-muted)]"
                           } ${
                             active
                               ? "ring-4 ring-[#f0e5de]"
@@ -392,11 +394,11 @@ export default function OrderDetailPage() {
                         <span
                           className={`mt-3 text-xs font-bold leading-5 sm:text-sm ${
                             completed
-                              ? "text-[#432a22]"
-                              : "text-[#9a8d85]"
+                              ? "text-[var(--theme-primary)]"
+                              : "text-[var(--theme-muted)]"
                           }`}
                         >
-                          {step.label}
+                          {t(`orders.${step.labelKey}`)}
                         </span>
                       </div>
                     );
@@ -414,8 +416,8 @@ export default function OrderDetailPage() {
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xl shadow-md ${
                       order.status === "delivered"
-                        ? "bg-[#356139]"
-                        : "bg-[#704b3a]"
+                        ? "bg-[var(--theme-success)]"
+                        : "bg-[var(--theme-secondary)]"
                     }`}
                   >
                     {order.status === "delivered"
@@ -425,12 +427,12 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-2xl bg-[#faf8f5] px-4 py-3 text-center">
-                <span className="text-sm font-semibold text-[#6b5b52]">
+              <div className="mt-8 rounded-2xl bg-[var(--theme-surface)] px-4 py-3 text-center">
+                <span className="text-sm font-semibold text-[var(--theme-muted)]">
                   وضعیت فعلی:{" "}
                 </span>
 
-                <span className="text-sm font-black text-[#432a22]">
+                <span className="text-sm font-black text-[var(--theme-primary)]">
                   {statusLabel}
                 </span>
               </div>
@@ -439,29 +441,29 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Shipping Information */}
-        <div className="border-b border-[#eee7e1] p-6 sm:p-8">
-          <h2 className="mb-4 text-lg font-black text-[#432a22]">
+        <div className="border-b border-[var(--theme-border)] p-6 sm:p-8">
+          <h2 className="mb-4 text-lg font-black text-[var(--theme-primary)]">
             اطلاعات ارسال
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl bg-[#faf8f5] p-4">
-              <p className="text-xs font-semibold text-[#8a7b72]">
+            <div className="rounded-2xl bg-[var(--theme-surface)] p-4">
+              <p className="text-xs font-semibold text-[var(--theme-muted)]">
                 شماره تماس
               </p>
 
-              <p className="mt-2 font-bold text-[#432a22]">
-                {order.shipping_phone || "ثبت نشده"}
+              <p className="mt-2 font-bold text-[var(--theme-primary)]">
+                {order.shipping_phone || t("orders.notProvided")}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#faf8f5] p-4">
-              <p className="text-xs font-semibold text-[#8a7b72]">
+            <div className="rounded-2xl bg-[var(--theme-surface)] p-4">
+              <p className="text-xs font-semibold text-[var(--theme-muted)]">
                 آدرس ارسال
               </p>
 
-              <p className="mt-2 leading-7 font-bold text-[#432a22]">
-                {order.shipping_address || "ثبت نشده"}
+              <p className="mt-2 leading-7 font-bold text-[var(--theme-primary)]">
+                {order.shipping_address || t("orders.notProvided")}
               </p>
             </div>
           </div>
@@ -470,17 +472,17 @@ export default function OrderDetailPage() {
         {/* Order Items */}
         <div className="p-6 sm:p-8">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-lg font-black text-[#432a22]">
+            <h2 className="text-lg font-black text-[var(--theme-primary)]">
               محصولات سفارش
             </h2>
 
-            <span className="text-sm font-semibold text-[#8a7b72]">
-              {totalQuantity.toLocaleString("fa-IR")} کالا
+            <span className="text-sm font-semibold text-[var(--theme-muted)]">
+              {totalQuantity.toLocaleString(locale)} کالا
             </span>
           </div>
 
           {items.length === 0 ? (
-            <div className="rounded-2xl bg-[#faf8f5] p-6 text-center text-sm text-[#8a7b72]">
+            <div className="rounded-2xl bg-[var(--theme-surface)] p-6 text-center text-sm text-[var(--theme-muted)]">
               محصولی برای این سفارش ثبت نشده است.
             </div>
           ) : (
@@ -488,33 +490,33 @@ export default function OrderDetailPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-4 rounded-2xl bg-[#faf8f5] px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 rounded-2xl bg-[var(--theme-surface)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-bold text-[#432a22]">
+                    <p className="font-bold text-[var(--theme-primary)]">
                       {item.product_name}
                     </p>
 
-                    <p className="mt-1 text-sm text-[#8a7b72]">
+                    <p className="mt-1 text-sm text-[var(--theme-muted)]">
                       تعداد:{" "}
                       {Number(item.quantity || 0).toLocaleString(
                         "fa-IR"
                       )}
                     </p>
 
-                    <p className="mt-1 text-xs text-[#9a8d85]">
+                    <p className="mt-1 text-xs text-[var(--theme-muted)]">
                       قیمت واحد:{" "}
                       {Number(
                         item.unit_price || 0
-                      ).toLocaleString("fa-IR")}{" "}
+                      ).toLocaleString(locale)}{" "}
                       تومان
                     </p>
                   </div>
 
-                  <p className="font-black text-[#5f4539]">
+                  <p className="font-black text-[var(--theme-foreground)]">
                     {Number(
                       item.subtotal || 0
-                    ).toLocaleString("fa-IR")}{" "}
+                    ).toLocaleString(locale)}{" "}
                     تومان
                   </p>
                 </div>
@@ -523,13 +525,13 @@ export default function OrderDetailPage() {
           )}
 
           {/* Total */}
-          <div className="mt-6 flex items-center justify-between border-t border-[#eee7e1] pt-6">
-            <span className="font-semibold text-[#6b5b52]">
+          <div className="mt-6 flex items-center justify-between border-t border-[var(--theme-border)] pt-6">
+            <span className="font-semibold text-[var(--theme-muted)]">
               مبلغ کل
             </span>
 
-            <span className="text-2xl font-black text-[#432a22]">
-              {Number(order.total || 0).toLocaleString("fa-IR")}{" "}
+            <span className="text-2xl font-black text-[var(--theme-primary)]">
+              {Number(order.total || 0).toLocaleString(locale)}{" "}
               <span className="text-sm font-medium">
                 تومان
               </span>
@@ -539,7 +541,7 @@ export default function OrderDetailPage() {
           {/* Order Actions */}
           {(order.status === "pending" ||
             order.status === "confirmed") && (
-            <div className="mt-6 border-t border-[#eee7e1] pt-6">
+            <div className="mt-6 border-t border-[var(--theme-border)] pt-6">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   {paymentError && (
@@ -552,11 +554,11 @@ export default function OrderDetailPage() {
                     type="button"
                     onClick={handlePayment}
                     disabled={paymentLoading || cancelLoading}
-                    className="w-full rounded-xl bg-[#432a22] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {paymentLoading
-                      ? "در حال پرداخت..."
-                      : "پرداخت سفارش"}
+                      ? t("orders.paymentLoading")
+                      : t("orders.payment")}
                   </button>
                 </div>
 
@@ -574,25 +576,25 @@ export default function OrderDetailPage() {
                     className="w-full rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cancelLoading
-                      ? "در حال لغو سفارش..."
-                      : "لغو سفارش"}
+                      ? t("orders.cancelLoading")
+                      : t("orders.cancel")}
                   </button>
                 </div>
               </div>
             </div>
           )}
           {/* Bottom Actions */}
-          <div className="mt-6 flex flex-col gap-3 border-t border-[#eee7e1] pt-6 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 border-t border-[var(--theme-border)] pt-6 sm:flex-row">
             <Link
               href="/"
-              className="flex-1 rounded-xl bg-[#432a22] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[#5a382d]"
+              className="flex-1 rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)]"
             >
               ادامه خرید
             </Link>
 
             <Link
               href="/orders"
-              className="flex-1 rounded-xl border border-[#d8ccc3] px-5 py-3 text-center text-sm font-bold text-[#432a22] transition hover:bg-[#f7f0eb]"
+              className="flex-1 rounded-xl border border-[var(--theme-border)] px-5 py-3 text-center text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
             >
               مشاهده همه سفارش‌ها
             </Link>
@@ -602,13 +604,3 @@ export default function OrderDetailPage() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-

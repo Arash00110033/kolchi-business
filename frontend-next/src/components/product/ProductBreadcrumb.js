@@ -1,18 +1,3 @@
-/*
-=========================================================
-PRODUCT BREADCRUMB
-=========================================================
-
-Responsibility:
-- Display the product navigation path
-- Provide navigation to Home and Shop
-
-This component contains UI and navigation only.
-No API calls are performed here.
-
-=========================================================
-*/
-
 import { useRouter } from "next/router";
 
 export default function ProductBreadcrumb({ product }) {
@@ -23,44 +8,58 @@ export default function ProductBreadcrumb({ product }) {
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[#81766f]">
-      {/* Home */}
-
+    <nav
+      aria-label="مسیر صفحه"
+      className="mb-7 flex min-w-0 items-center gap-1.5 overflow-hidden text-sm"
+    >
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="transition hover:text-[#4d3026]"
+        className="shrink-0 rounded-lg px-2 py-1.5 font-medium text-[var(--theme-muted)] transition-all duration-200 hover:bg-[var(--theme-background)] hover:text-[var(--theme-primary)]"
       >
         خانه
       </button>
 
-      <span>/</span>
-
-      {/* Shop */}
+      <span
+        className="shrink-0 px-0.5 text-[var(--theme-border)]"
+        aria-hidden="true"
+      >
+        /
+      </span>
 
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="transition hover:text-[#4d3026]"
+        className="shrink-0 rounded-lg px-2 py-1.5 font-medium text-[var(--theme-muted)] transition-all duration-200 hover:bg-[var(--theme-background)] hover:text-[var(--theme-primary)]"
       >
         فروشگاه
       </button>
 
-      <span>/</span>
+      <span
+        className="shrink-0 px-0.5 text-[var(--theme-border)]"
+        aria-hidden="true"
+      >
+        /
+      </span>
 
-      {/* Category */}
-
-      <span className="text-[#4c3026]">
+      <span className="min-w-0 truncate rounded-lg px-2 py-1.5 text-[var(--theme-muted)]">
         {product.category_name || "دسته‌بندی"}
       </span>
 
-      <span>/</span>
+      <span
+        className="shrink-0 px-0.5 text-[var(--theme-border)]"
+        aria-hidden="true"
+      >
+        /
+      </span>
 
-      {/* Product */}
-
-      <span className="font-medium text-[#2d211d]">
+      <span
+        className="min-w-0 truncate rounded-xl bg-[var(--theme-surface-muted)] px-3 py-1.5 font-semibold text-[var(--theme-foreground)] shadow-sm"
+        aria-current="page"
+        title={product.name}
+      >
         {product.name}
       </span>
-    </div>
+    </nav>
   );
 }

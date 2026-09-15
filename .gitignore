@@ -1,4 +1,4 @@
-﻿# ================================
+# ================================
 # Kolchi Business - Git Ignore
 # ================================
 
@@ -93,3 +93,16 @@ archive/
 audit_project.ps1
 frontend-next/_header.txt
 
+
+# Kolchi local backups and temporary audit files
+.kolchi-language-backup*/
+frontend-next/backup-*/
+**/*.backup-*
+**/*.bak
+ANALYTICS_TARGET_MAP.txt
+PROJECT_MAP.txt
+PROJECT_DEEP_MAP.txt
+kolchi-backend-audit.txt
+kolchi-core-audit.txt
+kolchi-frontend-audit.txt
+frontend-next/backup-*

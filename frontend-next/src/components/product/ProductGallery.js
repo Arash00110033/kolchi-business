@@ -15,11 +15,15 @@ No API calls or business logic are performed here.
 =========================================================
 */
 
+import { useI18n } from "@/i18n";
+
 export default function ProductGallery({
   product,
   selectedImage,
   onSelectImage,
 }) {
+  const { t } = useI18n();
+
   /*
   -------------------------------------------------------
   Guard
@@ -55,27 +59,27 @@ export default function ProductGallery({
   */
 
   return (
-    <div className="order-1 border-b border-[#eee8e2] p-5 sm:p-8 lg:order-1 lg:border-b-0 lg:border-l">
+    <div className="order-1 border-b border-[var(--theme-border)] p-5 sm:p-8 lg:order-1 lg:border-b-0 lg:border-l">
       {/* Main Image */}
 
-      <div className="relative aspect-square overflow-hidden rounded-[26px] bg-[#f5f1ec]">
+      <div className="relative aspect-square overflow-hidden rounded-[26px] bg-[var(--theme-surface-muted)]">
         {currentImage ? (
           <img
             src={currentImage}
-            alt={product.name || "تصویر محصول"}
+            alt={product.name || t("common.image")}
             className="h-full w-full object-contain p-8 transition duration-300 hover:scale-[1.03] sm:p-12"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[#a49a93]">
-            تصویر محصول موجود نیست
+          <div className="flex h-full items-center justify-center text-[var(--theme-muted)]">
+            {t("common.image")}
           </div>
         )}
 
         {/* Availability Badge */}
 
         {product.available && (
-          <div className="absolute right-4 top-4 rounded-full bg-[#e7f2e7] px-4 py-2 text-sm font-medium text-[#356139]">
-            موجود و آماده ارسال
+          <div className="absolute right-4 top-4 rounded-full bg-[color-mix(in srgb, var(--theme-success) 12%, white)] px-4 py-2 text-sm font-medium text-[var(--theme-success)]">
+            {t("common.available")}
           </div>
         )}
       </div>
@@ -92,19 +96,17 @@ export default function ProductGallery({
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => onSelectImage(index)}
-                aria-label={`نمایش تصویر ${index + 1}`}
+            aria-label={`${t("common.image")} ${index + 1}`}
                 aria-pressed={isSelected}
-                className={`relative aspect-square overflow-hidden rounded-2xl border-2 bg-[#f7f3ee] transition ${
+                className={`relative aspect-square overflow-hidden rounded-2xl border-2 bg-[var(--theme-background)] transition ${
                   isSelected
-                    ? "border-[#6b4030]"
-                    : "border-transparent hover:border-[#cdb8a9]"
+                    ? "border-[var(--theme-secondary)]"
+                    : "border-transparent hover:border-[var(--theme-secondary)]"
                 }`}
               >
                 <img
                   src={image}
-                  alt={`${product.name || "محصول"} - تصویر ${
-                    index + 1
-                  }`}
+            alt={`${product.name || t("common.product")} - ${t("common.image")} ${index + 1}`}
                   className="h-full w-full object-contain p-3"
                 />
               </button>

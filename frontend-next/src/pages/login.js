@@ -1,11 +1,14 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useAuth from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
+  const { t, isRTL } = useI18n();
 
   const [form, setForm] = useState({
     username: "",
@@ -16,11 +19,13 @@ export default function LoginPage() {
 
   if (isAuthenticated) {
     return (
-      <main dir="rtl" className="mx-auto max-w-md px-5 py-12">
-        <div className="rounded-3xl border border-[#e7e0d9] bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-black text-[#432a22]">شما وارد شده‌اید</h1>
-          <Link href="/" className="mt-5 inline-block font-semibold text-[#a06b45]">
-            بازگشت به فروشگاه
+      <main dir={isRTL ? "rtl" : "ltr"} className="mx-auto max-w-md px-5 py-12">
+        <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-8 text-center shadow-sm">          <div className="mb-6 flex justify-end">
+<LanguageSwitcher />
+          </div>
+          <h1 className="text-2xl font-black text-[var(--theme-primary)]">{t("auth.alreadyLoggedIn")}</h1>
+          <Link href="/" className="mt-5 inline-block font-semibold text-[var(--theme-secondary)]">
+            {t("auth.backToStore")}
           </Link>
         </div>
       </main>
@@ -43,26 +48,37 @@ export default function LoginPage() {
       await login(form);
       await router.push("/");
     } catch (err) {
-      setError(err?.message || "ورود ناموفق بود.");
+      setError(err?.message || t("auth.loginFailed"));
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <main dir="rtl" className="mx-auto max-w-md px-5 py-12">
-      <div className="rounded-3xl border border-[#e7e0d9] bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-black text-[#432a22]">ورود</h1>
+    <main dir={isRTL ? "rtl" : "ltr"} className="mx-auto max-w-md px-5 py-12">
+      <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-8 shadow-sm">        <div className="mb-5 flex justify-end">
+<LanguageSwitcher />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-black text-[var(--theme-primary)]">{t("auth.login")}</h1>
+
+          <Link
+            href="/"
+            className="text-sm font-bold text-[var(--theme-secondary)] hover:underline"
+          >
+            ← {t("auth.backToStore")}
+          </Link>
+        </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <input
             name="username"
             value={form.username}
             onChange={handleChange}
-            placeholder="نام کاربری"
+            placeholder={t("auth.username")}
             autoComplete="username"
             required
-            className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 outline-none focus:border-[#a06b45]"
+            className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 outline-none focus:border-[var(--theme-secondary)]"
           />
 
           <input
@@ -70,10 +86,10 @@ export default function LoginPage() {
             type="password"
             value={form.password}
             onChange={handleChange}
-            placeholder="رمز عبور"
+            placeholder={t("auth.password")}
             autoComplete="current-password"
             required
-            className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 outline-none focus:border-[#a06b45]"
+            className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 outline-none focus:border-[var(--theme-secondary)]"
           />
 
           {error && (
@@ -85,16 +101,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-[#432a22] px-4 py-3 font-bold text-white disabled:opacity-60"
+            className="w-full rounded-xl bg-[var(--theme-primary)] px-4 py-3 font-bold text-white disabled:opacity-60"
           >
-            {submitting ? "در حال ورود..." : "ورود"}
+            {submitting ? t("auth.loggingIn") : t("auth.login")}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-sm text-[#5f514a]">
-          حساب ندارید؟{" "}
-          <Link href="/register" className="font-bold text-[#a06b45]">
-            ثبت‌نام
+        <p className="mt-5 text-center text-sm text-[var(--theme-muted)]">
+          {t("auth.noAccount")}{" "}
+          <Link href="/register" className="font-bold text-[var(--theme-secondary)]">
+            {t("auth.register")}
           </Link>
         </p>
       </div>

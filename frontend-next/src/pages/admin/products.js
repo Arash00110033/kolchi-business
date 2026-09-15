@@ -1,9 +1,10 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import useAuth from "@/hooks/useAuth";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
+import { useI18n } from "@/i18n";
 
 const STORE_ID = 1;
 
@@ -28,6 +29,7 @@ function getProducts(data) {
 export default function AdminProductsPage() {
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
+  const { t, isRTL } = useI18n();
 
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
@@ -64,9 +66,9 @@ export default function AdminProductsPage() {
       }
 
       if (requestError?.status === 403) {
-        setError("شما اجازه مدیریت محصولات این فروشگاه را ندارید.");
+        setError(t("adminProducts.accessDenied"));
       } else {
-        setError("دریافت اطلاعات محصولات با خطا مواجه شد.");
+        setError(t("adminProducts.loadError"));
       }
     } finally {
       setLoading(false);
@@ -117,10 +119,10 @@ export default function AdminProductsPage() {
 
   function handleInvalid(event) {
     const messages = {
-      name: "لطفاً نام محصول را وارد کنید.",
-      slug: "لطفاً شناسه انگلیسی محصول را وارد کنید.",
-      price: "لطفاً قیمت محصول را وارد کنید.",
-      stock: "لطفاً موجودی محصول را وارد کنید.",
+      name: t("adminProducts.nameRequired"),
+      slug: t("adminProducts.slugRequired"),
+      price: t("adminProducts.priceRequired"),
+      stock: t("adminProducts.stockRequired"),
     };
 
     const field = event.currentTarget;
@@ -187,7 +189,7 @@ export default function AdminProductsPage() {
       }
 
       if (requestError?.status === 403) {
-        setError("شما اجازه انجام این عملیات را ندارید.");
+        setError(t("adminProducts.operationDenied"));
       } else if (requestError?.status === 400) {
         const data = requestError?.data;
 
@@ -197,10 +199,10 @@ export default function AdminProductsPage() {
             data?.slug?.[0] ||
             data?.price?.[0] ||
             data?.stock?.[0] ||
-            "اطلاعات محصول معتبر نیست."
+            t("adminProducts.invalidProduct")
         );
       } else {
-        setError("ذخیره محصول با خطا مواجه شد.");
+        setError(t("adminProducts.saveError"));
       }
     } finally {
       setSaving(false);
@@ -234,13 +236,13 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setError("تغییر وضعیت محصول با خطا مواجه شد.");
+      setError(t("adminProducts.toggleError"));
     }
   }
 
   async function handleDelete(product) {
     const confirmed = window.confirm(
-      `محصول «${product.name}» حذف شود؟`
+      t("adminProducts.deleteConfirm").replace("{name}", product.name)
     );
 
     if (!confirmed) {
@@ -274,19 +276,19 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setError("حذف محصول با خطا مواجه شد.");
+      setError(t("adminProducts.deleteError"));
     }
   }
 
   if (authLoading || loading) {
     return (
       <main
-        dir="rtl"
-        className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+        dir={isRTL ? "rtl" : "ltr"}
+        className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
       >
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-[#e7e0d9] bg-white p-8">
-          <p className="text-sm font-semibold text-[#5f514a]">
-            در حال دریافت محصولات...
+        <div className="mx-auto max-w-6xl rounded-[28px] border border-[var(--theme-border)] bg-white p-8">
+          <p className="text-sm font-semibold text-[var(--theme-muted)]">
+            {t("adminProducts.loading")}
           </p>
         </div>
       </main>
@@ -295,28 +297,28 @@ export default function AdminProductsPage() {
 
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
     >
       <div className="mx-auto max-w-6xl">
-        <header className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
+        <header className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-[#8a7569]">
-                پنل مدیریت
+              <p className="text-sm font-semibold text-[var(--theme-muted)]">
+                {t("adminProducts.managementPanel")}
               </p>
 
-              <h1 className="mt-1 text-3xl font-black text-[#432a22]">
-                مدیریت محصولات
+              <h1 className="mt-1 text-3xl font-black text-[var(--theme-primary)]">
+                {t("adminProducts.title")}
               </h1>
             </div>
 
             <button
               type="button"
               onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[#ded3ca] px-4 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+              className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
             >
-              بازگشت به مدیریت
+              {t("adminProducts.backToManagement")}
             </button>
           </div>
         </header>
@@ -327,15 +329,17 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        <section className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white p-7">
+        <section className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-black text-[#432a22]">
-                {editingId ? "ویرایش محصول" : "محصول جدید"}
+              <h2 className="text-xl font-black text-[var(--theme-primary)]">
+                {editingId
+                  ? t("adminProducts.editProduct")
+                  : t("adminProducts.newProduct")}
               </h2>
 
-              <p className="mt-1 text-sm text-[#6b5b52]">
-                اطلاعات عمومی و موجودی محصول
+              <p className="mt-1 text-sm text-[var(--theme-muted)]">
+                {t("adminProducts.generalAndInventory")}
               </p>
             </div>
 
@@ -343,17 +347,17 @@ export default function AdminProductsPage() {
               <button
                 type="button"
                 onClick={startCreate}
-                className="rounded-xl border border-[#ded3ca] px-4 py-2 text-sm font-semibold text-[#5f514a]"
+                className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]"
               >
-                انصراف
+                {t("adminProducts.cancel")}
               </button>
             )}
           </div>
 
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
-                نام محصول
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
+                {t("adminProducts.productName")}
               </label>
 
               <input
@@ -362,16 +366,16 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("name", event.target.value)
                 }
-                placeholder="مثلاً قهوه اتیوپی"
+                placeholder={t("adminProducts.namePlaceholder")}
                 required
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
                 Slug
               </label>
 
@@ -381,17 +385,17 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("slug", event.target.value)
                 }
-                placeholder="مثلاً ethiopian-coffee"
+                placeholder={t("adminProducts.slugPlaceholder")}
                 required
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
-                قیمت
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
+                {t("adminProducts.price")}
               </label>
 
               <input
@@ -402,17 +406,17 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("price", event.target.value)
                 }
-                placeholder="مثلاً 450000"
+                placeholder={t("adminProducts.pricePlaceholder")}
                 required
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
-                موجودی
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
+                {t("adminProducts.stock")}
               </label>
 
               <input
@@ -423,17 +427,17 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("stock", event.target.value)
                 }
-                placeholder="مثلاً 10"
+                placeholder={t("adminProducts.stockPlaceholder")}
                 required
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
-                دسته‌بندی
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
+                {t("adminProducts.category")}
               </label>
 
               <select
@@ -441,9 +445,11 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("category", event.target.value)
                 }
-                className="w-full rounded-xl border border-[#ded3ca] bg-white px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               >
-                <option value="">مثلاً قهوه را انتخاب کنید</option>
+                <option value="">
+                  {t("adminProducts.categoryPlaceholder")}
+                </option>
 
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -453,7 +459,7 @@ export default function AdminProductsPage() {
               </select>
             </div>
 
-            <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold text-[#4b3b34]">
+            <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold text-[var(--theme-foreground)]">
               <input
                 type="checkbox"
                 checked={form.is_active}
@@ -465,12 +471,12 @@ export default function AdminProductsPage() {
                 }
               />
 
-              محصول فعال باشد
+              {t("adminProducts.activeProduct")}
             </label>
 
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-sm font-semibold text-[#4b3b34]">
-                توضیحات
+              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
+                {t("adminProducts.description")}
               </label>
 
               <textarea
@@ -481,10 +487,9 @@ export default function AdminProductsPage() {
                     event.target.value
                   )
                 }
-                placeholder="مثلاً قهوه اتیوپی با عطر و طعم میوه‌ای و اسیدیته متعادل"
-
+                placeholder={t("adminProducts.descriptionPlaceholder")}
                 rows={4}
-                className="w-full resize-y rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full resize-y rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
@@ -492,43 +497,43 @@ export default function AdminProductsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-xl bg-[#432a22] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving
-                  ? "در حال ذخیره..."
+                  ? t("adminProducts.saving")
                   : editingId
-                    ? "ذخیره تغییرات"
-                    : "ایجاد محصول"}
+                    ? t("adminProducts.saveChanges")
+                    : t("adminProducts.createProduct")}
               </button>
             </div>
           </form>
         </section>
 
-        <section className="rounded-[28px] border border-[#e7e0d9] bg-white p-7">
+        <section className="rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-xl font-black text-[#432a22]">
-              محصولات
+            <h2 className="text-xl font-black text-[var(--theme-primary)]">
+              {t("adminProducts.products")}
             </h2>
 
-            <span className="text-sm font-semibold text-[#8a7569]">
-              {products.length} محصول
+            <span className="text-sm font-semibold text-[var(--theme-muted)]">
+              {products.length} {t("adminProducts.productCount")}
             </span>
           </div>
 
           {products.length === 0 ? (
-            <p className="rounded-2xl bg-[#f7f3ee] p-5 text-sm text-[#6b5b52]">
-              محصولی ثبت نشده است.
+            <p className="rounded-2xl bg-[var(--theme-background)] p-5 text-sm text-[var(--theme-muted)]">
+              {t("adminProducts.empty")}
             </p>
           ) : (
             <div className="space-y-3">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="flex flex-col gap-4 rounded-2xl border border-[#eee7e1] p-5 lg:flex-row lg:items-center lg:justify-between"
+                  className="flex flex-col gap-4 rounded-2xl border border-[var(--theme-border)] p-5 lg:flex-row lg:items-center lg:justify-between"
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-black text-[#432a22]">
+                      <h3 className="font-black text-[var(--theme-primary)]">
                         {product.name}
                       </h3>
 
@@ -540,17 +545,17 @@ export default function AdminProductsPage() {
                         }`}
                       >
                         {product.is_active
-                          ? "فعال"
-                          : "غیرفعال"}
+                          ? t("adminProducts.active")
+                          : t("adminProducts.inactive")}
                       </span>
                     </div>
 
-                    <p className="mt-2 text-sm text-[#6b5b52]">
-                      قیمت: {product.price} — موجودی:{" "}
-                      {product.stock}
+                    <p className="mt-2 text-sm text-[var(--theme-muted)]">
+                      {t("adminProducts.priceLabel")}: {product.price} —{" "}
+                      {t("adminProducts.stockLabel")}: {product.stock}
                     </p>
 
-                    <p className="mt-1 text-xs text-[#8a7569]">
+                    <p className="mt-1 text-xs text-[var(--theme-muted)]">
                       slug: {product.slug}
                     </p>
                   </div>
@@ -559,19 +564,19 @@ export default function AdminProductsPage() {
                     <button
                       type="button"
                       onClick={() => startEdit(product)}
-                      className="rounded-xl border border-[#ded3ca] px-3 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+                      className="rounded-xl border border-[var(--theme-border)] px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
                     >
-                      ویرایش
+                      {t("adminProducts.edit")}
                     </button>
 
                     <button
                       type="button"
                       onClick={() => toggleActive(product)}
-                      className="rounded-xl border border-[#ded3ca] px-3 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+                      className="rounded-xl border border-[var(--theme-border)] px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
                     >
                       {product.is_active
-                        ? "غیرفعال کردن"
-                        : "فعال کردن"}
+                        ? t("adminProducts.deactivate")
+                        : t("adminProducts.activate")}
                     </button>
 
                     <button
@@ -579,7 +584,7 @@ export default function AdminProductsPage() {
                       onClick={() => handleDelete(product)}
                       className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
                     >
-                      حذف
+                      {t("adminProducts.delete")}
                     </button>
                   </div>
                 </div>
@@ -591,8 +596,3 @@ export default function AdminProductsPage() {
     </main>
   );
 }
-
-
-
-
-

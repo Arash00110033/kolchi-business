@@ -1,12 +1,14 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import wishlistService from "@/services/wishlist.service";
+import { useI18n } from "@/i18n";
 
 export default function ProductCard({ product }) {
   const { isAuthenticated } = useAuth();
+  const { t, locale, isRTL } = useI18n();
 
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistItemId, setWishlistItemId] = useState(null);
@@ -83,10 +85,7 @@ export default function ProductCard({ product }) {
       setWishlistLoading(true);
 
       if (wishlisted && wishlistItemId) {
-        await wishlistService.removeItem(
-          token,
-          wishlistItemId
-        );
+        await wishlistService.removeItem(token, wishlistItemId);
 
         setWishlisted(false);
         setWishlistItemId(null);
@@ -108,15 +107,15 @@ export default function ProductCard({ product }) {
 
   return (
     <article
-      dir="rtl"
-      className="group overflow-hidden rounded-[28px] border border-[#e9e1da] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#d8c6b8] hover:shadow-[0_20px_50px_rgba(62,40,31,0.10)]"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="group overflow-hidden rounded-[var(--theme-radius-large)] border border-[var(--theme-border)] bg-[var(--theme-surface)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--theme-secondary)] hover:shadow-[0_20px_50px_rgba(62,40,31,0.10)]"
     >
       <div className="relative">
         <Link
           href={`/product/${encodeURIComponent(product.slug)}`}
           className="block"
         >
-          <div className="relative aspect-square overflow-hidden bg-[#f7f3ee] p-6">
+          <div className="relative aspect-square overflow-hidden bg-[var(--theme-surface-muted)] p-6">
             {product.image_url ? (
               <img
                 src={product.image_url}
@@ -125,19 +124,19 @@ export default function ProductCard({ product }) {
                 className="h-full w-full object-contain transition duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-[#a49a93]">
-                تصویر محصول
+              <div className="flex h-full items-center justify-center text-sm text-[var(--theme-muted)]">
+                {t("common.image")}
               </div>
             )}
 
             <div className="absolute right-4 top-4">
               {isAvailable ? (
-                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[#356139] shadow-sm backdrop-blur">
-                  موجود
+                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--theme-success)] shadow-sm backdrop-blur">
+                  {t("common.available")}
                 </span>
               ) : (
-                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-red-600 shadow-sm backdrop-blur">
-                  ناموجود
+                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--theme-danger)] shadow-sm backdrop-blur">
+                  {t("common.unavailable")}
                 </span>
               )}
             </div>
@@ -151,14 +150,14 @@ export default function ProductCard({ product }) {
             disabled={wishlistLoading}
             aria-label={
               wishlisted
-                ? "محصول در علاقه‌مندی‌ها"
-                : "افزودن به علاقه‌مندی‌ها"
+                ? t("common.wishlisted")
+                : t("common.wishlist")
             }
             aria-pressed={wishlisted}
             className={`absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 backdrop-blur transition-all duration-300 ${
               wishlisted
                 ? "scale-105 text-red-500 shadow-[0_0_12px_rgba(255,215,0,0.95),0_0_28px_rgba(255,193,7,0.65),0_0_45px_rgba(255,215,0,0.25)]"
-                : "text-[#8b7d75] shadow-[0_4px_15px_rgba(62,40,31,0.10)] hover:scale-110 hover:text-red-500 hover:shadow-[0_0_14px_rgba(255,215,0,0.45)]"
+                : "text-[var(--theme-muted)] shadow-[0_4px_15px_rgba(62,40,31,0.10)] hover:scale-110 hover:text-red-500 hover:shadow-[0_0_14px_rgba(255,215,0,0.45)]"
             }`}
           >
             <span
@@ -186,8 +185,8 @@ export default function ProductCard({ product }) {
 
       <div className="p-5">
         <div className="mb-3">
-          <span className="inline-flex rounded-full bg-[#f4ebe4] px-3 py-1 text-xs font-semibold text-[#704b3a]">
-            {product.category_name || "محصول"}
+          <span className="inline-flex rounded-full bg-[var(--theme-surface-muted)] px-3 py-1 text-xs font-semibold text-[var(--theme-primary)]">
+            {product.category_name || t("common.product")}
           </span>
         </div>
 
@@ -195,38 +194,38 @@ export default function ProductCard({ product }) {
           href={`/product/${encodeURIComponent(product.slug)}`}
           className="block"
         >
-          <h3 className="line-clamp-1 text-xl font-black text-[#2d211d] transition group-hover:text-[#6b4030]">
+          <h3 className="line-clamp-1 text-xl font-black text-[var(--theme-foreground)] transition group-hover:text-[var(--theme-primary)]">
             {product.name}
           </h3>
         </Link>
 
-        <p className="mt-2 min-h-[48px] line-clamp-2 text-sm leading-7 text-[#756961]">
+        <p className="mt-2 min-h-[48px] line-clamp-2 text-sm leading-7 text-[var(--theme-muted)]">
           {product.description ||
-            "اطلاعاتی برای این محصول ثبت نشده است."}
+            t("common.noDescription")}
         </p>
 
         <div className="mt-5 flex items-end justify-between gap-3">
           <div>
-            <div className="text-xs text-[#95877e]">
-              قیمت
+            <div className="text-xs text-[var(--theme-muted)]">
+              {t("common.price")}
             </div>
 
             <div className="mt-1">
-              <span className="text-xl font-black text-[#3e281f]">
-                {price.toLocaleString("fa-IR")}
+              <span className="text-xl font-black text-[var(--theme-primary)]">
+                {price.toLocaleString(locale)}
               </span>
 
-              <span className="mr-1 text-xs font-medium text-[#796b63]">
-                تومان
+              <span className="mr-1 text-xs font-medium text-[var(--theme-muted)]">
+                {t("common.currency")}
               </span>
             </div>
           </div>
 
           <Link
             href={`/product/${encodeURIComponent(product.slug)}`}
-            className="rounded-xl bg-[#4d3026] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#3b241d]"
+            className="rounded-[var(--theme-radius-small)] bg-[var(--theme-primary)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)]"
           >
-            مشاهده
+            {t("common.view")}
           </Link>
         </div>
       </div>

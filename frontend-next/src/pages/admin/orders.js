@@ -1,20 +1,12 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import useAuth from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
 const STORE_ID = 1;
-
-const STATUS_LABELS = {
-  pending: "در انتظار",
-  paid: "پرداخت شده",
-  processing: "در حال پردازش",
-  shipped: "ارسال شده",
-  delivered: "تحویل شده",
-  cancelled: "لغو شده",
-};
 
 const STATUS_OPTIONS = [
   "pending",
@@ -52,12 +44,16 @@ function formatDate(value) {
 export default function AdminOrdersPage() {
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
+  const { t, isRTL } = useI18n();
 
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState(null);
+
+  const statusLabel = (status) =>
+    t(`orderStatus.${status}`) || status;
 
   async function loadOrders() {
     const token = authService.getStoredAccessToken();
@@ -83,9 +79,9 @@ export default function AdminOrdersPage() {
       }
 
       if (requestError?.status === 403) {
-        setError("شما اجازه مشاهده سفارش‌های این فروشگاه را ندارید.");
+        setError(t("adminOrders.accessDenied"));
       } else {
-        setError("دریافت سفارش‌ها با خطا مواجه شد.");
+        setError(t("adminOrders.loadError"));
       }
     } finally {
       setLoading(false);
@@ -146,12 +142,12 @@ export default function AdminOrdersPage() {
       if (requestError?.status === 400) {
         setError(
           requestError?.data?.detail ||
-            "تغییر وضعیت سفارش مجاز نیست."
+            t("adminOrders.statusChangeDenied")
         );
       } else if (requestError?.status === 403) {
-        setError("شما اجازه تغییر وضعیت سفارش را ندارید.");
+        setError(t("adminOrders.statusChangeForbidden"));
       } else {
-        setError("تغییر وضعیت سفارش با خطا مواجه شد.");
+        setError(t("adminOrders.statusChangeError"));
       }
     } finally {
       setSavingId(null);
@@ -161,12 +157,12 @@ export default function AdminOrdersPage() {
   if (authLoading || loading) {
     return (
       <main
-        dir="rtl"
-        className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+        dir={isRTL ? "rtl" : "ltr"}
+        className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
       >
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-[#e7e0d9] bg-white p-8">
-          <p className="text-sm font-semibold text-[#5f514a]">
-            در حال دریافت سفارش‌ها...
+        <div className="mx-auto max-w-6xl rounded-[28px] border border-[var(--theme-border)] bg-white p-8">
+          <p className="text-sm font-semibold text-[var(--theme-muted)]">
+            {t("adminOrders.loading")}
           </p>
         </div>
       </main>
@@ -175,28 +171,28 @@ export default function AdminOrdersPage() {
 
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
     >
       <div className="mx-auto max-w-6xl">
-        <header className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
+        <header className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-[#8a7569]">
-                پنل مدیریت
+              <p className="text-sm font-semibold text-[var(--theme-muted)]">
+                {t("adminDashboard.dashboard")}
               </p>
 
-              <h1 className="mt-1 text-3xl font-black text-[#432a22]">
-                مدیریت سفارش‌ها
+              <h1 className="mt-1 text-3xl font-black text-[var(--theme-primary)]">
+                {t("adminOrders.title")}
               </h1>
             </div>
 
             <button
               type="button"
               onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[#ded3ca] px-4 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+              className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
             >
-              بازگشت به مدیریت
+              {t("adminOrders.backToManagement")}
             </button>
           </div>
         </header>
@@ -207,27 +203,27 @@ export default function AdminOrdersPage() {
           </div>
         )}
 
-        <section className="rounded-[28px] border border-[#e7e0d9] bg-white p-7">
+        <section className="rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
           <div className="mb-5 flex items-center justify-between gap-4">
-            <h2 className="text-xl font-black text-[#432a22]">
-              سفارش‌ها
+            <h2 className="text-xl font-black text-[var(--theme-primary)]">
+              {t("adminOrders.orders")}
             </h2>
 
-            <span className="text-sm font-semibold text-[#8a7569]">
-              {orders.length} سفارش
+            <span className="text-sm font-semibold text-[var(--theme-muted)]">
+              {orders.length} {t("adminOrders.orderCount")}
             </span>
           </div>
 
           {orders.length === 0 ? (
-            <p className="rounded-2xl bg-[#f7f3ee] p-5 text-sm text-[#6b5b52]">
-              سفارشی برای این فروشگاه ثبت نشده است.
+            <p className="rounded-2xl bg-[var(--theme-background)] p-5 text-sm text-[var(--theme-muted)]">
+              {t("adminOrders.empty")}
             </p>
           ) : (
             <div className="space-y-3">
               {orders.map((order) => (
                 <div
                   key={order.id}
-                  className="rounded-2xl border border-[#eee7e1] p-5"
+                  className="rounded-2xl border border-[var(--theme-border)] p-5"
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <button
@@ -241,23 +237,23 @@ export default function AdminOrdersPage() {
                       }
                       className="text-right"
                     >
-                      <p className="font-black text-[#432a22]">
-                        سفارش #{order.id}
+                      <p className="font-black text-[var(--theme-primary)]">
+                        {t("adminOrders.order")} #{order.id}
                       </p>
 
-                      <p className="mt-1 text-sm text-[#6b5b52]">
-                        مبلغ: {formatPrice(order.total)}
+                      <p className="mt-1 text-sm text-[var(--theme-muted)]">
+                        {t("adminOrders.amount")}:{" "}
+                        {formatPrice(order.total)}
                       </p>
 
-                      <p className="mt-1 text-xs text-[#8a7569]">
+                      <p className="mt-1 text-xs text-[var(--theme-muted)]">
                         {formatDate(order.created_at)}
                       </p>
                     </button>
 
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="rounded-full bg-[#f7f3ee] px-3 py-2 text-xs font-semibold text-[#5f514a]">
-                        {STATUS_LABELS[order.status] ||
-                          order.status}
+                      <span className="rounded-full bg-[var(--theme-background)] px-3 py-2 text-xs font-semibold text-[var(--theme-muted)]">
+                        {statusLabel(order.status)}
                       </span>
 
                       <select
@@ -269,11 +265,11 @@ export default function AdminOrdersPage() {
                             event.target.value
                           )
                         }
-                        className="rounded-xl border border-[#ded3ca] bg-white px-3 py-2 text-sm font-semibold text-[#5f514a] disabled:opacity-60"
+                        className="rounded-xl border border-[var(--theme-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] disabled:opacity-60"
                       >
                         {STATUS_OPTIONS.map((status) => (
                           <option key={status} value={status}>
-                            {STATUS_LABELS[status]}
+                            {statusLabel(status)}
                           </option>
                         ))}
                       </select>
@@ -281,25 +277,25 @@ export default function AdminOrdersPage() {
                   </div>
 
                   {selectedOrder?.id === order.id && (
-                    <div className="mt-5 border-t border-[#eee7e1] pt-5">
+                    <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
                       <div className="grid gap-4 text-sm sm:grid-cols-2">
                         <div>
-                          <span className="font-semibold text-[#8a7569]">
-                            کاربر:
+                          <span className="font-semibold text-[var(--theme-muted)]">
+                            {t("adminOrders.user")}:
                           </span>{" "}
                           {order.user}
                         </div>
 
                         <div>
-                          <span className="font-semibold text-[#8a7569]">
-                            تلفن:
+                          <span className="font-semibold text-[var(--theme-muted)]">
+                            {t("adminOrders.phone")}:
                           </span>{" "}
                           {order.shipping_phone || "-"}
                         </div>
 
                         <div className="sm:col-span-2">
-                          <span className="font-semibold text-[#8a7569]">
-                            آدرس:
+                          <span className="font-semibold text-[var(--theme-muted)]">
+                            {t("adminOrders.address")}:
                           </span>{" "}
                           {order.shipping_address || "-"}
                         </div>
@@ -307,14 +303,14 @@ export default function AdminOrdersPage() {
 
                       {order.items?.length > 0 && (
                         <div className="mt-5 space-y-2">
-                          <h3 className="font-black text-[#432a22]">
-                            اقلام سفارش
+                          <h3 className="font-black text-[var(--theme-primary)]">
+                            {t("adminOrders.items")}
                           </h3>
 
                           {order.items.map((item) => (
                             <div
                               key={item.id}
-                              className="flex flex-wrap justify-between gap-2 rounded-xl bg-[#f7f3ee] px-4 py-3 text-sm"
+                              className="flex flex-wrap justify-between gap-2 rounded-xl bg-[var(--theme-background)] px-4 py-3 text-sm"
                             >
                               <span>
                                 {item.product_name} ×{" "}

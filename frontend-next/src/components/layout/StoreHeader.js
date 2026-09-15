@@ -1,12 +1,15 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import { useI18n } from "@/i18n";
 
 export default function StoreHeader() {
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const { t, isRTL } = useI18n();
 
   const [canAccessAdmin, setCanAccessAdmin] = useState(false);
 
@@ -46,93 +49,85 @@ export default function StoreHeader() {
     };
   }, [isAuthenticated]);
 
+  const navItem =
+    "rounded-[var(--theme-radius-small)] px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] transition-all duration-200 hover:bg-[var(--theme-background)] hover:text-[var(--theme-primary)]";
+
   return (
     <header
-      dir="rtl"
-      className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white px-5 py-4 shadow-[0_10px_35px_rgba(70,45,30,0.06)] sm:px-7"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="mb-6 rounded-[var(--theme-radius-large)] border border-[var(--theme-border)] bg-[var(--theme-surface)] px-4 py-4 shadow-[0_10px_35px_rgba(70,45,30,0.06)] sm:px-6"
     >
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <Link
           href="/"
-          className="text-xl font-black tracking-tight text-[#432a22]"
+          className="self-center text-2xl font-black tracking-tight text-[var(--theme-primary)] transition hover:text-[var(--theme-primary-hover)] lg:self-auto"
         >
           Kolchi
         </Link>
 
-        <nav className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-[#5f514a] sm:gap-6">
-          <Link
-            href="/"
-            className="transition hover:text-[#a06b45]"
-          >
-            فروشگاه
+        <nav className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+          <Link href="/" className={navItem}>
+            {t("common.store")}
           </Link>
 
-          <Link
-            href="/cart"
-            className="transition hover:text-[#a06b45]"
-          >
-            سبد خرید
+          <Link href="/cart" className={navItem}>
+            {t("common.cart")}
           </Link>
 
           {isAuthenticated && (
             <>
-              <Link
-                href="/wishlist"
-                className="transition hover:text-[#a06b45]"
-              >
-                علاقه‌مندی‌ها
+              <Link href="/wishlist" className={navItem}>
+                {t("common.wishlistLink")}
               </Link>
 
-              <Link
-                href="/orders"
-                className="transition hover:text-[#a06b45]"
-              >
-                سفارش‌های من
+              <Link href="/orders" className={navItem}>
+                {t("common.orders")}
               </Link>
 
               {canAccessAdmin && (
                 <Link
                   href="/admin"
-                  className="font-bold text-[#a06b45] transition hover:text-[#432a22]"
+                  className="rounded-[var(--theme-radius-small)] bg-[var(--theme-surface-muted)] px-3.5 py-2 text-sm font-bold text-[var(--theme-primary)] transition-all duration-200 hover:bg-[var(--theme-primary)] hover:text-white"
                 >
-                  پنل مدیریت
+                  {t("common.panel")}
                 </Link>
               )}
             </>
           )}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2 lg:justify-end">
+          <LanguageSwitcher />
           {loading ? (
-            <div className="h-9 w-20 animate-pulse rounded-xl bg-[#eee7e1]" />
+            <div className="h-9 w-24 animate-pulse rounded-[var(--theme-radius-small)] bg-[var(--theme-border)]" />
           ) : isAuthenticated ? (
             <>
-              <span className="hidden text-sm font-semibold text-[#4b3b34] sm:inline">
-                {user?.username || user?.email || "کاربر"}
+              <span className="hidden max-w-32 truncate rounded-[var(--theme-radius-small)] bg-[var(--theme-background)] px-3 py-2 text-sm font-semibold text-[var(--theme-foreground)] sm:inline">
+                {user?.username || user?.email || t("common.user")}
               </span>
 
               <button
                 type="button"
                 onClick={logout}
-                className="rounded-xl border border-[#ded3ca] px-3 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+                className="rounded-[var(--theme-radius-small)] border border-[var(--theme-border)] px-3.5 py-2 text-sm font-semibold text-[var(--theme-muted)] transition-all duration-200 hover:bg-[var(--theme-background)] hover:text-[var(--theme-primary)]"
               >
-                خروج
+                {t("common.logout")}
               </button>
             </>
           ) : (
             <>
               <Link
                 href="/login"
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+                className="rounded-[var(--theme-radius-small)] px-3.5 py-2 text-sm font-semibold text-[var(--theme-muted)] transition-all duration-200 hover:bg-[var(--theme-background)] hover:text-[var(--theme-primary)]"
               >
-                ورود
+                {t("common.login")}
               </Link>
 
               <Link
                 href="/register"
-                className="rounded-xl bg-[#432a22] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#5a382d]"
+                className="rounded-[var(--theme-radius-small)] bg-[var(--theme-primary)] px-4 py-2 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-[var(--theme-primary-hover)] hover:shadow-md"
               >
-                ثبت‌نام
+                {t("auth.register")}
               </Link>
             </>
           )}
@@ -141,4 +136,3 @@ export default function StoreHeader() {
     </header>
   );
 }
-

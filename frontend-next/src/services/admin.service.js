@@ -1,4 +1,4 @@
-﻿import apiClient from "@/services/api/client";
+import apiClient from "@/services/api/client";
 
 const adminService = {
   // ============================================================
@@ -104,6 +104,40 @@ const adminService = {
     );
   },
 
+  async createCategory(storeId, data, token) {
+    if (!storeId) {
+      throw new Error("Store ID is required.");
+    }
+
+    return apiClient.post(
+      `/admin/stores/${storeId}/categories/`,
+      data,
+      apiClient.withAuth(token)
+    );
+  },
+
+  async updateCategory(storeId, categoryId, data, token) {
+    if (!storeId || !categoryId) {
+      throw new Error("Store ID and category ID are required.");
+    }
+
+    return apiClient.patch(
+      `/admin/stores/${storeId}/categories/${categoryId}/`,
+      data,
+      apiClient.withAuth(token)
+    );
+  },
+
+  async deleteCategory(storeId, categoryId, token) {
+    if (!storeId || !categoryId) {
+      throw new Error("Store ID and category ID are required.");
+    }
+
+    return apiClient.delete(
+      `/admin/stores/${storeId}/categories/${categoryId}/`,
+      apiClient.withAuth(token)
+    );
+  },
   async createProduct(storeId, data, token) {
     if (!storeId) {
       throw new Error("Store ID is required.");
@@ -139,6 +173,34 @@ const adminService = {
     );
   },
 
+  // ============================================================
+  // INVENTORY
+  // ============================================================
+
+  async getInventory(storeId, token) {
+    if (!storeId) {
+      throw new Error("Store ID is required.");
+    }
+
+    return apiClient.get(
+      `/admin/stores/${storeId}/inventory/`,
+      apiClient.withAuth(token)
+    );
+  },
+
+  async adjustInventory(storeId, productId, data, token) {
+    if (!storeId || !productId) {
+      throw new Error(
+        "Store ID and product ID are required."
+      );
+    }
+
+    return apiClient.post(
+      `/admin/stores/${storeId}/inventory/${productId}/adjust/`,
+      data,
+      apiClient.withAuth(token)
+    );
+  },
   // ============================================================
   // ORDERS
   // ============================================================

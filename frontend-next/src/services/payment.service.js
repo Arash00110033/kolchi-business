@@ -1,4 +1,4 @@
-﻿import apiClient from "@/services/api/client";
+import apiClient from "@/services/api/client";
 
 async function getPayments(token) {
   return apiClient.get(

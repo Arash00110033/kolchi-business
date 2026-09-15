@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n";
 
 export default function CatalogToolbar({
   categories = [],
@@ -9,6 +10,7 @@ export default function CatalogToolbar({
   onCategoryChange,
   onSortChange,
 }) {
+  const { t, isRTL } = useI18n();
   const [searchValue, setSearchValue] = useState(query);
 
   useEffect(() => {
@@ -21,8 +23,8 @@ export default function CatalogToolbar({
 
   return (
     <div
-      dir="rtl"
-      className="mb-8 rounded-2xl border border-[#e9e1da] bg-[#faf8f5] p-4 sm:p-5"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="mb-8 rounded-2xl border border-[var(--theme-surface-muted)] bg-[var(--theme-surface)] p-4 sm:p-5"
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
         {/* Search */}
@@ -31,9 +33,9 @@ export default function CatalogToolbar({
             type="search"
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="جستجوی محصول..."
-            aria-label="جستجوی محصول"
-            className="h-12 w-full rounded-xl border border-[#ded5ce] bg-white px-4 text-sm text-[#2d211d] outline-none transition placeholder:text-[#a49a93] focus:border-[#8d6856] focus:ring-2 focus:ring-[#8d6856]/10"
+            placeholder={t("common.search")}
+            aria-label={t("common.searchAria")}
+            className="h-12 w-full rounded-xl border border-[var(--theme-border)] bg-white px-4 text-sm text-[var(--theme-foreground)] outline-none transition placeholder:text-[var(--theme-muted)] focus:border-[var(--theme-secondary)] focus:ring-2 focus:ring-[var(--theme-secondary)]/10"
           />
         </div>
 
@@ -43,11 +45,11 @@ export default function CatalogToolbar({
           onChange={(event) =>
             onCategoryChange?.(event.target.value)
           }
-          aria-label="فیلتر دسته‌بندی"
-          className="h-12 rounded-xl border border-[#ded5ce] bg-white px-4 text-sm font-medium text-[#49332a] outline-none transition focus:border-[#8d6856]"
+          aria-label={t("common.categories")}
+          className="h-12 rounded-xl border border-[var(--theme-border)] bg-white px-4 text-sm font-medium text-[var(--theme-foreground)] outline-none transition focus:border-[var(--theme-secondary)]"
         >
           <option value="all">
-            همه دسته‌بندی‌ها
+            {t("common.allCategories")}
           </option>
 
           {categories.map((item) => (
@@ -63,13 +65,13 @@ export default function CatalogToolbar({
           onChange={(event) =>
             onSortChange?.(event.target.value)
           }
-          aria-label="مرتب‌سازی محصولات"
-          className="h-12 rounded-xl border border-[#ded5ce] bg-white px-4 text-sm font-medium text-[#49332a] outline-none transition focus:border-[#8d6856]"
+          aria-label={t("common.sort")}
+          className="h-12 rounded-xl border border-[var(--theme-border)] bg-white px-4 text-sm font-medium text-[var(--theme-foreground)] outline-none transition focus:border-[var(--theme-secondary)]"
         >
-          <option value="">جدیدترین</option>
-          <option value="price_asc">ارزان‌ترین</option>
-          <option value="price_desc">گران‌ترین</option>
-          <option value="name">بر اساس نام</option>
+          <option value="">{t("common.newest")}</option>
+          <option value="price_asc">{t("common.cheapest")}</option>
+          <option value="price_desc">{t("common.expensive")}</option>
+          <option value="name">{t("common.byName")}</option>
         </select>
       </div>
     </div>

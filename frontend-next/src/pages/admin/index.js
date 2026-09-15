@@ -1,7 +1,8 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import useAuth from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
@@ -18,6 +19,7 @@ function getList(data) {
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { t, isRTL } = useI18n();
 
   const [checking, setChecking] = useState(true);
   const [store, setStore] = useState(null);
@@ -99,9 +101,9 @@ export default function AdminPage() {
           requestError?.status === 403 ||
           requestError?.status === 404
         ) {
-          setError("شما دسترسی مدیریت این فروشگاه را ندارید.");
+          setError(t("adminDashboard.accessDenied"));
         } else {
-          setError("دریافت اطلاعات پنل مدیریت با خطا مواجه شد.");
+          setError(t("adminDashboard.loadError"));
         }
       } finally {
         if (mounted) {
@@ -115,7 +117,7 @@ export default function AdminPage() {
     return () => {
       mounted = false;
     };
-  }, [authLoading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router, t]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -154,9 +156,9 @@ export default function AdminPage() {
       }
 
       if (requestError?.status === 403) {
-        setError("شما اجازه ویرایش این فروشگاه را ندارید.");
+        setError(t("adminDashboard.editDenied"));
       } else {
-        setError("ذخیره اطلاعات فروشگاه با خطا مواجه شد.");
+        setError(t("adminDashboard.saveError"));
       }
     } finally {
       setSaving(false);
@@ -166,12 +168,12 @@ export default function AdminPage() {
   if (authLoading || checking) {
     return (
       <main
-        dir="rtl"
-        className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+        dir={isRTL ? "rtl" : "ltr"}
+        className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
       >
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-[#e7e0d9] bg-white p-8">
-          <p className="text-sm font-semibold text-[#5f514a]">
-            در حال بارگذاری پنل مدیریت...
+        <div className="mx-auto max-w-6xl rounded-[28px] border border-[var(--theme-border)] bg-white p-8">
+          <p className="text-sm font-semibold text-[var(--theme-muted)]">
+            {t("adminDashboard.loading")}
           </p>
         </div>
       </main>
@@ -181,12 +183,12 @@ export default function AdminPage() {
   if (error && !store) {
     return (
       <main
-        dir="rtl"
-        className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+        dir={isRTL ? "rtl" : "ltr"}
+        className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
       >
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-[#e7e0d9] bg-white p-8">
-          <h1 className="text-2xl font-black text-[#432a22]">
-            پنل مدیریت
+        <div className="mx-auto max-w-6xl rounded-[28px] border border-[var(--theme-border)] bg-white p-8">
+          <h1 className="text-2xl font-black text-[var(--theme-primary)]">
+            {t("adminDashboard.title")}
           </h1>
 
           <p className="mt-4 text-sm font-semibold text-red-700">
@@ -196,9 +198,9 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="mt-6 rounded-xl bg-[#432a22] px-4 py-2 text-sm font-semibold text-white"
+            className="mt-6 rounded-xl bg-[var(--theme-primary)] px-4 py-2 text-sm font-semibold text-white"
           >
-            بازگشت به فروشگاه
+            {t("adminDashboard.backToStore")}
           </button>
         </div>
       </main>
@@ -207,47 +209,61 @@ export default function AdminPage() {
 
   const managementCards = [
     {
-      title: "محصولات",
-      description: "ایجاد، ویرایش، فعال‌سازی و مدیریت موجودی محصولات",
+      title: t("adminDashboard.products"),
+      description: t("adminDashboard.productsDescription"),
       value: stats.products,
       href: "/admin/products",
-      label: "مدیریت محصولات",
+      label: t("adminDashboard.manageProducts"),
     },
     {
-      title: "سفارش‌ها",
-      description: "مشاهده سفارش‌ها و مدیریت وضعیت سفارش",
+      title: t("adminDashboard.orders"),
+      description: t("adminDashboard.ordersDescription"),
       value: stats.orders,
       href: "/admin/orders",
-      label: "مدیریت سفارش‌ها",
+      label: t("adminDashboard.manageOrders"),
     },
     {
-      title: "اعضا و نقش‌ها",
-      description: "مدیریت اعضای فروشگاه و سطح دسترسی آن‌ها",
+      title: t("adminDashboard.inventory"),
+      description: t("adminDashboard.inventoryDescription"),
+      value: t("adminDashboard.inventory"),
+      href: "/admin/inventory",
+      label: t("adminDashboard.manageInventory"),
+    },
+    {
+      title: t("adminDashboard.members"),
+      description: t("adminDashboard.membersDescription"),
       value: stats.members,
       href: "/admin/members",
-      label: "مدیریت اعضا",
+      label: t("adminDashboard.manageMembers"),
+    },
+    {
+      title: t("adminDashboard.appearance"),
+      description: t("adminDashboard.appearanceDescription"),
+      value: "🎨",
+      href: "/admin/appearance",
+      label: t("adminDashboard.manageAppearance"),
     },
   ];
 
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[#f7f3ee] px-5 py-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
     >
       <div className="mx-auto max-w-6xl">
-        <header className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
+        <header className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
           <div className="flex flex-wrap items-center justify-between gap-5">
             <div>
-              <p className="text-sm font-semibold text-[#8a7569]">
-                داشبورد مدیریت فروشگاه
+              <p className="text-sm font-semibold text-[var(--theme-muted)]">
+                {t("adminDashboard.dashboard")}
               </p>
 
-              <h1 className="mt-1 text-3xl font-black text-[#432a22]">
-                {store?.name || "فروشگاه"}
+              <h1 className="mt-1 text-3xl font-black text-[var(--theme-primary)]">
+                {store?.name || t("adminDashboard.unknownStore")}
               </h1>
 
-              <p className="mt-2 text-sm text-[#6b5b52]">
-                {user?.username || user?.email || "کاربر"}
+              <p className="mt-2 text-sm text-[var(--theme-muted)]">
+                {user?.username || user?.email || t("adminDashboard.user")}
               </p>
             </div>
 
@@ -255,9 +271,9 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => router.push("/")}
-                className="rounded-xl border border-[#ded3ca] px-4 py-2 text-sm font-semibold text-[#5f514a] transition hover:bg-[#f7f3ee]"
+                className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
               >
-                فروشگاه
+                {t("adminDashboard.backToStore")}
               </button>
             </div>
           </div>
@@ -275,39 +291,39 @@ export default function AdminPage() {
               key={card.href}
               type="button"
               onClick={() => router.push(card.href)}
-              className="rounded-[24px] border border-[#e7e0d9] bg-white p-6 text-right shadow-[0_10px_35px_rgba(70,45,30,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(70,45,30,0.09)]"
+              className="rounded-[24px] border border-[var(--theme-border)] bg-white p-6 text-right shadow-[0_10px_35px_rgba(70,45,30,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(70,45,30,0.09)]"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-black text-[#432a22]">
+                  <h2 className="font-black text-[var(--theme-primary)]">
                     {card.title}
                   </h2>
 
-                  <p className="mt-2 text-sm leading-6 text-[#6b5b52]">
+                  <p className="mt-2 text-sm leading-6 text-[var(--theme-muted)]">
                     {card.description}
                   </p>
                 </div>
 
-                <span className="text-3xl font-black text-[#a06b45]">
+                <span className="text-3xl font-black text-[var(--theme-secondary)]">
                   {card.value}
                 </span>
               </div>
 
-              <p className="mt-5 text-sm font-bold text-[#a06b45]">
+              <p className="mt-5 text-sm font-bold text-[var(--theme-secondary)]">
                 {card.label} ←
               </p>
             </button>
           ))}
         </section>
 
-        <section className="mb-6 rounded-[28px] border border-[#e7e0d9] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
+        <section className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
           <div className="mb-6">
-            <h2 className="text-xl font-black text-[#432a22]">
-              وضعیت فروشگاه
+            <h2 className="text-xl font-black text-[var(--theme-primary)]">
+              {t("adminDashboard.storeManagement")}
             </h2>
 
-            <p className="mt-1 text-sm text-[#6b5b52]">
-              وضعیت فعلی فروشگاه و اطلاعات مدیریتی
+            <p className="mt-1 text-sm text-[var(--theme-muted)]">
+              {t("adminDashboard.storeManagementDescription")}
             </p>
           </div>
 
@@ -320,30 +336,30 @@ export default function AdminPage() {
               }`}
             >
               {store?.is_active
-                ? "فروشگاه فعال"
-                : "فروشگاه غیرفعال"}
+                ? t("adminDashboard.active")
+                : t("adminDashboard.inactive")}
             </span>
 
-            <span className="rounded-full bg-[#f7f3ee] px-4 py-2 text-sm font-semibold text-[#5f514a]">
-              شناسه فروشگاه: {STORE_ID}
+            <span className="rounded-full bg-[var(--theme-background)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]">
+              {t("adminDashboard.storeId")}: {STORE_ID}
             </span>
 
             {store?.slug && (
-              <span className="rounded-full bg-[#f7f3ee] px-4 py-2 text-sm font-semibold text-[#5f514a]">
+              <span className="rounded-full bg-[var(--theme-background)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]">
                 slug: {store.slug}
               </span>
             )}
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-[#e7e0d9] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
+        <section className="rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
           <div className="mb-6">
-            <h2 className="text-xl font-black text-[#432a22]">
-              تنظیمات فروشگاه
+            <h2 className="text-xl font-black text-[var(--theme-primary)]">
+              {t("adminDashboard.settings")}
             </h2>
 
-            <p className="mt-1 text-sm text-[#6b5b52]">
-              اطلاعات اصلی فروشگاه را مدیریت کنید.
+            <p className="mt-1 text-sm text-[var(--theme-muted)]">
+              {t("adminDashboard.settingsDescription")}
             </p>
           </div>
 
@@ -351,9 +367,9 @@ export default function AdminPage() {
             <div>
               <label
                 htmlFor="store-name"
-                className="mb-2 block text-sm font-semibold text-[#4b3b34]"
+                className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]"
               >
-                نام فروشگاه
+                {t("adminDashboard.storeName")}
               </label>
 
               <input
@@ -367,16 +383,16 @@ export default function AdminPage() {
                 }
                 required
                 maxLength={150}
-                className="w-full rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
             <div>
               <label
                 htmlFor="store-description"
-                className="mb-2 block text-sm font-semibold text-[#4b3b34]"
+                className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]"
               >
-                توضیحات
+                {t("adminDashboard.description")}
               </label>
 
               <textarea
@@ -389,11 +405,11 @@ export default function AdminPage() {
                   }))
                 }
                 rows={5}
-                className="w-full resize-y rounded-xl border border-[#ded3ca] px-4 py-3 text-sm outline-none focus:border-[#a06b45]"
+                className="w-full resize-y rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
               />
             </div>
 
-            <label className="flex items-center gap-3 text-sm font-semibold text-[#4b3b34]">
+            <label className="flex items-center gap-3 text-sm font-semibold text-[var(--theme-foreground)]">
               <input
                 type="checkbox"
                 checked={form.is_active}
@@ -405,21 +421,23 @@ export default function AdminPage() {
                 }
               />
 
-              فروشگاه فعال باشد
+              {t("adminDashboard.activeStore")}
             </label>
 
             {saved && (
               <p className="text-sm font-semibold text-green-700">
-                اطلاعات فروشگاه با موفقیت ذخیره شد.
+                {t("adminDashboard.saved")}
               </p>
             )}
 
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-[#432a22] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "در حال ذخیره..." : "ذخیره تغییرات"}
+              {saving
+                ? t("adminDashboard.saving")
+                : t("adminDashboard.saveChanges")}
             </button>
           </form>
         </section>

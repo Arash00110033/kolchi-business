@@ -1,10 +1,14 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n";
 
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
+
 import authService from "@/services/auth.service";
+
 import cartService from "@/services/cart.service";
+
 import orderService from "@/services/order.service";
 
 function isValidIranianPhone(phone) {
@@ -12,14 +16,19 @@ function isValidIranianPhone(phone) {
 }
 
 export default function CartPage() {
+  const { t, locale, isRTL } = useI18n();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [cart, setCart] = useState(null);
+
   const [loading, setLoading] = useState(true);
+
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const [shippingAddress, setShippingAddress] = useState("");
+
   const [shippingPhone, setShippingPhone] = useState("");
 
   async function loadCart() {
@@ -36,7 +45,7 @@ export default function CartPage() {
       const data = await cartService.getCart(token);
       setCart(data);
     } catch (err) {
-      setError("دریافت سبد خرید ناموفق بود.");
+      setError(t("common.errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -71,7 +80,7 @@ export default function CartPage() {
     } catch (err) {
       setError(
         err?.data?.detail ||
-          "تغییر تعداد ناموفق بود."
+          t("common.errorGeneric")
       );
     }
   }
@@ -89,7 +98,7 @@ export default function CartPage() {
 
       setCart(data);
     } catch (err) {
-      setError("حذف محصول ناموفق بود.");
+      setError(t("common.errorGeneric"));
     }
   }
 
@@ -103,7 +112,7 @@ export default function CartPage() {
 
       setCart(data);
     } catch (err) {
-      setError("پاک کردن سبد خرید ناموفق بود.");
+      setError(t("common.errorGeneric"));
     }
   }
 
@@ -116,23 +125,23 @@ export default function CartPage() {
     const phone = shippingPhone.trim();
 
     if (!address) {
-      setError("لطفاً آدرس ارسال را وارد کنید.");
+      setError(t("common.addressRequired"));
       return;
     }
 
     if (address.length < 10) {
-      setError("آدرس ارسال باید حداقل ۱۰ کاراکتر باشد.");
+      setError(t("common.addressTooShort"));
       return;
     }
 
     if (!phone) {
-      setError("لطفاً شماره تماس را وارد کنید.");
+      setError(t("common.phoneRequired"));
       return;
     }
 
     if (!isValidIranianPhone(phone)) {
       setError(
-        "شماره تماس معتبر نیست. نمونه صحیح: 09123456789"
+        t("common.invalidPhone")
       );
       return;
     }
@@ -141,7 +150,7 @@ export default function CartPage() {
 
     if (!token) {
       setError(
-        "برای ثبت سفارش ابتدا وارد حساب کاربری شوید."
+        t("common.loginToOrder")
       );
       return;
     }
@@ -171,7 +180,7 @@ export default function CartPage() {
     } catch (err) {
       setError(
         err?.data?.detail ||
-          "ثبت سفارش ناموفق بود."
+          t("common.orderFailed")
       );
     } finally {
       setCheckoutLoading(false);
@@ -181,11 +190,11 @@ export default function CartPage() {
   if (authLoading || loading) {
     return (
       <main
-        dir="rtl"
+        dir={isRTL ? "rtl" : "ltr"}
         className="mx-auto max-w-5xl px-5 py-10"
       >
-        <p className="text-[#6b5b52]">
-          در حال دریافت سبد خرید...
+        <p className="text-[var(--theme-muted)]">
+          {t("common.loadingCart")}
         </p>
       </main>
     );
@@ -194,23 +203,23 @@ export default function CartPage() {
   if (!isAuthenticated) {
     return (
       <main
-        dir="rtl"
+        dir={isRTL ? "rtl" : "ltr"}
         className="mx-auto max-w-5xl px-5 py-10"
       >
-        <div className="rounded-3xl border border-[#e7e0d9] bg-white p-8 text-center shadow-sm">
-          <h1 className="mb-3 text-2xl font-black text-[#432a22]">
-            سبد خرید
+        <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-8 text-center shadow-sm">
+          <h1 className="mb-3 text-2xl font-black text-[var(--theme-primary)]">
+            {t("common.cart")}
           </h1>
 
-          <p className="mb-6 text-[#6b5b52]">
-            برای مشاهده سبد خرید ابتدا وارد حساب کاربری شوید.
+          <p className="mb-6 text-[var(--theme-muted)]">
+            {t("common.loginRequired")}
           </p>
 
           <Link
             href="/login"
-            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white"
+            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white"
           >
-            ورود
+            {t("common.login")}
           </Link>
         </div>
       </main>
@@ -221,17 +230,17 @@ export default function CartPage() {
 
   return (
     <main
-      dir="rtl"
+      dir={isRTL ? "rtl" : "ltr"}
       className="mx-auto max-w-5xl px-5 py-10"
     >
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-[#432a22]">
-            سبد خرید
+          <h1 className="text-3xl font-black text-[var(--theme-primary)]">
+            {t("common.cart")}
           </h1>
 
-          <p className="mt-2 text-sm text-[#75665d]">
-            {items.length} محصول در سبد خرید
+          <p className="mt-2 text-sm text-[var(--theme-muted)]">
+            {t("common.cartItemsCount").replace("{count}", items.length.toLocaleString(locale))}
           </p>
         </div>
 
@@ -239,9 +248,9 @@ export default function CartPage() {
           <button
             type="button"
             onClick={clearCart}
-            className="rounded-xl border border-[#ded3ca] px-4 py-2 text-sm font-semibold text-[#6b5b52] transition hover:bg-[#f7f3ee]"
+            className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-surface-muted)]"
           >
-            پاک کردن سبد
+            {t("common.clearCart")}
           </button>
         )}
       </div>
@@ -253,20 +262,20 @@ export default function CartPage() {
       )}
 
       {items.length === 0 ? (
-        <div className="rounded-3xl border border-[#e7e0d9] bg-white p-10 text-center shadow-sm">
-          <h2 className="mb-3 text-xl font-bold text-[#432a22]">
-            سبد خرید خالی است
+        <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-10 text-center shadow-sm">
+          <h2 className="mb-3 text-xl font-bold text-[var(--theme-primary)]">
+            {t("common.emptyCart")}
           </h2>
 
-          <p className="mb-6 text-[#75665d]">
-            هنوز محصولی به سبد خرید اضافه نکرده‌اید.
+          <p className="mb-6 text-[var(--theme-muted)]">
+            {t("common.emptyCartText")}
           </p>
 
           <Link
             href="/"
-            className="inline-block rounded-xl bg-[#432a22] px-5 py-3 font-semibold text-white"
+            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white"
           >
-            بازگشت به فروشگاه
+            {t("common.backToStore")}
           </Link>
         </div>
       ) : (
@@ -275,28 +284,28 @@ export default function CartPage() {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="rounded-3xl border border-[#e7e0d9] bg-white p-5 shadow-sm"
+                className="rounded-3xl border border-[var(--theme-border)] bg-white p-5 shadow-sm"
               >
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="font-bold text-[#432a22]">
+                    <h2 className="font-bold text-[var(--theme-primary)]">
                       {item.product_name}
                     </h2>
 
-                    <p className="mt-2 text-sm text-[#75665d]">
-                      قیمت واحد:{" "}
+                    <p className="mt-2 text-sm text-[var(--theme-muted)]">
+                      {t("common.unitPrice")}:{" "}
                       {Number(item.unit_price).toLocaleString(
-                        "fa-IR"
+                        locale
                       )}{" "}
-                      تومان
+                      {t("common.currency")}
                     </p>
 
-                    <p className="mt-1 text-sm font-semibold text-[#432a22]">
-                      جمع:{" "}
+                    <p className="mt-1 text-sm font-semibold text-[var(--theme-primary)]">
+                      {t("common.subtotal")}:{" "}
                       {Number(item.subtotal).toLocaleString(
-                        "fa-IR"
+                        locale
                       )}{" "}
-                      تومان
+                      {t("common.currency")}
                     </p>
                   </div>
 
@@ -310,7 +319,7 @@ export default function CartPage() {
                         )
                       }
                       disabled={item.quantity <= 1}
-                      className="h-9 w-9 rounded-lg border border-[#ded3ca] disabled:opacity-40"
+                      className="h-9 w-9 rounded-lg border border-[var(--theme-border)] disabled:opacity-40"
                     >
                       −
                     </button>
@@ -327,7 +336,7 @@ export default function CartPage() {
                           item.quantity + 1
                         )
                       }
-                      className="h-9 w-9 rounded-lg border border-[#ded3ca]"
+                      className="h-9 w-9 rounded-lg border border-[var(--theme-border)]"
                     >
                       +
                     </button>
@@ -337,7 +346,7 @@ export default function CartPage() {
                       onClick={() => removeItem(item.id)}
                       className="mr-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                     >
-                      حذف
+                      {t("common.remove")}
                     </button>
                   </div>
                 </div>
@@ -345,18 +354,18 @@ export default function CartPage() {
             ))}
           </div>
 
-          <aside className="h-fit rounded-3xl border border-[#e7e0d9] bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-lg font-black text-[#432a22]">
-              اطلاعات ارسال
+          <aside className="h-fit rounded-3xl border border-[var(--theme-border)] bg-white p-6 shadow-sm">
+            <h2 className="mb-5 text-lg font-black text-[var(--theme-primary)]">
+              {t("common.shippingInfo")}
             </h2>
 
             <div className="space-y-4">
               <div>
                 <label
                   htmlFor="shipping-phone"
-                  className="mb-2 block text-sm font-semibold text-[#6b5b52]"
+                  className="mb-2 block text-sm font-semibold text-[var(--theme-muted)]"
                 >
-                  شماره تماس
+                  {t("common.phone")}
                 </label>
 
                 <input
@@ -369,16 +378,16 @@ export default function CartPage() {
                     setShippingPhone(event.target.value)
                   }
                   placeholder="09123456789"
-                  className="w-full rounded-xl border border-[#ded3ca] bg-[#faf8f5] px-4 py-3 text-sm outline-none transition focus:border-[#8d6855]"
+                  className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)] px-4 py-3 text-sm outline-none transition focus:border-[var(--theme-primary)]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="shipping-address"
-                  className="mb-2 block text-sm font-semibold text-[#6b5b52]"
+                  className="mb-2 block text-sm font-semibold text-[var(--theme-muted)]"
                 >
-                  آدرس ارسال
+                  {t("common.address")}
                 </label>
 
                 <textarea
@@ -387,24 +396,24 @@ export default function CartPage() {
                   onChange={(event) =>
                     setShippingAddress(event.target.value)
                   }
-                  placeholder="آدرس کامل محل تحویل"
+                  placeholder={t("common.shippingAddress")}
                   rows={4}
-                  className="w-full resize-none rounded-xl border border-[#ded3ca] bg-[#faf8f5] px-4 py-3 text-sm outline-none transition focus:border-[#8d6855]"
+                  className="w-full resize-none rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)] px-4 py-3 text-sm outline-none transition focus:border-[var(--theme-primary)]"
                 />
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-[#eee7e1] pt-5">
-              <span className="font-semibold text-[#6b5b52]">
-                مجموع
+            <div className="mt-6 flex items-center justify-between border-t border-[var(--theme-border)] pt-5">
+              <span className="font-semibold text-[var(--theme-muted)]">
+                {t("common.total")}
               </span>
 
-              <span className="text-xl font-black text-[#432a22]">
+              <span className="text-xl font-black text-[var(--theme-primary)]">
                 {Number(cart?.total || 0).toLocaleString(
-                  "fa-IR"
+                  locale
                 )}{" "}
                 <span className="text-xs font-medium">
-                  تومان
+                  {t("common.currency")}
                 </span>
               </span>
             </div>
@@ -413,11 +422,11 @@ export default function CartPage() {
               type="button"
               onClick={checkout}
               disabled={checkoutLoading}
-              className="mt-6 w-full rounded-xl bg-[#432a22] px-4 py-3 font-bold text-white transition hover:bg-[#5a382d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-6 w-full rounded-xl bg-[var(--theme-primary)] px-4 py-3 font-bold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {checkoutLoading
-                ? "در حال ثبت سفارش..."
-                : "ثبت سفارش"}
+                ? t("common.placingOrder")
+                : t("common.placeOrder")}
             </button>
           </aside>
         </div>

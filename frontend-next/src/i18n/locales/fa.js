@@ -363,5 +363,35 @@ const fa = {
     product: "محصول",
     currency: "تومان",
     remove: "حذف از علاقه‌مندی‌ها"
-  },};
+  },
+
+  orderDetail: {
+    loading: "در حال دریافت جزئیات سفارش...",
+    title: "جزئیات سفارش",
+    loginMessage: "برای مشاهده سفارش ابتدا وارد حساب کاربری شوید.",
+    login: "ورود",
+    backToOrders: "بازگشت به سفارش‌ها",
+    continueShopping: "ادامه خرید",
+    paymentLoginRequired: "برای پرداخت ابتدا وارد حساب کاربری شوید.",
+    cancelConfirm: "آیا از لغو این سفارش مطمئن هستید؟",
+    registered: "سفارش ثبت‌شده",
+    orderNumber: "سفارش #{id}",
+    tracking: "پیگیری سفارش",
+    statusDescription: "وضعیت سفارش بر اساس آخرین مرحله ثبت‌شده نمایش داده می‌شود.",
+    cancelled: "سفارش لغو شده است",
+    notShipped: "این سفارش در مسیر ارسال قرار نگرفته است.",
+    currentStatus: "وضعیت فعلی:",
+    shippingInfo: "اطلاعات ارسال",
+    phone: "شماره تماس",
+    address: "آدرس ارسال",
+    products: "محصولات سفارش",
+    productCount: "{count} کالا",
+    emptyProducts: "محصولی برای این سفارش ثبت نشده است.",
+    quantity: "تعداد:",
+    unitPrice: "قیمت واحد:",
+    currency: "تومان",
+    totalAmount: "مبلغ کل",
+    viewAllOrders: "مشاهده همه سفارش‌ها"
+  },
+};
 export default fa;

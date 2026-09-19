@@ -363,5 +363,35 @@ const ja = {
     product: "Product",
     currency: "Toman",
     remove: "Remove from wishlist"
-  },};
+  },
+
+  orderDetail: {
+    loading: "注文詳細を読み込んでいます...",
+    title: "注文詳細",
+    loginMessage: "この注文を表示するにはログインしてください。",
+    login: "ログイン",
+    backToOrders: "注文一覧に戻る",
+    continueShopping: "買い物を続ける",
+    paymentLoginRequired: "支払いを行う前にログインしてください。",
+    cancelConfirm: "この注文をキャンセルしてもよろしいですか？",
+    registered: "注文済み",
+    orderNumber: "注文 #{id}",
+    tracking: "注文の追跡",
+    statusDescription: "注文状況は最新の記録された段階に基づいて表示されます。",
+    cancelled: "注文はキャンセルされました",
+    notShipped: "この注文はまだ発送手続きに入っていません。",
+    currentStatus: "現在のステータス：",
+    shippingInfo: "配送情報",
+    phone: "電話番号",
+    address: "配送先住所",
+    products: "注文商品",
+    productCount: "{count} 点",
+    emptyProducts: "この注文には商品がありません。",
+    quantity: "数量：",
+    unitPrice: "単価：",
+    currency: "トマン",
+    totalAmount: "合計金額",
+    viewAllOrders: "すべての注文を見る"
+  },
+};
 export default ja;

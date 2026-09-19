@@ -363,5 +363,35 @@ const zh = {
     product: "Product",
     currency: "Toman",
     remove: "Remove from wishlist"
-  },};
+  },
+
+  orderDetail: {
+    loading: "正在加载订单详情...",
+    title: "订单详情",
+    loginMessage: "请登录后查看此订单。",
+    login: "登录",
+    backToOrders: "返回订单",
+    continueShopping: "继续购物",
+    paymentLoginRequired: "请先登录再进行付款。",
+    cancelConfirm: "确定要取消此订单吗？",
+    registered: "订单已创建",
+    orderNumber: "订单 #{id}",
+    tracking: "订单跟踪",
+    statusDescription: "订单状态根据最近记录的阶段显示。",
+    cancelled: "订单已取消",
+    notShipped: "此订单尚未进入配送流程。",
+    currentStatus: "当前状态：",
+    shippingInfo: "配送信息",
+    phone: "电话号码",
+    address: "配送地址",
+    products: "订单商品",
+    productCount: "{count} 件商品",
+    emptyProducts: "此订单没有商品。",
+    quantity: "数量：",
+    unitPrice: "单价：",
+    currency: "托曼",
+    totalAmount: "总金额",
+    viewAllOrders: "查看全部订单"
+  },
+};
 export default zh;

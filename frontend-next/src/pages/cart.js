@@ -125,23 +125,23 @@ export default function CartPage() {
     const phone = shippingPhone.trim();
 
     if (!address) {
-      setError(t("common.addressRequired"));
+      setError(t("auth.addressRequired"));
       return;
     }
 
     if (address.length < 10) {
-      setError(t("common.addressTooShort"));
+      setError(t("auth.addressTooShort"));
       return;
     }
 
     if (!phone) {
-      setError(t("common.phoneRequired"));
+      setError(t("auth.phoneRequired"));
       return;
     }
 
     if (!isValidIranianPhone(phone)) {
       setError(
-        t("common.invalidPhone")
+        t("auth.invalidPhone")
       );
       return;
     }
@@ -150,7 +150,7 @@ export default function CartPage() {
 
     if (!token) {
       setError(
-        t("common.loginToOrder")
+        t("auth.loginToOrder")
       );
       return;
     }
@@ -180,7 +180,7 @@ export default function CartPage() {
     } catch (err) {
       setError(
         err?.data?.detail ||
-          t("common.orderFailed")
+          t("auth.orderFailed")
       );
     } finally {
       setCheckoutLoading(false);
@@ -194,7 +194,7 @@ export default function CartPage() {
         className="mx-auto max-w-5xl px-5 py-10"
       >
         <p className="text-[var(--theme-muted)]">
-          {t("common.loadingCart")}
+          {t("auth.loadingCart")}
         </p>
       </main>
     );
@@ -212,7 +212,7 @@ export default function CartPage() {
           </h1>
 
           <p className="mb-6 text-[var(--theme-muted)]">
-            {t("common.loginRequired")}
+            {t("auth.loginRequired")}
           </p>
 
           <Link
@@ -240,7 +240,7 @@ export default function CartPage() {
           </h1>
 
           <p className="mt-2 text-sm text-[var(--theme-muted)]">
-            {t("common.cartItemsCount").replace("{count}", items.length.toLocaleString(locale))}
+            {t("auth.cartItemsCount").replace("{count}", items.length.toLocaleString(locale))}
           </p>
         </div>
 
@@ -250,7 +250,7 @@ export default function CartPage() {
             onClick={clearCart}
             className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-surface-muted)]"
           >
-            {t("common.clearCart")}
+            {t("auth.clearCart")}
           </button>
         )}
       </div>
@@ -264,18 +264,18 @@ export default function CartPage() {
       {items.length === 0 ? (
         <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-10 text-center shadow-sm">
           <h2 className="mb-3 text-xl font-bold text-[var(--theme-primary)]">
-            {t("common.emptyCart")}
+            {t("auth.emptyCart")}
           </h2>
 
           <p className="mb-6 text-[var(--theme-muted)]">
-            {t("common.emptyCartText")}
+            {t("auth.emptyCartText")}
           </p>
 
           <Link
             href="/"
             className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white"
           >
-            {t("common.backToStore")}
+            {t("auth.backToStore")}
           </Link>
         </div>
       ) : (
@@ -293,7 +293,7 @@ export default function CartPage() {
                     </h2>
 
                     <p className="mt-2 text-sm text-[var(--theme-muted)]">
-                      {t("common.unitPrice")}:{" "}
+                      {t("auth.unitPrice")}:{" "}
                       {Number(item.unit_price).toLocaleString(
                         locale
                       )}{" "}
@@ -301,7 +301,7 @@ export default function CartPage() {
                     </p>
 
                     <p className="mt-1 text-sm font-semibold text-[var(--theme-primary)]">
-                      {t("common.subtotal")}:{" "}
+                      {t("auth.subtotal")}:{" "}
                       {Number(item.subtotal).toLocaleString(
                         locale
                       )}{" "}
@@ -346,7 +346,7 @@ export default function CartPage() {
                       onClick={() => removeItem(item.id)}
                       className="mr-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                     >
-                      {t("common.remove")}
+                      {t("auth.remove")}
                     </button>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default function CartPage() {
 
           <aside className="h-fit rounded-3xl border border-[var(--theme-border)] bg-white p-6 shadow-sm">
             <h2 className="mb-5 text-lg font-black text-[var(--theme-primary)]">
-              {t("common.shippingInfo")}
+              {t("auth.shippingInfo")}
             </h2>
 
             <div className="space-y-4">
@@ -365,7 +365,7 @@ export default function CartPage() {
                   htmlFor="shipping-phone"
                   className="mb-2 block text-sm font-semibold text-[var(--theme-muted)]"
                 >
-                  {t("common.phone")}
+                  {t("auth.phone")}
                 </label>
 
                 <input
@@ -387,7 +387,7 @@ export default function CartPage() {
                   htmlFor="shipping-address"
                   className="mb-2 block text-sm font-semibold text-[var(--theme-muted)]"
                 >
-                  {t("common.address")}
+                  {t("auth.address")}
                 </label>
 
                 <textarea
@@ -396,7 +396,7 @@ export default function CartPage() {
                   onChange={(event) =>
                     setShippingAddress(event.target.value)
                   }
-                  placeholder={t("common.shippingAddress")}
+                  placeholder={t("auth.shippingAddress")}
                   rows={4}
                   className="w-full resize-none rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)] px-4 py-3 text-sm outline-none transition focus:border-[var(--theme-primary)]"
                 />
@@ -405,7 +405,7 @@ export default function CartPage() {
 
             <div className="mt-6 flex items-center justify-between border-t border-[var(--theme-border)] pt-5">
               <span className="font-semibold text-[var(--theme-muted)]">
-                {t("common.total")}
+                {t("auth.total")}
               </span>
 
               <span className="text-xl font-black text-[var(--theme-primary)]">
@@ -425,8 +425,8 @@ export default function CartPage() {
               className="mt-6 w-full rounded-xl bg-[var(--theme-primary)] px-4 py-3 font-bold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {checkoutLoading
-                ? t("common.placingOrder")
-                : t("common.placeOrder")}
+                ? t("auth.placingOrder")
+                : t("auth.placeOrder")}
             </button>
           </aside>
         </div>

@@ -363,5 +363,35 @@ const es = {
     product: "Product",
     currency: "Toman",
     remove: "Remove from wishlist"
-  },};
+  },
+
+  orderDetail: {
+    loading: "Cargando los detalles del pedido...",
+    title: "Detalles del pedido",
+    loginMessage: "Inicia sesión para ver este pedido.",
+    login: "Iniciar sesión",
+    backToOrders: "Volver a pedidos",
+    continueShopping: "Continuar comprando",
+    paymentLoginRequired: "Inicia sesión antes de realizar el pago.",
+    cancelConfirm: "¿Seguro que quieres cancelar este pedido?",
+    registered: "Pedido registrado",
+    orderNumber: "Pedido #{id}",
+    tracking: "Seguimiento del pedido",
+    statusDescription: "El estado del pedido se muestra según la última etapa registrada.",
+    cancelled: "El pedido ha sido cancelado",
+    notShipped: "Este pedido no ha entrado en el proceso de envío.",
+    currentStatus: "Estado actual:",
+    shippingInfo: "Información de envío",
+    phone: "Número de teléfono",
+    address: "Dirección de envío",
+    products: "Productos del pedido",
+    productCount: "{count} artículos",
+    emptyProducts: "No hay productos registrados para este pedido.",
+    quantity: "Cantidad:",
+    unitPrice: "Precio unitario:",
+    currency: "Toman",
+    totalAmount: "Importe total",
+    viewAllOrders: "Ver todos los pedidos"
+  },
+};
 export default es;

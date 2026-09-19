@@ -114,6 +114,15 @@ export default function WishlistPage() {
       className="mx-auto max-w-5xl px-5 py-10"
     >
       <div className="mb-8">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="inline-block rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-primary)] transition hover:bg-[var(--theme-surface-muted)]"
+          >
+            {t("wishlist.backToStore")}
+          </Link>
+        </div>
+
         <h1 className="text-3xl font-black text-[var(--theme-primary)]">
           {t("wishlist.title")}
         </h1>

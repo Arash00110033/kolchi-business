@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.stores",
     "apps.users",
+    "apps.platform_control",
     "apps.catalog",
     "apps.cart",
     "apps.wishlist",

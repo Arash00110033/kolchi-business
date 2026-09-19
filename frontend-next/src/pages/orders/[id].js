@@ -20,27 +20,27 @@ const STATUS_KEYS = {
 const TRACKING_STEPS = [
   {
     status: "pending",
-    label: "ثبت سفارش",
+    labelKey: "pending",
     icon: "🛍️",
   },
   {
     status: "confirmed",
-    label: "تأیید سفارش",
+    labelKey: "confirmed",
     icon: "✓",
   },
   {
     status: "paid",
-    label: "پرداخت",
+    labelKey: "paid",
     icon: "💳",
   },
   {
     status: "shipped",
-    label: "ارسال",
+    labelKey: "shipped",
     icon: "🏍️",
   },
   {
     status: "delivered",
-    label: "تحویل",
+    labelKey: "delivered",
     icon: "📦",
   },
 ];
@@ -113,7 +113,7 @@ export default function OrderDetailPage() {
         className="mx-auto max-w-4xl px-5 py-10"
       >
         <p className="text-[var(--theme-muted)]">
-          در حال دریافت جزئیات سفارش...
+          {t("orderDetail.loading")}
         </p>
       </main>
     );
@@ -127,18 +127,18 @@ export default function OrderDetailPage() {
       >
         <div className="rounded-3xl border border-[var(--theme-border)] bg-white p-8 text-center shadow-sm">
           <h1 className="mb-3 text-2xl font-black text-[var(--theme-primary)]">
-            جزئیات سفارش
+            {t("orderDetail.title")}
           </h1>
 
           <p className="mb-6 text-[var(--theme-muted)]">
-            برای مشاهده سفارش ابتدا وارد حساب کاربری شوید.
+            {t("orderDetail.loginMessage")}
           </p>
 
           <Link
             href="/login"
             className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
           >
-            ورود
+            {t("orderDetail.login")}
           </Link>
         </div>
       </main>
@@ -161,14 +161,14 @@ export default function OrderDetailPage() {
               href="/orders"
               className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
             >
-              بازگشت به سفارش‌ها
+              {t("orderDetail.backToOrders")}
             </Link>
 
             <Link
               href="/"
               className="rounded-xl border border-[var(--theme-primary)] px-5 py-3 font-semibold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
             >
-              ادامه خرید
+              {t("orderDetail.continueShopping")}
             </Link>
           </div>
         </div>
@@ -176,10 +176,13 @@ export default function OrderDetailPage() {
     );
   }
 
+  const statusKey = order.status ? `orders.status.${order.status}` : "";
+  const translatedStatus = statusKey ? t(statusKey) : "";
+
   const statusLabel =
-    STATUS_LABELS[order.status] ||
-    order.status ||
-    t("orders.unknownStatus");
+    translatedStatus && translatedStatus !== statusKey
+      ? translatedStatus
+      : order.status || t("orders.unknownStatus");
 
   const items = order.items || [];
 
@@ -199,7 +202,7 @@ export default function OrderDetailPage() {
 
       if (!token) {
         setPaymentError(
-          "برای پرداخت ابتدا وارد حساب کاربری شوید."
+          t("orderDetail.paymentLoginRequired")
         );
         return;
       }
@@ -234,7 +237,7 @@ export default function OrderDetailPage() {
     if (!order || cancelLoading) return;
 
     const confirmed = window.confirm(
-      "آیا از لغو این سفارش مطمئن هستید؟"
+      t("orderDetail.cancelConfirm")
     );
 
     if (!confirmed) return;
@@ -284,14 +287,14 @@ export default function OrderDetailPage() {
           href="/orders"
           className="text-sm font-semibold text-[var(--theme-secondary)] transition hover:text-[var(--theme-primary)] hover:underline"
         >
-          ← بازگشت به سفارش‌ها
+          ← {t("orderDetail.backToOrders")}
         </Link>
 
         <Link
           href="/"
           className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
         >
-          ادامه خرید
+          {t("orderDetail.continueShopping")}
         </Link>
       </div>
 
@@ -301,11 +304,11 @@ export default function OrderDetailPage() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-[var(--theme-muted)]">
-                سفارش ثبت‌شده
+                {t("orderDetail.registered")}
               </p>
 
               <h1 className="mt-1 text-2xl font-black text-[var(--theme-primary)]">
-                سفارش #{order.id}
+                {t("orderDetail.orderNumber").replace("{id}", order.id)}
               </h1>
 
               <p className="mt-2 text-sm text-[var(--theme-muted)]">
@@ -327,11 +330,11 @@ export default function OrderDetailPage() {
         <div className="border-b border-[var(--theme-border)] p-6 sm:p-8">
           <div className="mb-7">
             <h2 className="text-lg font-black text-[var(--theme-primary)]">
-              پیگیری سفارش
+              {t("orderDetail.tracking")}
             </h2>
 
             <p className="mt-1 text-sm text-[var(--theme-muted)]">
-              وضعیت سفارش بر اساس آخرین مرحله ثبت‌شده نمایش داده می‌شود.
+              {t("orderDetail.statusDescription")}
             </p>
           </div>
 
@@ -344,11 +347,11 @@ export default function OrderDetailPage() {
 
                 <div>
                   <p className="font-black text-red-700">
-                    سفارش لغو شده است
+                    {t("orderDetail.cancelled")}
                   </p>
 
                   <p className="mt-1 text-sm text-red-600">
-                    این سفارش در مسیر ارسال قرار نگرفته است.
+                    {t("orderDetail.notShipped")}
                   </p>
                 </div>
               </div>
@@ -429,7 +432,7 @@ export default function OrderDetailPage() {
 
               <div className="mt-8 rounded-2xl bg-[var(--theme-surface)] px-4 py-3 text-center">
                 <span className="text-sm font-semibold text-[var(--theme-muted)]">
-                  وضعیت فعلی:{" "}
+                  {t("orderDetail.currentStatus")}{" "}
                 </span>
 
                 <span className="text-sm font-black text-[var(--theme-primary)]">
@@ -443,13 +446,13 @@ export default function OrderDetailPage() {
         {/* Shipping Information */}
         <div className="border-b border-[var(--theme-border)] p-6 sm:p-8">
           <h2 className="mb-4 text-lg font-black text-[var(--theme-primary)]">
-            اطلاعات ارسال
+            {t("orderDetail.shippingInfo")}
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl bg-[var(--theme-surface)] p-4">
               <p className="text-xs font-semibold text-[var(--theme-muted)]">
-                شماره تماس
+                {t("orderDetail.phone")}
               </p>
 
               <p className="mt-2 font-bold text-[var(--theme-primary)]">
@@ -459,7 +462,7 @@ export default function OrderDetailPage() {
 
             <div className="rounded-2xl bg-[var(--theme-surface)] p-4">
               <p className="text-xs font-semibold text-[var(--theme-muted)]">
-                آدرس ارسال
+                {t("orderDetail.address")}
               </p>
 
               <p className="mt-2 leading-7 font-bold text-[var(--theme-primary)]">
@@ -473,17 +476,17 @@ export default function OrderDetailPage() {
         <div className="p-6 sm:p-8">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-lg font-black text-[var(--theme-primary)]">
-              محصولات سفارش
+              {t("orderDetail.products")}
             </h2>
 
             <span className="text-sm font-semibold text-[var(--theme-muted)]">
-              {totalQuantity.toLocaleString(locale)} کالا
+              {t("orderDetail.productCount").replace("{count}", totalQuantity.toLocaleString(locale))}
             </span>
           </div>
 
           {items.length === 0 ? (
             <div className="rounded-2xl bg-[var(--theme-surface)] p-6 text-center text-sm text-[var(--theme-muted)]">
-              محصولی برای این سفارش ثبت نشده است.
+              {t("orderDetail.emptyProducts")}
             </div>
           ) : (
             <div className="space-y-3">
@@ -498,18 +501,18 @@ export default function OrderDetailPage() {
                     </p>
 
                     <p className="mt-1 text-sm text-[var(--theme-muted)]">
-                      تعداد:{" "}
+                      {t("orderDetail.quantity")}{" "}
                       {Number(item.quantity || 0).toLocaleString(
                         "fa-IR"
                       )}
                     </p>
 
                     <p className="mt-1 text-xs text-[var(--theme-muted)]">
-                      قیمت واحد:{" "}
+                      {t("orderDetail.unitPrice")}{" "}
                       {Number(
                         item.unit_price || 0
                       ).toLocaleString(locale)}{" "}
-                      تومان
+                      {t("orderDetail.currency")}
                     </p>
                   </div>
 
@@ -517,7 +520,7 @@ export default function OrderDetailPage() {
                     {Number(
                       item.subtotal || 0
                     ).toLocaleString(locale)}{" "}
-                    تومان
+                    {t("orderDetail.currency")}
                   </p>
                 </div>
               ))}
@@ -527,13 +530,13 @@ export default function OrderDetailPage() {
           {/* Total */}
           <div className="mt-6 flex items-center justify-between border-t border-[var(--theme-border)] pt-6">
             <span className="font-semibold text-[var(--theme-muted)]">
-              مبلغ کل
+              {t("orderDetail.totalAmount")}
             </span>
 
             <span className="text-2xl font-black text-[var(--theme-primary)]">
               {Number(order.total || 0).toLocaleString(locale)}{" "}
               <span className="text-sm font-medium">
-                تومان
+                {t("orderDetail.currency")}
               </span>
             </span>
           </div>
@@ -589,14 +592,14 @@ export default function OrderDetailPage() {
               href="/"
               className="flex-1 rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-[var(--theme-primary-hover)]"
             >
-              ادامه خرید
+              {t("orderDetail.continueShopping")}
             </Link>
 
             <Link
               href="/orders"
               className="flex-1 rounded-xl border border-[var(--theme-border)] px-5 py-3 text-center text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-background)]"
             >
-              مشاهده همه سفارش‌ها
+              {t("orderDetail.viewAllOrders")}
             </Link>
           </div>
         </div>

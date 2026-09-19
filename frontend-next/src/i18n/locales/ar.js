@@ -363,5 +363,35 @@ const ar = {
     product: "Product",
     currency: "Toman",
     remove: "Remove from wishlist"
-  },};
+  },
+
+  orderDetail: {
+    loading: "جارٍ تحميل تفاصيل الطلب...",
+    title: "تفاصيل الطلب",
+    loginMessage: "يرجى تسجيل الدخول لعرض هذا الطلب.",
+    login: "تسجيل الدخول",
+    backToOrders: "العودة إلى الطلبات",
+    continueShopping: "متابعة التسوق",
+    paymentLoginRequired: "يرجى تسجيل الدخول قبل إجراء الدفع.",
+    cancelConfirm: "هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟",
+    registered: "تم تسجيل الطلب",
+    orderNumber: "الطلب #{id}",
+    tracking: "تتبع الطلب",
+    statusDescription: "تظهر حالة الطلب بناءً على آخر مرحلة مسجلة.",
+    cancelled: "تم إلغاء الطلب",
+    notShipped: "لم يدخل هذا الطلب في عملية الشحن.",
+    currentStatus: "الحالة الحالية:",
+    shippingInfo: "معلومات الشحن",
+    phone: "رقم الهاتف",
+    address: "عنوان الشحن",
+    products: "منتجات الطلب",
+    productCount: "{count} منتجات",
+    emptyProducts: "لا توجد منتجات مسجلة لهذا الطلب.",
+    quantity: "الكمية:",
+    unitPrice: "سعر الوحدة:",
+    currency: "تومان",
+    totalAmount: "المبلغ الإجمالي",
+    viewAllOrders: "عرض جميع الطلبات"
+  },
+};
 export default ar;

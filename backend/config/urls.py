@@ -8,6 +8,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     path(
+        "api/v1/owner/",
+        include("apps.platform_control.urls"),
+    ),
+
+    path(
         "api/v1/health/",
         health_check,
         name="health-check",

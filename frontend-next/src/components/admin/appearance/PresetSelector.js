@@ -8,15 +8,15 @@ export default function PresetSelector({
 }) {
   return (
 <Section
-              title="ÞÇáÈåÇí ÂãÇÏå"
-              description="ÞÇáÈ ÝÞØ í˜ äÞØå ÔÑæÚ ÇÓÊº ÈÚÏ ÇÒ ÇäÊÎÇÈ ãíÊæÇäí åãå ÌÒÆíÇÊÔ ÑÇ ÊÛííÑ ÈÏåí."
+              title="Ù‚Ø§Ù„Ø¨â€ŒÙ‡Ø§ÙŠ Ø¢Ù…Ø§Ø¯Ù‡"
+              description="Ù‚Ø§Ù„Ø¨ ÙÙ‚Ø· ÙŠÚ© Ù†Ù‚Ø·Ù‡ Ø´Ø±ÙˆØ¹ Ø§Ø³ØªØ› Ø¨Ø¹Ø¯ Ø§Ø² Ø§Ù†ØªØ®Ø§Ø¨ Ù…ÙŠâ€ŒØªÙˆØ§Ù†ÙŠ Ù‡Ù…Ù‡ Ø¬Ø²Ø¦ÙŠØ§ØªØ´ Ø±Ø§ ØªØºÙŠÙŠØ± Ø¨Ø¯Ù‡ÙŠ."
             >
               <div className="space-y-2">
                 {Object.entries(PRESETS).map(([id, preset]) => (
                   <Choice
                     key={id}
-                    title={preset.title}
-                    description={preset.description}
+                    title={preset.meta?.title || id}
+                    description={preset.meta?.description || ""}
                     active={presetName === id}
                     onClick={() => applyPreset(id)}
                   >
@@ -45,7 +45,7 @@ export default function PresetSelector({
 
                 <Choice
                   title="Custom"
-                  description="ÊäÙíãÇÊ ÏÓÊí ÝÚáí ÔãÇ"
+                  description="ØªÙ†Ø¸ÙŠÙ…Ø§Øª Ø¯Ø³ØªÙŠ ÙØ¹Ù„ÙŠ Ø´Ù…Ø§"
                   active={presetName === "custom"}
                   onClick={() => setPresetName("custom")}
                 />

@@ -12,8 +12,8 @@ export default function DesignSettings({
     <>
 <>
               <Section
-                title="ÑäåÇ"
-                description="åÑ Ñä ÏÞíÞÇð í˜ ˜ÇÑÈÑÏ ãÔÎÕ ÏÇÑÏ. ÊÛííÑ ÑÇ åãÒãÇä ÏÑ Preview ÈÈíä."
+                title="Ø±Ù†Ú¯â€ŒÙ‡Ø§"
+                description="Ù‡Ø± Ø±Ù†Ú¯ Ø¯Ù‚ÙŠÙ‚Ø§Ù‹ ÙŠÚ© Ú©Ø§Ø±Ø¨Ø±Ø¯ Ù…Ø´Ø®Øµ Ø¯Ø§Ø±Ø¯. ØªØºÙŠÙŠØ± Ø±Ø§ Ù‡Ù…â€ŒØ²Ù…Ø§Ù† Ø¯Ø± Preview Ø¨Ø¨ÙŠÙ†."
               >
                 <div className="space-y-4">
                   {COLOR_FIELDS.map(([key, title, description]) => (
@@ -62,15 +62,15 @@ export default function DesignSettings({
               </Section>
 
               <Section
-                title="ÑÏí æÔååÇ"
-                description="åÑå ÈíÔÊÑ ÈÇÔÏ¡ ÙÇåÑ äÑãÊÑ æ ÏæÓÊÇäåÊÑ ãíÔæÏ."
+                title="Ú¯Ø±Ø¯ÙŠ Ú¯ÙˆØ´Ù‡â€ŒÙ‡Ø§"
+                description="Ù‡Ø±Ú†Ù‡ Ø¨ÙŠØ´ØªØ± Ø¨Ø§Ø´Ø¯ØŒ Ø¸Ø§Ù‡Ø± Ù†Ø±Ù…â€ŒØªØ± Ùˆ Ø¯ÙˆØ³ØªØ§Ù†Ù‡â€ŒØªØ± Ù…ÙŠâ€ŒØ´ÙˆØ¯."
               >
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    ["8px", "Sharp", "ÊíÒ æ ÑÓãí"],
-                    ["14px", "Modern", "ãÏÑä"],
-                    ["20px", "Soft", "äÑã"],
-                    ["28px", "Round", "ÑÏ æ ÏæÓÊÇäå"],
+                    ["8px", "Sharp", "ØªÙŠØ² Ùˆ Ø±Ø³Ù…ÙŠ"],
+                    ["14px", "Modern", "Ù…Ø¯Ø±Ù†"],
+                    ["20px", "Soft", "Ù†Ø±Ù…"],
+                    ["28px", "Round", "Ú¯Ø±Ø¯ Ùˆ Ø¯ÙˆØ³ØªØ§Ù†Ù‡"],
                   ].map(([value, title, desc]) => (
                     <Choice
                       key={value}
@@ -89,25 +89,25 @@ export default function DesignSettings({
               </Section>
 
               <Section
-                title="˜ÇÑÊ ãÍÕæá"
-                description="äÍæå äãÇíÔ ÞÇÈ æ ÓÇíå ãÍÕæáÇÊ."
+                title="Ú©Ø§Ø±Øª Ù…Ø­ØµÙˆÙ„"
+                description="Ù†Ø­ÙˆÙ‡ Ù†Ù…Ø§ÙŠØ´ Ù‚Ø§Ø¨ Ùˆ Ø³Ø§ÙŠÙ‡ Ù…Ø­ØµÙˆÙ„Ø§Øª."
               >
                 <div className="space-y-2">
                   <Choice
                     title="Soft"
-                    description="ÓÇíå äÑã æ ÙÇåÑ ÝÑæÔÇåí"
+                    description="Ø³Ø§ÙŠÙ‡ Ù†Ø±Ù… Ùˆ Ø¸Ø§Ù‡Ø± ÙØ±ÙˆØ´Ú¯Ø§Ù‡ÙŠ"
                     active={theme.components.cardStyle === "soft"}
                     onClick={() => changeComponent("cardStyle", "soft")}
                   />
                   <Choice
                     title="Flat"
-                    description="ÈÏæä ÓÇíå¡ ÓÈ˜ æ ãíäíãÇá"
+                    description="Ø¨Ø¯ÙˆÙ† Ø³Ø§ÙŠÙ‡ØŒ Ø³Ø¨Ú© Ùˆ Ù…ÙŠÙ†ÙŠÙ…Ø§Ù„"
                     active={theme.components.cardStyle === "flat"}
                     onClick={() => changeComponent("cardStyle", "flat")}
                   />
                   <Choice
                     title="Bordered"
-                    description="ÍÇÔíå ãÔÎÕ æ ÑÓãí"
+                    description="Ø­Ø§Ø´ÙŠÙ‡ Ù…Ø´Ø®Øµ Ùˆ Ø±Ø³Ù…ÙŠ"
                     active={theme.components.cardStyle === "bordered"}
                     onClick={() =>
                       changeComponent("cardStyle", "bordered")
@@ -117,13 +117,13 @@ export default function DesignSettings({
               </Section>
 
               <Section
-                title="Ï˜ãååÇ"
-                description="ÙÇåÑ Ï˜ãååÇí ÇÕáí ãËá ÇÝÒæÏä Èå ÓÈÏ æ ÑÏÇÎÊ."
+                title="Ø¯Ú©Ù…Ù‡â€ŒÙ‡Ø§"
+                description="Ø¸Ø§Ù‡Ø± Ø¯Ú©Ù…Ù‡â€ŒÙ‡Ø§ÙŠ Ø§ØµÙ„ÙŠ Ù…Ø«Ù„ Ø§ÙØ²ÙˆØ¯Ù† Ø¨Ù‡ Ø³Ø¨Ø¯ Ùˆ Ù¾Ø±Ø¯Ø§Ø®Øª."
               >
                 <div className="space-y-2">
                   <Choice
                     title="Solid"
-                    description="ÑÑä æ æÇÖÍ"
+                    description="Ù¾Ø±Ø±Ù†Ú¯ Ùˆ ÙˆØ§Ø¶Ø­"
                     active={theme.components.buttonStyle === "solid"}
                     onClick={() => {
                       changeComponent("buttonStyle", "solid");
@@ -132,7 +132,7 @@ export default function DesignSettings({
                   />
                   <Choice
                     title="Outline"
-                    description="ÓÈ˜ÊÑ æ ãíäíãÇá"
+                    description="Ø³Ø¨Ú©â€ŒØªØ± Ùˆ Ù…ÙŠÙ†ÙŠÙ…Ø§Ù„"
                     active={theme.components.buttonStyle === "outline"}
                     onClick={() => {
                       changeComponent("buttonStyle", "outline");

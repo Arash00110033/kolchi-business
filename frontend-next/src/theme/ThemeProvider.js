@@ -1,5 +1,13 @@
-﻿import { createContext, useContext, useEffect, useMemo, useState } from "react";
+﻿import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useStore } from "@/context/StoreContext";
 import { DEFAULT_THEME } from "./tokens";
+import { resolveTheme } from "./resolver";
 
 const ThemeContext = createContext(null);
 
@@ -37,11 +45,26 @@ function applyTheme(theme) {
   }
 }
 
-export function ThemeProvider({
-  children,
-  initialTheme = DEFAULT_THEME,
-}) {
-  const [theme, setTheme] = useState(initialTheme);
+export function ThemeProvider({ children }) {
+  const {
+    storeConfig,
+    storeConfigLoading,
+  } = useStore();
+
+  const [theme, setTheme] = useState(DEFAULT_THEME);
+
+  useEffect(() => {
+    if (storeConfigLoading) {
+      return;
+    }
+
+    const resolvedTheme = resolveTheme({
+      presetName: storeConfig?.theme_preset,
+      overrides: storeConfig?.theme_overrides || {},
+    });
+
+    setTheme(resolvedTheme);
+  }, [storeConfig, storeConfigLoading]);
 
   useEffect(() => {
     applyTheme(theme);
@@ -71,4 +94,3 @@ export function useTheme() {
 
   return context;
 }
-

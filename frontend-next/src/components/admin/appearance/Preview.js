@@ -50,7 +50,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
             color: "#fff",
           }}
         >
-          ?? {activeHighlight === "cardStyle" ? "ำศ วัส" : "Radius"}
+          ?? {activeHighlight === "cardStyle" ? "ุณุจฺฉ ฺฉุงุฑุช" : "Radius"}
         </span>
       )}
 
@@ -84,7 +84,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
             borderColor: theme.colors.primary,
           }}
         >
-          วÝาๆฯไ ศๅ ำศฯ
+          ุงูุฒูุฏู ุจู ุณุจุฏ
         </button>
       </div>
     </div>
@@ -166,10 +166,10 @@ export default function Preview({ theme, storeName, slogan, page, device, active
               className="hidden gap-4 text-sm md:flex"
               style={{ color: theme.colors.muted }}
             >
-              <span>ฮวไๅ</span>
-              <span>ใอีๆแวส</span>
-              <span>ฯำสๅศไฯํ</span>
-              <span>ำศฯ ??</span>
+              <span>ุฎุงูู</span>
+              <span>ู…ุญุตููุงุช</span>
+              <span>ุฏุณุชูโ€ุจูุฏู</span>
+              <span>ุณุจุฏ ??</span>
             </div>
           </div>
         </div>
@@ -185,15 +185,15 @@ export default function Preview({ theme, storeName, slogan, page, device, active
               }}
             >
               <div className="mb-2 text-xs opacity-75">
-                Ýัๆิวๅ ิใว • Preview
+                ูุฑูุดฺฏุงู ุดู…ุง โ€ข Preview
               </div>
 
               <h1 className="text-3xl font-black">
-                สฬัศๅวํ ๅ ใิสัํ ํวฯิ ใํใวไฯ
+                ุชุฌุฑุจูโ€ุงู ฺฉู ู…ุดุชุฑู ูุงุฏุด ู…ูโ€ู…ุงูุฏ
               </h1>
 
               <p className="mt-3 max-w-xl text-sm opacity-85">
-                วํไ ศฮิ ศว ัไ ซศฮิ ิฺวัป ไสัแ ใํิๆฯ.
+                ุงูู ุจุฎุด ุจุง ุฑูฺฏ ยซุจุฎุด ุดุนุงุฑยป ฺฉูุชุฑู ู…ูโ€ุดูุฏ.
               </p>
 
               <button
@@ -201,14 +201,14 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 className="mt-6 px-5 py-3 font-bold transition"
                 style={previewButtonStyle(["primary", "buttonStyle"])}
               >
-                ใิวๅฯๅ ใอีๆแวส
+                ู…ุดุงูุฏู ู…ุญุตููุงุช
               </button>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <Product name="ใอีๆแ วๆแ" price="?,???,??? สๆใวไ" />
-              <Product name="ใอีๆแ ฯๆใ" price="???,??? สๆใวไ" />
-              <Product name="ใอีๆแ ำๆใ" price="?,???,??? สๆใวไ" />
+              <Product name="ู…ุญุตูู ุงูู" price="?,???,??? ุชูู…ุงู" />
+              <Product name="ู…ุญุตูู ุฏูู…" price="???,??? ุชูู…ุงู" />
+              <Product name="ู…ุญุตูู ุณูู…" price="?,???,??? ุชูู…ุงู" />
             </div>
 
             <div
@@ -218,12 +218,12 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 border: `1px solid ${theme.colors.border}`,
               }}
             >
-              <div className="font-bold">ํ ศฮิ ใอสๆวํํ ไใๆไๅ</div>
+              <div className="font-bold">ูฺฉ ุจุฎุด ู…ุญุชูุงูู ูู…ููู</div>
               <div
                 className="mt-2 text-sm"
                 style={{ color: theme.colors.muted }}
               >
-                ศัวํ ไใวํิ สÝวๆส Surface ๆ Surface Muted
+                ุจุฑุงู ูู…ุงูุด ุชูุงูุช Surface ู Surface Muted
               </div>
             </div>
           </div>
@@ -248,22 +248,22 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                   color: theme.colors.foreground,
                 }}
               >
-                ใๆฬๆฯ
+                ู…ูุฌูุฏ
               </span>
 
               <h1 className="mt-4 text-3xl font-black">
-                ไวใ ใอีๆแ ไใๆไๅ
+                ูุงู… ู…ุญุตูู ูู…ููู
               </h1>
 
               <p
                 className="mt-3 text-sm"
                 style={{ color: theme.colors.muted }}
               >
-                สๆึํอวส ใอีๆแก ๆํํๅว ๆ วุแวฺวส ใๆัฯ ไํวา ใิสัํ.
+                ุชูุถูุญุงุช ู…ุญุตููุ ููฺฺฏูโ€ูุง ู ุงุทูุงุนุงุช ู…ูุฑุฏ ููุงุฒ ู…ุดุชุฑู.
               </p>
 
               <div className="mt-5 text-2xl font-black">
-                ?,???,??? สๆใวไ
+                ?,???,??? ุชูู…ุงู
               </div>
 
               <button
@@ -271,7 +271,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 className="mt-6 w-full px-5 py-3 font-bold transition"
                 style={previewButtonStyle(["primary", "buttonStyle"])}
               >
-                วÝาๆฯไ ศๅ ำศฯ ฮัํฯ
+                ุงูุฒูุฏู ุจู ุณุจุฏ ุฎุฑูุฏ
               </button>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
         {/* CART */}
         {page === "cart" && (
           <div className="mx-auto max-w-3xl p-5">
-            <h1 className="text-2xl font-black">ำศฯ ฮัํฯ</h1>
+            <h1 className="text-2xl font-black">ุณุจุฏ ุฎุฑูุฏ</h1>
 
             <div
               className={`mt-5 p-5 ${cardClass}`}
@@ -295,13 +295,13 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                   borderBottom: `1px solid ${theme.colors.border}`,
                 }}
               >
-                <span className="font-bold">ใอีๆแ ไใๆไๅ</span>
-                <span>?,???,??? สๆใวไ</span>
+                <span className="font-bold">ู…ุญุตูู ูู…ููู</span>
+                <span>?,???,??? ุชูู…ุงู</span>
               </div>
 
               <div className="mt-5 flex items-center justify-between font-black">
-                <span>ใฬใๆฺ</span>
-                <span>?,???,??? สๆใวไ</span>
+                <span>ู…ุฌู…ูุน</span>
+                <span>?,???,??? ุชูู…ุงู</span>
               </div>
 
               <button
@@ -309,7 +309,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 className="mt-5 w-full px-5 py-3 font-bold transition"
                 style={previewButtonStyle(["primary", "buttonStyle"])}
               >
-                วฯวใๅ ัฯวฮส
+                ุงุฏุงู…ู ูพุฑุฏุงุฎุช
               </button>
             </div>
           </div>
@@ -324,7 +324,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
             color: theme.colors.muted,
           }}
         >
-          {storeName} • ๅใๅ อÞๆÞ ใอÝๆู วำส
+          {storeName} โ€ข ูู…ู ุญููู ู…ุญููุธ ุงุณุช
         </div>
       </div>
     </div>

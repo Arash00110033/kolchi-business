@@ -28,5 +28,7 @@ class StorePublicConfigAPIView(APIView):
                 "store_id": store.id,
                 "default_locale": default_locale,
                 "enabled_locales": enabled_locales,
+                "theme_preset": store.theme_preset,
+                "theme_overrides": store.theme_overrides or {},
             }
         )

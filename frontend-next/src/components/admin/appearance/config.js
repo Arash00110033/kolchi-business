@@ -171,6 +171,26 @@ const PRESETS = {
     buttonStyle: "outline",
   },
 
+  pink: {
+    title: "Pink",
+    description:
+      "Vibrant pink storefront with a bold and playful visual system.",
+    colors: {
+      primary: "#ff00ff",
+      primaryHover: "#cc00cc",
+      secondary: "#ff66ff",
+      background: "#fff0ff",
+      surface: "#ffffff",
+      surfaceMuted: "#ffe6ff",
+      foreground: "#4a004a",
+      border: "#f0b3f0",
+      muted: "#7a527a",
+      hero: "#ff00ff",
+    },
+    radius: "22px",
+    cardStyle: "soft",
+    buttonStyle: "solid",
+  },
   rose: {
     title: "Rose",
     description: "نرم و شیک برای برندهای ظریف و لوکس",

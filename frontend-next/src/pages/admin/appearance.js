@@ -1,8 +1,13 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/theme/ThemeProvider";
+import { useStore } from "@/context/StoreContext";
+import authService from "@/services/auth.service";
+import adminService from "@/services/admin.service";
 import { DEFAULT_THEME } from "@/theme/tokens";
-import { PAGES, DEVICES, PRESETS, HIGHLIGHT_MAP, COLOR_FIELDS } from '@/components/admin/appearance/config';
+import { createThemeOverrides, normalizeTheme, resolveTheme } from "@/theme/resolver";
+import { PAGES, DEVICES, HIGHLIGHT_MAP, COLOR_FIELDS } from '@/components/admin/appearance/config';
+import { THEME_PRESETS } from "@/theme/presets";
 import Preview from "@/components/admin/appearance/Preview";
 import useAppearanceEditor from "@/components/admin/appearance/hooks/useAppearanceEditor";
 import PresetSelector from "@/components/admin/appearance/PresetSelector";
@@ -20,38 +25,6 @@ import DesignSettings from "@/components/admin/appearance/DesignSettings";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
-}
-
-function normalizeTheme(base) {
-  const theme = clone(base || DEFAULT_THEME);
-
-  theme.colors = {
-    ...DEFAULT_THEME.colors,
-    ...theme.colors,
-    hero: theme.colors?.hero || theme.colors?.primary || DEFAULT_THEME.colors.primary,
-  };
-
-  theme.shape = {
-    ...DEFAULT_THEME.shape,
-    ...theme.shape,
-  };
-
-  theme.components = {
-    ...DEFAULT_THEME.components,
-    ...theme.components,
-  };
-
-  theme.typography = {
-    ...DEFAULT_THEME.typography,
-    ...theme.typography,
-  };
-
-  theme.layout = {
-    ...DEFAULT_THEME.layout,
-    ...theme.layout,
-  };
-
-  return theme;
 }
 
 function Section({ title, description, children }) {
@@ -101,12 +74,13 @@ function Choice({ active, title, description, onClick, children }) {
 
 export default function Appearance() {
   const router = useRouter();
-  const { theme: liveTheme } = useTheme();
+  const { theme: liveTheme, setTheme } = useTheme();
+  const { storeId, storeConfig } = useStore();
 
   const editor = useAppearanceEditor({
     liveTheme,
     DEFAULT_THEME,
-    PRESETS,
+
     clone,
     normalizeTheme,
   });
@@ -153,10 +127,60 @@ export default function Appearance() {
       );
     }, 2200);
   }
-  function confirmDesign() {
-    window.alert(
-      "طراحی فعلاً فقط به‌صورت Draft در Preview است و هنوز روی فروشگاه اصلی اعمال نشده است."
+  async function confirmDesign() {
+    if (!storeId) {
+      window.alert("شناسه فروشگاه مشخص نیست.");
+      return;
+    }
+
+    const accessToken = authService.getStoredAccessToken();
+
+    if (!accessToken) {
+      window.alert("نشست کاربر معتبر نیست. دوباره وارد شوید.");
+      return;
+    }
+
+    const selectedPreset = THEME_PRESETS[editor.presetName]
+      ? editor.presetName
+      : null;
+
+    const targetPreset =
+      selectedPreset || storeConfig?.theme_preset || "modern";
+
+    const baseTheme = resolveTheme({
+      presetName: targetPreset,
+      overrides: {},
+    });
+
+    const themeOverrides = createThemeOverrides(
+      baseTheme,
+      editor.draftTheme
     );
+
+    try {
+      const savedStore = await adminService.updateStore(
+        storeId,
+        {
+          theme_preset: targetPreset,
+          theme_overrides: themeOverrides,
+        },
+        accessToken
+      );
+
+      const savedTheme = resolveTheme({
+        presetName: savedStore?.theme_preset || targetPreset,
+        overrides: savedStore?.theme_overrides || themeOverrides,
+      });
+
+      setTheme(savedTheme);
+      window.alert("طراحی فروشگاه با موفقیت ذخیره شد.");
+    } catch (error) {
+      console.error("Appearance save failed:", error);
+      window.alert(
+        error?.message ||
+        "ذخیره طراحی فروشگاه انجام نشد."
+      );
+    }
   }
 
   return (
@@ -355,6 +379,16 @@ export default function Appearance() {
               changeShape={changeShape}
               changeComponent={changeComponent}
               showHighlight={showHighlight}
+            />
+          )}
+          {panel === "presets" && (
+            <PresetSelector
+              Section={Section}
+              Choice={Choice}
+              PRESETS={THEME_PRESETS}
+              presetName={presetName}
+              applyPreset={applyPreset}
+              setPresetName={setPresetName}
             />
           )}
         </aside>

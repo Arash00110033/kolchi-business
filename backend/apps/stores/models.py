@@ -13,6 +13,8 @@ class Store(models.Model):
     description = models.TextField(blank=True, default="")
     default_locale = models.CharField(max_length=10, default="fa")
     enabled_locales = models.JSONField(default=list)
+    theme_preset = models.CharField(max_length=50, default="modern")
+    theme_overrides = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

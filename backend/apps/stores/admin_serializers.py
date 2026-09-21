@@ -27,7 +27,9 @@ class AdminStoreSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "default_locale",
-            "enabled_locales",            "can_manage_languages",
+            "enabled_locales",
+            "theme_preset",
+            "theme_overrides",            "can_manage_languages",
 
             "is_active",
             "created_at",

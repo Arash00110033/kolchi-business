@@ -1,9 +1,10 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { THEME_PRESETS } from "@/theme/presets";
 
 export default function useAppearanceEditor({
   liveTheme,
   DEFAULT_THEME,
-  PRESETS,
+
   clone,
   normalizeTheme,
 }) {
@@ -105,23 +106,46 @@ export default function useAppearanceEditor({
   }
 
   function applyPreset(name) {
-    const preset = PRESETS[name];
+    const preset = THEME_PRESETS[name];
     if (!preset) return;
 
     const next = normalizeTheme({
       ...theme,
       colors: {
         ...theme.colors,
-        ...preset.colors,
+        ...(preset.colors || {}),
+      },
+      typography: {
+        ...theme.typography,
+        ...(preset.typography || {}),
       },
       shape: {
         ...theme.shape,
-        radius: preset.radius,
+        ...(preset.shape || {}),
+      },
+      layout: {
+        ...theme.layout,
+        ...(preset.layout || {}),
       },
       components: {
         ...theme.components,
-        cardStyle: preset.cardStyle,
-        buttonStyle: preset.buttonStyle,
+        ...(preset.components || {}),
+      },
+      header: {
+        ...theme.header,
+        ...(preset.header || {}),
+      },
+      hero: {
+        ...theme.hero,
+        ...(preset.hero || {}),
+      },
+      background: {
+        ...theme.background,
+        ...(preset.background || {}),
+      },
+      assets: {
+        ...theme.assets,
+        ...(preset.assets || {}),
       },
     });
 

@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -6,7 +7,6 @@ import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
-const STORE_ID = 1;
 
 function getList(data) {
   if (Array.isArray(data)) {
@@ -17,6 +17,7 @@ function getList(data) {
 }
 
 export default function AdminPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { t, isRTL } = useI18n();
@@ -62,10 +63,10 @@ export default function AdminPage() {
 
         const [storeData, productsData, ordersData, membersData] =
           await Promise.all([
-            adminService.getStore(STORE_ID, token),
-            adminService.getProducts(STORE_ID, token),
-            adminService.getOrders(STORE_ID, token),
-            adminService.getMembers(STORE_ID, token),
+            adminService.getStore(storeId, token),
+            adminService.getProducts(storeId, token),
+            adminService.getOrders(storeId, token),
+            adminService.getMembers(storeId, token),
           ]);
 
         if (!mounted) {
@@ -135,7 +136,7 @@ export default function AdminPage() {
       }
 
       const updatedStore = await adminService.updateStore(
-        STORE_ID,
+        storeId,
         form,
         token
       );
@@ -341,7 +342,7 @@ export default function AdminPage() {
             </span>
 
             <span className="rounded-full bg-[var(--theme-background)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]">
-              {t("adminDashboard.storeId")}: {STORE_ID}
+              {t("adminDashboard.storeId")}: {storeId}
             </span>
 
             {store?.slug && (

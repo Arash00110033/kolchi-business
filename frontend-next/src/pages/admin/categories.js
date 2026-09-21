@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -5,7 +6,6 @@ import useAuth from "@/hooks/useAuth";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
-const STORE_ID = 1;
 
 const emptyForm = {
   name: "",
@@ -23,6 +23,7 @@ function normalizeList(data) {
 }
 
 export default function AdminCategoriesPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
@@ -46,7 +47,7 @@ export default function AdminCategoriesPage() {
       setError("");
 
       const response = await adminService.getCategories(
-        STORE_ID,
+        storeId,
         token
       );
 
@@ -136,14 +137,14 @@ export default function AdminCategoriesPage() {
     try {
       if (editingId) {
         await adminService.updateCategory(
-          STORE_ID,
+          storeId,
           editingId,
           payload,
           token
         );
       } else {
         await adminService.createCategory(
-          STORE_ID,
+          storeId,
           payload,
           token
         );
@@ -196,7 +197,7 @@ export default function AdminCategoriesPage() {
       setError("");
 
       await adminService.deleteCategory(
-        STORE_ID,
+        storeId,
         category.id,
         token
       );

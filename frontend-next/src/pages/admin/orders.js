@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -6,7 +7,6 @@ import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
-const STORE_ID = 1;
 
 const STATUS_OPTIONS = [
   "pending",
@@ -42,6 +42,7 @@ function formatDate(value) {
 }
 
 export default function AdminOrdersPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
   const { t, isRTL } = useI18n();
@@ -67,7 +68,7 @@ export default function AdminOrdersPage() {
       setError("");
 
       const data = await adminService.getOrders(
-        STORE_ID,
+        storeId,
         token
       );
 
@@ -118,7 +119,7 @@ export default function AdminOrdersPage() {
 
     try {
       const updatedOrder = await adminService.updateOrderStatus(
-        STORE_ID,
+        storeId,
         order.id,
         newStatus,
         token

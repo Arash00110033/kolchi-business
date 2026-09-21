@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from "react";
+import { useStore } from "@/context/StoreContext";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import useAuth from "@/hooks/useAuth";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
-const STORE_ID = 1;
 
 function getInventory(data) {
   if (Array.isArray(data)) {
@@ -16,6 +16,7 @@ function getInventory(data) {
 }
 
 export default function AdminInventoryPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
@@ -42,7 +43,7 @@ export default function AdminInventoryPage() {
       setError("");
 
       const data = await adminService.getInventory(
-        STORE_ID,
+        storeId,
         token
       );
 
@@ -137,7 +138,7 @@ export default function AdminInventoryPage() {
 
     try {
       await adminService.adjustInventory(
-        STORE_ID,
+        storeId,
         selectedProduct.product_id,
         {
           quantity: parsedQuantity,

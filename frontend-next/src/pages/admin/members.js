@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -6,9 +7,9 @@ import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
-const STORE_ID = 1;
 
 export default function AdminMembersPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
   const { t, isRTL } = useI18n();
@@ -32,7 +33,7 @@ export default function AdminMembersPage() {
     try {
       setError("");
 
-      const data = await adminService.getMembers(STORE_ID, token);
+      const data = await adminService.getMembers(storeId, token);
 
       setMembers(Array.isArray(data) ? data : data?.results || []);
     } catch (requestError) {
@@ -84,7 +85,7 @@ export default function AdminMembersPage() {
       }
 
       await adminService.createMember(
-        STORE_ID,
+        storeId,
         {
           user_id: Number(userId),
           role,
@@ -132,7 +133,7 @@ export default function AdminMembersPage() {
       setError("");
 
       await adminService.updateMember(
-        STORE_ID,
+        storeId,
         member.id,
         { role: newRole },
         token
@@ -178,7 +179,7 @@ export default function AdminMembersPage() {
       setError("");
 
       await adminService.deleteMember(
-        STORE_ID,
+        storeId,
         member.id,
         token
       );

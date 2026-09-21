@@ -1,3 +1,4 @@
+import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -6,7 +7,6 @@ import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 import { useI18n } from "@/i18n";
 
-const STORE_ID = 1;
 
 const emptyForm = {
   name: "",
@@ -27,6 +27,7 @@ function getProducts(data) {
 }
 
 export default function AdminProductsPage() {
+  const { storeId } = useStore();
   const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
   const { t, isRTL } = useI18n();
@@ -53,8 +54,8 @@ export default function AdminProductsPage() {
 
       const [productsResponse, categoriesResponse] =
         await Promise.all([
-          adminService.getProducts(STORE_ID, token),
-          adminService.getCategories(STORE_ID, token),
+          adminService.getProducts(storeId, token),
+          adminService.getCategories(storeId, token),
         ]);
 
       setProducts(getProducts(productsResponse));
@@ -167,14 +168,14 @@ export default function AdminProductsPage() {
 
       if (editingId) {
         await adminService.updateProduct(
-          STORE_ID,
+          storeId,
           editingId,
           payload,
           token
         );
       } else {
         await adminService.createProduct(
-          STORE_ID,
+          storeId,
           payload,
           token
         );
@@ -221,7 +222,7 @@ export default function AdminProductsPage() {
       setError("");
 
       await adminService.updateProduct(
-        STORE_ID,
+        storeId,
         product.id,
         {
           is_active: !product.is_active,
@@ -260,7 +261,7 @@ export default function AdminProductsPage() {
       setError("");
 
       await adminService.deleteProduct(
-        STORE_ID,
+        storeId,
         product.id,
         token
       );

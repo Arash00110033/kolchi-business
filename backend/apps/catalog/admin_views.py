@@ -1,10 +1,11 @@
 ﻿from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
+from rest_framework.exceptions import PermissionDenied
 
-from apps.core.permissions.store import (
-    can_edit_store_content,
-    can_manage_store,
+from apps.core.permissions.store_permissions import (
+    has_store_permission,
 )
+from apps.core.permissions.store import can_manage_store
 from apps.stores.models import Store
 
 from .admin_serializers import (
@@ -22,17 +23,28 @@ class StoreScopedPermissionMixin:
             is_active=True,
         )
 
-    def check_store_access(self, store, management=False):
-        allowed = (
-            can_manage_store(self.request.user, store)
-            if management
-            else can_edit_store_content(self.request.user, store)
-        )
+    def check_store_access(
+        self,
+        store,
+        permission_code,
+        management=False,
+    ):
+        if not has_store_permission(
+            self.request.user,
+            store,
+            permission_code,
+        ):
 
-        if not allowed:
-            from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied(
                 "You do not have permission for this store."
+            )
+
+        if management and not can_manage_store(
+            self.request.user,
+            store,
+        ):
+            raise PermissionDenied(
+                "You do not have management permission for this store."
             )
 
 
@@ -45,12 +57,12 @@ class AdminCategoryListCreateAPIView(
 
     def get_queryset(self):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "categories")
         return Category.objects.filter(store=store)
 
     def perform_create(self, serializer):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "categories")
         serializer.save(store=store)
 
     def get_serializer_context(self):
@@ -68,17 +80,17 @@ class AdminCategoryDetailAPIView(
 
     def get_queryset(self):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "categories")
         return Category.objects.filter(store=store)
 
     def perform_update(self, serializer):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "categories")
         serializer.save(store=store)
 
     def perform_destroy(self, instance):
         store = self.get_store()
-        self.check_store_access(store, management=True)
+        self.check_store_access(store, "categories")
         instance.delete()
 
     def get_serializer_context(self):
@@ -96,14 +108,14 @@ class AdminProductListCreateAPIView(
 
     def get_queryset(self):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "products")
         return Product.objects.filter(
             store=store,
         ).select_related("category")
 
     def perform_create(self, serializer):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "products")
         serializer.save(store=store)
 
     def get_serializer_context(self):
@@ -121,19 +133,19 @@ class AdminProductDetailAPIView(
 
     def get_queryset(self):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "products")
         return Product.objects.filter(
             store=store,
         ).select_related("category")
 
     def perform_update(self, serializer):
         store = self.get_store()
-        self.check_store_access(store)
+        self.check_store_access(store, "products")
         serializer.save(store=store)
 
     def perform_destroy(self, instance):
         store = self.get_store()
-        self.check_store_access(store, management=True)
+        self.check_store_access(store, "products", management=True)
         instance.delete()
 
     def get_serializer_context(self):

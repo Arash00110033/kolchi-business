@@ -1,14 +1,34 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
+from apps.stores.models import Store
+
 from .models import Category, Product
+
+
+User = get_user_model()
 
 
 class CatalogAPITestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
+        self.owner = User.objects.create_user(
+            username="catalog_test_owner",
+            email="catalog-test-owner@test.local",
+            password="TestPassword123!",
+        )
+
+        self.store = Store.objects.create(
+            owner=self.owner,
+            name="Catalog Test Store",
+            slug="catalog-test-store",
+            is_active=True,
+        )
+
         self.coffee = Category.objects.create(
+            store=self.store,
             name="Coffee",
             slug="coffee",
             description="Coffee products",
@@ -16,6 +36,7 @@ class CatalogAPITestCase(TestCase):
         )
 
         self.mugs = Category.objects.create(
+            store=self.store,
             name="Mugs",
             slug="mugs",
             description="Mugs and drinkware products",
@@ -23,6 +44,7 @@ class CatalogAPITestCase(TestCase):
         )
 
         self.product_cheap = Product.objects.create(
+            store=self.store,
             category=self.coffee,
             name="Ethiopian",
             slug="ethiopian",
@@ -34,6 +56,7 @@ class CatalogAPITestCase(TestCase):
         )
 
         self.product_expensive = Product.objects.create(
+            store=self.store,
             category=self.mugs,
             name="Premium Mug",
             slug="premium-mug",
@@ -45,6 +68,7 @@ class CatalogAPITestCase(TestCase):
         )
 
         self.inactive_product = Product.objects.create(
+            store=self.store,
             category=self.coffee,
             name="Inactive Coffee",
             slug="inactive-coffee",
@@ -54,28 +78,37 @@ class CatalogAPITestCase(TestCase):
             is_active=False,
         )
 
+    def products_url(self):
+        return f"/api/v1/stores/{self.store.id}/products/"
+
+    def categories_url(self):
+        return f"/api/v1/stores/{self.store.id}/categories/"
+
+    def product_url(self, slug):
+        return f"/api/v1/stores/{self.store.id}/products/{slug}/"
+
     def test_categories_endpoint(self):
-        response = self.client.get("/api/v1/categories/")
+        response = self.client.get(self.categories_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 2)
 
     def test_products_endpoint(self):
-        response = self.client.get("/api/v1/products/")
+        response = self.client.get(self.products_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 2)
 
     def test_product_detail_endpoint(self):
         response = self.client.get(
-            f"/api/v1/products/{self.product_cheap.slug}/"
+            self.product_url(self.product_cheap.slug)
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["name"], "Ethiopian")
 
     def test_inactive_product_is_not_public(self):
-        response = self.client.get("/api/v1/products/")
+        response = self.client.get(self.products_url())
 
         product_names = [
             product["name"]
@@ -86,7 +119,8 @@ class CatalogAPITestCase(TestCase):
 
     def test_search_filter(self):
         response = self.client.get(
-            "/api/v1/products/?query=Ethiopian"
+            self.products_url(),
+            {"query": "Ethiopian"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -98,7 +132,8 @@ class CatalogAPITestCase(TestCase):
 
     def test_category_filter(self):
         response = self.client.get(
-            "/api/v1/products/?category=mugs"
+            self.products_url(),
+            {"category": "mugs"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -110,7 +145,8 @@ class CatalogAPITestCase(TestCase):
 
     def test_price_ascending_sort(self):
         response = self.client.get(
-            "/api/v1/products/?sort=price_asc"
+            self.products_url(),
+            {"sort": "price_asc"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -127,7 +163,8 @@ class CatalogAPITestCase(TestCase):
 
     def test_price_descending_sort(self):
         response = self.client.get(
-            "/api/v1/products/?sort=price_desc"
+            self.products_url(),
+            {"sort": "price_desc"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -144,13 +181,14 @@ class CatalogAPITestCase(TestCase):
 
     def test_invalid_sort_returns_bad_request(self):
         response = self.client.get(
-            "/api/v1/products/?sort=invalid"
+            self.products_url(),
+            {"sort": "invalid"},
         )
 
         self.assertEqual(response.status_code, 400)
 
     def test_pagination(self):
-        response = self.client.get("/api/v1/products/")
+        response = self.client.get(self.products_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("count", response.data)

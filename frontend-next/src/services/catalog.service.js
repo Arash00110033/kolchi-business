@@ -1,7 +1,11 @@
 import apiClient from "@/services/api/client";
 
 const catalogService = {
-  async getProducts(params = {}) {
+  async getProducts(storeId, params = {}) {
+    if (!storeId) {
+      throw new Error("Store ID is required.");
+    }
+
     const searchParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
@@ -13,22 +17,30 @@ const catalogService = {
     const queryString = searchParams.toString();
 
     return apiClient.get(
-      `/products/${queryString ? `?${queryString}` : ""}`
+      `/stores/${storeId}/products/${queryString ? `?${queryString}` : ""}`
     );
   },
 
-  async getProduct(slug) {
+  async getProduct(storeId, slug) {
+    if (!storeId) {
+      throw new Error("Store ID is required.");
+    }
+
     if (!slug) {
       throw new Error("Product slug is required.");
     }
 
     return apiClient.get(
-      `/products/${encodeURIComponent(slug)}/`
+      `/stores/${storeId}/products/${encodeURIComponent(slug)}/`
     );
   },
 
-  async getCategories() {
-    return apiClient.get("/categories/");
+  async getCategories(storeId) {
+    if (!storeId) {
+      throw new Error("Store ID is required.");
+    }
+
+    return apiClient.get(`/stores/${storeId}/categories/`);
   },
 };
 

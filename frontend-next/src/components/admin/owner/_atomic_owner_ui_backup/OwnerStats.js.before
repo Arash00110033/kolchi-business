@@ -1,0 +1,35 @@
+export default function OwnerStats({ t, store, members }) {
+  const cards = [
+    {
+      label: t("adminOwner.people"),
+      value: members.length,
+    },
+    {
+      label: t("adminOwner.ownerStatus"),
+      value: t("adminOwner.ownerOnly"),
+    },
+    {
+      label: t("adminOwner.activeAccess"),
+      value: store ? t("adminOwner.enabled") : "—",
+    },
+  ];
+
+  return (
+    <section className="grid gap-4 sm:grid-cols-3">
+      {cards.map((card) => (
+        <div
+          key={card.label}
+          className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm"
+        >
+          <div className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {card.label}
+          </div>
+
+          <div className="mt-3 text-2xl font-black text-gray-900">
+            {card.value}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}

@@ -1,7 +1,7 @@
-import { useStore } from "@/context/StoreContext";
+﻿import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
+import BackToStoreButton from "@/components/common/BackToStoreButton";
 import useAuth from "@/hooks/useAuth";
 import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
@@ -232,13 +232,7 @@ export default function AdminMembersPage() {
               </h1>
             </div>
 
-            <button
-              type="button"
-              onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-            >
-              {t("adminDashboard.backToStore")}
-            </button>
+            <BackToStoreButton t={t} translationKey="adminDashboard.backToStore" />
           </div>
         </header>
 
@@ -370,3 +364,4 @@ export default function AdminMembersPage() {
     </main>
   );
 }
+

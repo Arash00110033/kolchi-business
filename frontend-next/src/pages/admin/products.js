@@ -299,146 +299,218 @@ export default function AdminProductsPage() {
   return (
     <main
       dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
+      data-kolchi-marker="KOLCHI_LUXURY_PRODUCT_UI_V3"
+      className="min-h-screen px-4 py-8 sm:px-6 lg:px-8"
+      style={{
+        background: "var(--theme-background)",
+        color: "var(--theme-text)",
+      }}
     >
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-[var(--theme-muted)]">
+      <div className="mx-auto max-w-7xl space-y-6">
+
+        <section
+          className="overflow-hidden rounded-[30px] border p-6 shadow-sm sm:p-8"
+          style={{
+            borderColor: "var(--theme-border)",
+            background:
+              "linear-gradient(135deg, var(--theme-background), var(--theme-surface, var(--theme-background)))",
+          }}
+        >
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p
+                className="mb-3 text-xs font-bold uppercase tracking-[0.18em]"
+                style={{ color: "var(--theme-primary)" }}
+              >
                 {t("adminProducts.managementPanel")}
               </p>
 
-              <h1 className="mt-1 text-3xl font-black text-[var(--theme-primary)]">
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 {t("adminProducts.title")}
               </h1>
+
+              <p
+                className="mt-3 text-sm leading-7 sm:text-base"
+                style={{ color: "var(--theme-muted)" }}
+              >
+                {t("adminProducts.description")}
+              </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-            >
-              {t("adminProducts.backToManagement")}
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => router.push("/admin")}
+                className="rounded-2xl border px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  color: "var(--theme-primary)",
+                  background: "var(--theme-background)",
+                }}
+              >
+                {t("adminProducts.backToManagement")}
+              </button>
+
+              <div
+                className="min-w-[110px] rounded-2xl border px-5 py-4 text-center"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
+              >
+                <div
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--theme-primary)" }}
+                >
+                  {products.length}
+                </div>
+
+                <div
+                  className="mt-1 text-xs"
+                  style={{ color: "var(--theme-muted)" }}
+                >
+                  {t("adminProducts.products")}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={startCreate}
+                className="rounded-2xl px-5 py-3 text-sm font-bold shadow-sm transition hover:-translate-y-0.5"
+                style={{
+                  background: "var(--theme-primary)",
+                  color: "var(--theme-background)",
+                }}
+              >
+                + {t("adminProducts.createProduct")}
+              </button>
+            </div>
           </div>
-        </header>
+        </section>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+          <div
+            className="rounded-2xl border px-4 py-3 text-sm"
+            style={{
+              borderColor: "var(--theme-border)",
+              color: "var(--theme-danger, #b91c1c)",
+              background: "var(--theme-background)",
+            }}
+          >
             {error}
           </div>
         )}
 
-        <section className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-black text-[var(--theme-primary)]">
-                {editingId
-                  ? t("adminProducts.editProduct")
-                  : t("adminProducts.newProduct")}
-              </h2>
+        <section
+          className="rounded-[28px] border p-5 shadow-sm sm:p-7"
+          style={{
+            borderColor: "var(--theme-border)",
+            background: "var(--theme-background)",
+          }}
+        >
+          <div className="mb-6">
+            <h2 className="text-xl font-bold">
+              {editingId
+                ? t("adminProducts.edit")
+                : t("adminProducts.createProduct")}
+            </h2>
 
-              <p className="mt-1 text-sm text-[var(--theme-muted)]">
-                {t("adminProducts.generalAndInventory")}
-              </p>
-            </div>
-
-            {editingId && (
-              <button
-                type="button"
-                onClick={startCreate}
-                className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]"
-              >
-                {t("adminProducts.cancel")}
-              </button>
-            )}
+            <p
+              className="mt-1 text-sm"
+              style={{ color: "var(--theme-muted)" }}
+            >
+              {t("adminProducts.formDescription")}
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                {t("adminProducts.productName")}
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-5 sm:grid-cols-2"
+          >
+            <div className="sm:col-span-2">
+              <label className="mb-2 block text-sm font-semibold">
+                {t("adminProducts.name")}
               </label>
 
               <input
-                name="name"
                 value={form.name}
                 onChange={(event) =>
                   updateField("name", event.target.value)
                 }
+                name="name"
                 placeholder={t("adminProducts.namePlaceholder")}
-                required
-                onInvalid={handleInvalid}
-                onInput={handleInput}
-                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                className="w-full rounded-2xl border px-4 py-3 text-sm outline-none transition"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                Slug
+              <label className="mb-2 block text-sm font-semibold">
+                {t("adminProducts.slug")}
               </label>
 
               <input
-                name="slug"
                 value={form.slug}
                 onChange={(event) =>
                   updateField("slug", event.target.value)
                 }
-                placeholder={t("adminProducts.slugPlaceholder")}
-                required
-                onInvalid={handleInvalid}
-                onInput={handleInput}
-                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                name="slug"
+                className="w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                {t("adminProducts.price")}
+              <label className="mb-2 block text-sm font-semibold">
+                {t("adminProducts.priceLabel")}
               </label>
 
               <input
-                name="price"
-                type="number"
-                min="0"
                 value={form.price}
                 onChange={(event) =>
                   updateField("price", event.target.value)
                 }
-                placeholder={t("adminProducts.pricePlaceholder")}
-                required
-                onInvalid={handleInvalid}
-                onInput={handleInput}
-                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                name="price"
+                type="number"
+                min="0"
+                className="w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                {t("adminProducts.stock")}
+              <label className="mb-2 block text-sm font-semibold">
+                {t("adminProducts.stockLabel")}
               </label>
 
               <input
-                name="stock"
-                type="number"
-                min="0"
                 value={form.stock}
                 onChange={(event) =>
                   updateField("stock", event.target.value)
                 }
-                placeholder={t("adminProducts.stockPlaceholder")}
-                required
-                onInvalid={handleInvalid}
-                onInput={handleInput}
-                className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                name="stock"
+                type="number"
+                min="0"
+                className="w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                {t("adminProducts.category")}
+              <label className="mb-2 block text-sm font-semibold">
+                دسته‌بندی
               </label>
 
               <select
@@ -446,11 +518,14 @@ export default function AdminProductsPage() {
                 onChange={(event) =>
                   updateField("category", event.target.value)
                 }
-                className="w-full rounded-xl border border-[var(--theme-border)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                name="category"
+                className="w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               >
-                <option value="">
-                  {t("adminProducts.categoryPlaceholder")}
-                </option>
+                <option value="">انتخاب دسته‌بندی</option>
 
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -460,45 +535,35 @@ export default function AdminProductsPage() {
               </select>
             </div>
 
-            <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold text-[var(--theme-foreground)]">
-              <input
-                type="checkbox"
-                checked={form.is_active}
-                onChange={(event) =>
-                  updateField(
-                    "is_active",
-                    event.target.checked
-                  )
-                }
-              />
-
-              {t("adminProducts.activeProduct")}
-            </label>
-
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                {t("adminProducts.description")}
+              <label className="mb-2 block text-sm font-semibold">
+                توضیحات
               </label>
 
               <textarea
                 value={form.description}
                 onChange={(event) =>
-                  updateField(
-                    "description",
-                    event.target.value
-                  )
+                  updateField("description", event.target.value)
                 }
-                placeholder={t("adminProducts.descriptionPlaceholder")}
+                name="description"
                 rows={4}
-                className="w-full resize-y rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                className="w-full resize-none rounded-2xl border px-4 py-3 text-sm outline-none"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  background: "var(--theme-background)",
+                }}
               />
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-2 flex flex-wrap gap-3 pt-2">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl px-6 py-3 text-sm font-bold transition hover:-translate-y-0.5 disabled:opacity-50"
+                style={{
+                  background: "var(--theme-primary)",
+                  color: "var(--theme-background)",
+                }}
               >
                 {saving
                   ? t("adminProducts.saving")
@@ -506,89 +571,181 @@ export default function AdminProductsPage() {
                     ? t("adminProducts.saveChanges")
                     : t("adminProducts.createProduct")}
               </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={startCreate}
+                  className="rounded-2xl border px-6 py-3 text-sm font-semibold"
+                  style={{
+                    borderColor: "var(--theme-border)",
+                  }}
+                >
+                  بازگشت
+                </button>
+              )}
             </div>
           </form>
         </section>
 
-        <section className="rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-xl font-black text-[var(--theme-primary)]">
-              {t("adminProducts.products")}
-            </h2>
+        <section
+          className="rounded-[28px] border p-5 shadow-sm sm:p-7"
+          style={{
+            borderColor: "var(--theme-border)",
+            background: "var(--theme-background)",
+          }}
+        >
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold">
+                {t("adminProducts.products")}
+              </h2>
 
-            <span className="text-sm font-semibold text-[var(--theme-muted)]">
-              {products.length} {t("adminProducts.productCount")}
-            </span>
+              <p
+                className="mt-1 text-sm"
+                style={{ color: "var(--theme-muted)" }}
+              >
+                {products.length} محصول
+              </p>
+            </div>
           </div>
 
           {products.length === 0 ? (
-            <p className="rounded-2xl bg-[var(--theme-background)] p-5 text-sm text-[var(--theme-muted)]">
-              {t("adminProducts.empty")}
-            </p>
+            <div
+              className="rounded-2xl border px-5 py-12 text-center text-sm"
+              style={{
+                borderColor: "var(--theme-border)",
+                color: "var(--theme-muted)",
+              }}
+            >
+              هنوز محصولی ثبت نشده است.
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => (
-                <div
+                <article
                   key={product.id}
-                  className="flex flex-col gap-4 rounded-2xl border border-[var(--theme-border)] p-5 lg:flex-row lg:items-center lg:justify-between"
+                  className="group overflow-hidden rounded-3xl border transition hover:-translate-y-1 hover:shadow-lg"
+                  style={{
+                    borderColor: "var(--theme-border)",
+                    background: "var(--theme-background)",
+                  }}
                 >
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-black text-[var(--theme-primary)]">
-                        {product.name}
-                      </h3>
+                  <div
+                    className="h-2"
+                    style={{ background: "var(--theme-primary)" }}
+                  />
+
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-bold">
+                          {product.name}
+                        </h3>
+
+                        <p
+                          className="mt-1 truncate text-xs"
+                          style={{ color: "var(--theme-muted)" }}
+                        >
+                          {product.slug}
+                        </p>
+                      </div>
 
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          product.is_active
-                            ? "bg-green-50 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
+                        className="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                        style={{
+                          borderColor: "var(--theme-border)",
+                          color: product.is_active
+                            ? "var(--theme-primary)"
+                            : "var(--theme-muted)",
+                        }}
                       >
                         {product.is_active
-                          ? t("adminProducts.active")
-                          : t("adminProducts.inactive")}
+                          ? t("adminProducts.activate")
+                          : t("adminProducts.deactivate")}
                       </span>
                     </div>
 
-                    <p className="mt-2 text-sm text-[var(--theme-muted)]">
-                      {t("adminProducts.priceLabel")}: {product.price} —{" "}
-                      {t("adminProducts.stockLabel")}: {product.stock}
-                    </p>
+                    {product.description && (
+                      <p
+                        className="mt-3 line-clamp-2 text-sm leading-6"
+                        style={{ color: "var(--theme-muted)" }}
+                      >
+                        {product.description}
+                      </p>
+                    )}
 
-                    <p className="mt-1 text-xs text-[var(--theme-muted)]">
-                      slug: {product.slug}
-                    </p>
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div
+                        className="rounded-2xl border p-3"
+                        style={{ borderColor: "var(--theme-border)" }}
+                      >
+                        <div
+                          className="text-[11px]"
+                          style={{ color: "var(--theme-muted)" }}
+                        >
+                          {t("adminProducts.priceLabel")}
+                        </div>
+
+                        <div className="mt-1 font-bold">
+                          {product.price}
+                        </div>
+                      </div>
+
+                      <div
+                        className="rounded-2xl border p-3"
+                        style={{ borderColor: "var(--theme-border)" }}
+                      >
+                        <div
+                          className="text-[11px]"
+                          style={{ color: "var(--theme-muted)" }}
+                        >
+                          {t("adminProducts.stockLabel")}
+                        </div>
+
+                        <div className="mt-1 font-bold">
+                          {product.stock}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(product)}
+                        className="rounded-xl border px-3 py-2 text-sm font-semibold transition hover:opacity-80"
+                        style={{
+                          borderColor: "var(--theme-border)",
+                          color: "var(--theme-muted)",
+                        }}
+                      >
+                        {t("adminProducts.edit")}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleActive(product)}
+                        className="rounded-xl border px-3 py-2 text-sm font-semibold transition hover:opacity-80"
+                        style={{
+                          borderColor: "var(--theme-border)",
+                          color: "var(--theme-muted)",
+                        }}
+                      >
+                        {product.is_active
+                          ? t("adminProducts.deactivate")
+                          : t("adminProducts.activate")}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(product)}
+                        className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                      >
+                        {t("adminProducts.delete")}
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => startEdit(product)}
-                      className="rounded-xl border border-[var(--theme-border)] px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-                    >
-                      {t("adminProducts.edit")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleActive(product)}
-                      className="rounded-xl border border-[var(--theme-border)] px-3 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-                    >
-                      {product.is_active
-                        ? t("adminProducts.deactivate")
-                        : t("adminProducts.activate")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(product)}
-                      className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                    >
-                      {t("adminProducts.delete")}
-                    </button>
-                  </div>
-                </div>
+                </article>
               ))}
             </div>
           )}

@@ -6,27 +6,69 @@
     foreground: "#171717",
     primary: "#171717",
     primaryHover: "#000000",
+    hero: "#171717",
     secondary: "#b08d57",
     border: "#ded9d0",
     muted: "#6f6a62",
     success: "#356139",
     danger: "#dc2626",
   },
+
   typography: {
     fontFamily: "Arial, Helvetica, sans-serif",
     headingWeight: "800",
   },
+
   shape: {
     radius: "14px",
     radiusSmall: "10px",
     radiusLarge: "20px",
   },
+
   layout: {
     maxWidth: "1540px",
   },
+
   components: {
+    /*
+     * Legacy component tokens.
+     * Kept for backward compatibility with Appearance/DesignSettings.
+     */
     cardStyle: "bordered",
     buttonStyle: "solid",
+
+    /*
+     * Extensible component-token namespaces.
+     * These are intentionally not consumed by storefront components yet.
+     */
+    header: {
+      variant: "default",
+    },
+
+    hero: {
+      variant: "default",
+    },
+
+    card: {
+      variant: "default",
+    },
+
+    productCard: {
+      variant: "default",
+    },
+
+    categoryCard: {
+      variant: "default",
+    },
+
+    button: {
+      variant: "default",
+    },
+
+    section: {
+      variant: "default",
+    },
   },
 };
+
 

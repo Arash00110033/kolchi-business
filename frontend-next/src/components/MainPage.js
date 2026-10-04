@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { useStore } from "@/context/StoreContext";
 import { useI18n } from "@/i18n";
-import catalogService from "@/services/catalog.service";
+import storeService from "@/services/store.service";
 import StoreHeader from "@/components/layout/StoreHeader";
 import CatalogHeader from "@/components/catalog/CatalogHeader";
 import ProductGrid from "@/components/catalog/ProductGrid";
@@ -8,6 +9,7 @@ import CatalogToolbar from "@/components/catalog/CatalogToolbar";
 
 export default function MainPage() {
   const { t, locale, isRTL } = useI18n();
+  const { storeId } = useStore();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ export default function MainPage() {
           params.sort = sort;
         }
 
-        const productsResponse = await catalogService.getProducts(params);
+        const productsResponse = await storeService.getPublicProducts(storeId, params);
 
         setProducts(productsResponse?.results || []);
       } catch (err) {
@@ -50,13 +52,13 @@ export default function MainPage() {
     }
 
     loadCatalog();
-  }, [query, category, sort]);
+  }, [query, category, sort, storeId]);
 
   useEffect(() => {
     async function loadCategories() {
       try {
         const categoriesResponse =
-          await catalogService.getCategories();
+          await storeService.getPublicCategories(storeId);
 
         setCategories(categoriesResponse?.results || []);
       } catch (err) {
@@ -65,7 +67,7 @@ export default function MainPage() {
     }
 
     loadCategories();
-  }, []);
+  }, [storeId]);
 
   return (
     <main
@@ -81,7 +83,7 @@ export default function MainPage() {
         <CatalogHeader categories={categories} />
 
         {/* Storefront Hero */}
-        <section className="relative mt-6 overflow-hidden rounded-[var(--theme-radius-large)] bg-[var(--theme-primary)] px-7 py-12 text-white shadow-[0_18px_50px_rgba(70,45,30,0.12)] sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+        <section className="relative mt-6 overflow-hidden rounded-[var(--theme-radius-large)] bg-[var(--theme-hero)] px-7 py-12 text-white shadow-[0_18px_50px_rgba(70,45,30,0.12)] sm:px-10 sm:py-14 lg:px-16 lg:py-16">
           <div className="relative z-10 max-w-3xl">
             <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
               {t("common.storeLabel")}
@@ -223,3 +225,4 @@ export default function MainPage() {
     </main>
   );
 }
+

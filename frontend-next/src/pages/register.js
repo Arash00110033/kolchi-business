@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useAuth from "@/hooks/useAuth";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -49,20 +50,13 @@ export default function RegisterPage() {
 
       await router.push("/login");
     } catch (err) {
-      const data = err?.data;
-
-      if (data && typeof data === "object") {
-        const messages = Object.values(data)
-          .flat()
-          .filter(Boolean)
-          .join(" ");
-
-        setError(
-          messages || err?.message || t("registerPage.error")
-        );
-      } else {
-        setError(err?.message || t("registerPage.error"));
-      }
+      setError(
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "registerPage.error"
+        )
+      );
     } finally {
       setSubmitting(false);
     }

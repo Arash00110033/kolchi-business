@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useTheme } from "@/theme/ThemeProvider";
+import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 import { useStore } from "@/context/StoreContext";
 import authService from "@/services/auth.service";
 import adminService from "@/services/admin.service";
@@ -73,6 +75,7 @@ function Choice({ active, title, description, onClick, children }) {
 }
 
 export default function Appearance() {
+  const { t } = useI18n();
   const router = useRouter();
   const { theme: liveTheme, setTheme } = useTheme();
   const { storeId, storeConfig } = useStore();
@@ -129,7 +132,7 @@ export default function Appearance() {
   }
   async function confirmDesign() {
     if (!storeId) {
-      window.alert("شناسه فروشگاه مشخص نیست.");
+      window.alert("شناسه فروشگاه، پیش‌نمایش، مشخص نیست.");
       return;
     }
 
@@ -173,12 +176,15 @@ export default function Appearance() {
       });
 
       setTheme(savedTheme);
-      window.alert("طراحی فروشگاه با موفقیت ذخیره شد.");
+      window.alert(t("adminDashboard.saved"));
     } catch (error) {
       console.error("Appearance save failed:", error);
-      window.alert(
-        error?.message ||
-        "ذخیره طراحی فروشگاه انجام نشد."
+      setError(
+        getLocalizedErrorMessage(
+          error,
+          t,
+          "adminDashboard.saveError"
+        )
       );
     }
   }
@@ -191,14 +197,19 @@ export default function Appearance() {
             <button
               type="button"
               onClick={() => router.push("/admin")}
-              className="text-sm text-[var(--theme-muted)]"
+              className="rounded-2xl border px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5"
+              style={{
+                borderColor: "var(--theme-border)",
+                color: "var(--theme-primary)",
+                background: "var(--theme-background)",
+              }}
             >
-              ← مدیریت فروشگاه
+               بازگشت به مدیریت
             </button>
 
             <div className="flex items-center gap-2">
               <h1 className="mt-1 text-xl font-black">
-                طراح بصری فروشگاه
+                 طراحی بصری فروشگاه
               </h1>
 
               <span className="rounded-full border px-2.5 py-1 text-[10px] font-black tracking-wide" style={{ borderColor: "var(--theme-secondary)", color: "var(--theme-secondary)", backgroundColor: "var(--theme-surface-muted)" }}>
@@ -207,7 +218,7 @@ export default function Appearance() {
             </div>
 
             <p className="mt-1 text-[11px] text-[var(--theme-muted)]">
-              تغییرات فقط در Preview هستند و هنوز روی فروشگاه اصلی اعمال نشده‌اند.
+               تغییرات فقط در Preview هستند و هنوز روی فروشگاه اصلی اعمال نشده‌اند.
             </p>
           </div>
 
@@ -216,7 +227,7 @@ export default function Appearance() {
               type="button"
               onClick={undo}
               disabled={!history.length}
-              title="برگرداندن آخرین تغییر"
+              title="بازگردانی به آخرین تغییر"
               className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40"
             >
               ↶
@@ -226,7 +237,7 @@ export default function Appearance() {
               type="button"
               onClick={redo}
               disabled={!future.length}
-              title="انجام دوباره تغییر"
+              title="اعمال مجدد تغییرات"
               className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40"
             >
               ↷
@@ -262,7 +273,7 @@ export default function Appearance() {
             {[
               ["design", "🎨 ظاهر"],
               ["store", "🏪 فروشگاه"],
-              ["presets", "✨ قالب‌ها"],
+              ["presets", "🧩 قالب‌ها"],
             ].map(([id, title]) => (
               <button
                 key={id}
@@ -292,7 +303,7 @@ export default function Appearance() {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-[var(--theme-radius)] border border-[var(--theme-border)] bg-[var(--theme-surface)] p-3">
             <div>
               <div className="text-xs text-[var(--theme-muted)]">
-                صفحه Preview
+                پیش‌نمایش
               </div>
 
               <div className="mt-1 flex flex-wrap gap-2">
@@ -332,9 +343,9 @@ export default function Appearance() {
                     }`}
                   >
                     {id === "desktop"
-                      ? "🖥"
+                      ? "🖥️"
                       : id === "tablet"
-                      ? "💻"
+                      ? "📱"
                       : "📱"}
                   </button>
                 ))}

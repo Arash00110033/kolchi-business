@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
@@ -27,7 +28,7 @@ function normalizeProduct(product) {
     category_name:
       product.category_name ||
       product.category ||
-      "دسته‌بندی",
+      "Category",
     description: product.description || "",
     price:
       product.price !== undefined && product.price !== null
@@ -48,14 +49,13 @@ function ProductError({ error }) {
       className="min-h-screen bg-[var(--theme-background)] px-4 py-10 sm:px-6 lg:px-10"
     >
       <div className="mx-auto max-w-[1400px]">
-        <div className="rounded-[32px] border border-red-100 bg-white p-8 text-center shadow-sm">
+        <div className="rounded-[var(--theme-radius-large)] border border-red-100 bg-[var(--theme-surface)] p-8 text-center shadow-sm">
           <h1 className="text-2xl font-black text-[var(--theme-foreground)]">
             {t("common.errorTitle")}
           </h1>
 
           <p className="mt-3 text-sm text-[var(--theme-muted)]">
-            {error?.message ||
-              t("common.error")}
+            {getLocalizedErrorMessage(error, t, "common.error")}
           </p>
         </div>
       </div>
@@ -132,11 +132,12 @@ export default function ProductDetails({
       );
     } catch (err) {
       setCartError(
-        err?.data?.detail ||
-          t("common.addToCartFailed")
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "common.addToCartFailed"
+        )
       );
-    } finally {
-      setAddingToCart(false);
     }
   };
 
@@ -168,7 +169,7 @@ export default function ProductDetails({
                 router.push("/");
               }
             }}
-            className="group inline-flex items-center gap-2 rounded-full border border-[var(--theme-border)] bg-white px-5 py-2.5 text-sm font-bold text-[var(--theme-foreground)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group inline-flex items-center gap-2 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-5 py-2.5 text-sm font-bold text-[var(--theme-foreground)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <span
               aria-hidden="true"
@@ -180,13 +181,13 @@ export default function ProductDetails({
           </button>
 
           {normalizedProduct.category_name && (
-            <span className="rounded-full border border-[var(--theme-border)] bg-white px-4 py-2 text-xs font-bold text-[var(--theme-muted)] shadow-sm">
+            <span className="rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-4 py-2 text-xs font-bold text-[var(--theme-muted)] shadow-sm">
               {normalizedProduct.category_name}
             </span>
           )}
         </div>
 
-        <section className="overflow-hidden rounded-[32px] border border-[var(--theme-border)] bg-white shadow-[0_15px_50px_rgba(70,45,30,0.06)]">
+        <section className="overflow-hidden rounded-[var(--theme-radius-large)] border border-[var(--theme-border)] bg-[var(--theme-surface)] shadow-[0_15px_50px_rgba(70,45,30,0.06)]">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <ProductGallery
               product={normalizedProduct}

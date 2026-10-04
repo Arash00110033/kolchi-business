@@ -1,37 +1,36 @@
-import { useStore } from "@/context/StoreContext";
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
+import { useStore } from "@/context/StoreContext";
 import useAuth from "@/hooks/useAuth";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
+import { useI18n } from "@/i18n";
 
-
-function getInventory(data) {
-  if (Array.isArray(data)) {
-    return data;
-  }
-
-  return data?.results || [];
-}
-
-export default function AdminInventoryPage() {
-  const { storeId } = useStore();
+export default function InventoryPage() {
   const router = useRouter();
+  const { storeId } = useStore();
   const { loading: authLoading, isAuthenticated } = useAuth();
+  const { t, isRTL } = useI18n();
 
+  const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([]);
   const [error, setError] = useState("");
-
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState("");
-  const [transactionType, setTransactionType] =
-    useState("restock");
+  const [transactionType, setTransactionType] = useState("restock");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
-  async function loadInventory() {
+  const getInventory = (data) => {
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    return Array.isArray(data?.results) ? data.results : [];
+  };
+
+  const loadInventory = async () => {
     const token = authService.getStoredAccessToken();
 
     if (!token) {
@@ -39,35 +38,27 @@ export default function AdminInventoryPage() {
       return;
     }
 
+    setLoading(true);
+    setError("");
+
     try {
-      setError("");
-
-      const data = await adminService.getInventory(
-        storeId,
-        token
-      );
-
-      setItems(getInventory(data));
-    } catch (requestError) {
-      if (requestError?.status === 401) {
+      const response = await adminService.getInventory(storeId, token);
+      setInventory(getInventory(response));
+    } catch (err) {
+      if (err?.response?.status === 401) {
         router.replace("/login");
         return;
       }
 
-      if (
-        requestError?.status === 403 ||
-        requestError?.status === 404
-      ) {
-        setError(
-          "شما اجازه مشاهده موجودی این فروشگاه را ندارید."
-        );
+      if ([403, 404].includes(err?.response?.status)) {
+        setError(t("adminInventory.accessDenied"));
       } else {
-        setError("دریافت موجودی با خطا مواجه شد.");
+        setError(t("adminInventory.loadError"));
       }
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (authLoading) {
@@ -79,18 +70,23 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    loadInventory();
-  }, [authLoading, isAuthenticated]);
+    if (!storeId) {
+      setLoading(false);
+      return;
+    }
 
-  function startAdjust(product) {
+    loadInventory();
+  }, [authLoading, isAuthenticated, storeId]);
+
+  const startAdjust = (product) => {
     setSelectedProduct(product);
     setQuantity("");
     setTransactionType("restock");
     setNote("");
     setError("");
-  }
+  };
 
-  function closeAdjust() {
+  const closeAdjust = () => {
     if (saving) {
       return;
     }
@@ -98,9 +94,9 @@ export default function AdminInventoryPage() {
     setSelectedProduct(null);
     setQuantity("");
     setNote("");
-  }
+  };
 
-  async function handleAdjust(event) {
+  const handleAdjust = async (event) => {
     event.preventDefault();
 
     const token = authService.getStoredAccessToken();
@@ -110,10 +106,10 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    const parsedQuantity = Number(quantity);
+    const parsedQuantity = Number.parseInt(quantity, 10);
 
     if (!Number.isInteger(parsedQuantity) || parsedQuantity === 0) {
-      setError("مقدار تغییر موجودی باید یک عدد صحیح غیرصفر باشد.");
+      setError(t("adminInventory.invalidQuantity"));
       return;
     }
 
@@ -121,7 +117,7 @@ export default function AdminInventoryPage() {
       transactionType === "restock" &&
       parsedQuantity < 0
     ) {
-      setError("برای شارژ موجودی مقدار باید مثبت باشد.");
+      setError(t("adminInventory.positiveRestock"));
       return;
     }
 
@@ -129,7 +125,12 @@ export default function AdminInventoryPage() {
       transactionType === "return" &&
       parsedQuantity < 0
     ) {
-      setError("برای برگشت موجودی مقدار باید مثبت باشد.");
+      setError(t("adminInventory.positiveReturn"));
+      return;
+    }
+
+    if (!selectedProduct?.product_id) {
+      setError(t("adminInventory.invalidAdjustment"));
       return;
     }
 
@@ -150,164 +151,165 @@ export default function AdminInventoryPage() {
 
       closeAdjust();
       await loadInventory();
-    } catch (requestError) {
-      if (requestError?.status === 401) {
+    } catch (err) {
+      if (err?.response?.status === 401) {
         router.replace("/login");
         return;
       }
 
-      if (requestError?.status === 403) {
-        setError(
-          "شما اجازه تغییر موجودی این فروشگاه را ندارید."
-        );
-      } else if (requestError?.status === 400) {
-        setError(
-          requestError?.data?.detail ||
-            "تغییر موجودی معتبر نیست."
-        );
+      if ([403, 404].includes(err?.response?.status)) {
+        setError(t("adminInventory.updateAccessDenied"));
+      } else if (err?.response?.status === 400) {
+        setError(t("adminInventory.invalidAdjustment"));
       } else {
-        setError("تغییر موجودی با خطا مواجه شد.");
+        setError(t("adminInventory.updateError"));
       }
     } finally {
       setSaving(false);
     }
-  }
-
-  if (authLoading || loading) {
-    return (
-      <main
-        dir="rtl"
-        className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
-      >
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-[var(--theme-border)] bg-white p-8">
-          <p className="text-sm font-semibold text-[var(--theme-muted)]">
-            در حال دریافت موجودی...
-          </p>
-        </div>
-      </main>
-    );
-  }
+  };
 
   return (
     <main
-      dir="rtl"
-      className="min-h-screen bg-[var(--theme-background)] px-5 py-10"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen bg-slate-50 px-4 py-8"
     >
       <div className="mx-auto max-w-6xl">
-        <header className="mb-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7 shadow-[0_10px_35px_rgba(70,45,30,0.06)]">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-[var(--theme-muted)]">
-                پنل مدیریت
-              </p>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="mb-2 text-sm font-medium text-slate-500">
+              {t("adminInventory.managementPanel")}
+            </p>
 
-              <h1 className="mt-1 text-3xl font-black text-[var(--theme-primary)]">
-                مدیریت موجودی
-              </h1>
+            <h1 className="text-3xl font-bold text-slate-900">
+              {t("adminInventory.title")}
+            </h1>
 
-              <p className="mt-2 text-sm text-[var(--theme-muted)]">
-                موجودی از طریق تراکنش‌های انبار مدیریت می‌شود.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-            >
-              بازگشت به مدیریت
-            </button>
+            <p className="mt-2 text-sm text-slate-600">
+              {t("adminInventory.description")}
+            </p>
           </div>
-        </header>
+
+          <button
+            type="button"
+            onClick={() => router.push("/admin")}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            {t("adminInventory.backToManagement")}
+          </button>
+        </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+          <div
+            role="alert"
+            className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
             {error}
           </div>
         )}
 
-        <section className="rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <h2 className="text-xl font-black text-[var(--theme-primary)]">
-              موجودی محصولات
-            </h2>
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-6 py-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {t("adminInventory.inventory")}
+                </h2>
 
-            <span className="text-sm font-semibold text-[var(--theme-muted)]">
-              {items.length} محصول
-            </span>
+                <p className="text-sm text-slate-500">
+                  {t("adminInventory.productCount", {
+                    count: inventory.length,
+                  })}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {items.length === 0 ? (
-            <p className="rounded-2xl bg-[var(--theme-background)] p-5 text-sm text-[var(--theme-muted)]">
-              موجودی‌ای ثبت نشده است.
-            </p>
+          {loading ? (
+            <div className="px-6 py-12 text-center text-sm text-slate-500">
+              {t("adminInventory.loading")}
+            </div>
+          ) : inventory.length === 0 ? (
+            <div className="px-6 py-12 text-center text-sm text-slate-500">
+              {t("adminInventory.empty")}
+            </div>
           ) : (
-            <div className="space-y-3">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-4 rounded-2xl border border-[var(--theme-border)] p-5 lg:flex-row lg:items-center lg:justify-between"
-                >
-                  <div>
-                    <h3 className="font-black text-[var(--theme-primary)]">
-                      {item.product_name}
-                    </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-3 text-start text-xs font-semibold text-slate-500">
+                      {t("adminProducts.name")}
+                    </th>
 
-                    <p className="mt-2 text-sm text-[var(--theme-muted)]">
-                      موجودی فعلی:{" "}
-                      <span className="font-black text-[var(--theme-primary)]">
-                        {item.quantity}
-                      </span>
-                    </p>
+                    <th className="px-6 py-3 text-start text-xs font-semibold text-slate-500">
+                      {t("adminInventory.currentStock")}
+                    </th>
 
-                    <p className="mt-1 text-xs text-[var(--theme-muted)]">
-                      شناسه محصول: {item.product_id}
-                    </p>
-                  </div>
+                    <th className="px-6 py-3 text-start text-xs font-semibold text-slate-500">
+                      {t("adminInventory.productId")}
+                    </th>
 
-                  <button
-                    type="button"
-                    onClick={() => startAdjust(item)}
-                    className="rounded-xl bg-[var(--theme-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
-                  >
-                    تغییر موجودی
-                  </button>
-                </div>
-              ))}
+                    <th className="px-6 py-3 text-end text-xs font-semibold text-slate-500">
+                      {t("adminInventory.adjustInventory")}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {inventory.map((item) => (
+                    <tr key={item.product_id}>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                        {item.product_name ||
+                          item.name ||
+                          t("adminProducts.unknownProduct")}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-700">
+                        {item.quantity ?? item.stock ?? 0}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-slate-500">
+                        #{item.product_id}
+                      </td>
+
+                      <td className="px-6 py-4 text-end">
+                        <button
+                          type="button"
+                          onClick={() => startAdjust(item)}
+                          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                        >
+                          {t("adminInventory.adjustInventory")}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </section>
+      </div>
 
-        {selectedProduct && (
-          <section className="mt-6 rounded-[28px] border border-[var(--theme-border)] bg-white p-7">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-black text-[var(--theme-primary)]">
-                  تغییر موجودی
-                </h2>
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-slate-900">
+                {t("adminInventory.adjustInventory")}
+              </h2>
 
-                <p className="mt-1 text-sm text-[var(--theme-muted)]">
-                  {selectedProduct.product_name}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeAdjust}
-                disabled={saving}
-                className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)]"
-              >
-                انصراف
-              </button>
+              <p className="mt-1 text-sm text-slate-500">
+                {selectedProduct.product_name ||
+                  selectedProduct.name ||
+                  t("adminProducts.unknownProduct")}
+              </p>
             </div>
 
-            <form
-              onSubmit={handleAdjust}
-              className="grid gap-4 sm:grid-cols-2"
-            >
+            <form onSubmit={handleAdjust} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                  نوع تراکنش
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t("adminInventory.transactionType")}
                 </label>
 
                 <select
@@ -315,73 +317,81 @@ export default function AdminInventoryPage() {
                   onChange={(event) =>
                     setTransactionType(event.target.value)
                   }
-                  className="w-full rounded-xl border border-[var(--theme-border)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                  disabled={saving}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-500"
                 >
                   <option value="restock">
-                    شارژ موجودی
+                    {t("adminInventory.restock")}
                   </option>
+
                   <option value="return">
-                    برگشت موجودی
+                    {t("adminInventory.return")}
                   </option>
+
                   <option value="adjustment">
-                    اصلاح موجودی
+                    {t("adminInventory.adjustment")}
                   </option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                  مقدار
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t("adminInventory.quantity")}
                 </label>
 
                 <input
                   type="number"
-                  step="1"
                   value={quantity}
-                  onChange={(event) =>
-                    setQuantity(event.target.value)
-                  }
+                  onChange={(event) => setQuantity(event.target.value)}
+                  disabled={saving}
                   placeholder={
                     transactionType === "adjustment"
-                      ? "مثلاً 5 یا -3"
-                      : "مثلاً 5"
+                      ? t("adminInventory.positiveOrNegativeExample")
+                      : t("adminInventory.positiveExample")
                   }
-                  required
-                  className="w-full rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
                 />
               </div>
 
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-sm font-semibold text-[var(--theme-foreground)]">
-                  توضیحات
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t("adminInventory.note")}
                 </label>
 
                 <textarea
                   value={note}
-                  onChange={(event) =>
-                    setNote(event.target.value)
-                  }
+                  onChange={(event) => setNote(event.target.value)}
+                  disabled={saving}
                   rows={3}
-                  placeholder="دلیل تغییر موجودی"
-                  className="w-full resize-y rounded-xl border border-[var(--theme-border)] px-4 py-3 text-sm outline-none focus:border-[var(--theme-secondary)]"
+                  placeholder={t("adminInventory.notePlaceholder")}
+                  className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
                 />
               </div>
 
-              <div className="sm:col-span-2">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeAdjust}
+                  disabled={saving}
+                  className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                >
+                  {t("adminInventory.cancel")}
+                </button>
+
                 <button
                   type="submit"
                   disabled={saving}
-                  className="rounded-xl bg-[var(--theme-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--theme-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {saving
-                    ? "در حال ثبت..."
-                    : "ثبت تغییر موجودی"}
+                    ? t("adminInventory.saving")
+                    : t("adminInventory.submitAdjustment")}
                 </button>
               </div>
             </form>
-          </section>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,4 +1,4 @@
-﻿from django.urls import include, path
+from django.urls import include, path
 
 from .views import (
     CategoryListAPIView,
@@ -10,18 +10,18 @@ from .views import (
 urlpatterns = [
     path("admin/", include("apps.catalog.admin_urls")),
     path(
-        "categories/",
+        "stores/<int:store_id>/categories/",
         CategoryListAPIView.as_view(),
-        name="category-list",
+        name="store-category-list",
     ),
     path(
-        "products/",
+        "stores/<int:store_id>/products/",
         ProductListAPIView.as_view(),
-        name="product-list",
+        name="store-product-list",
     ),
     path(
-        "products/<slug:slug>/",
+        "stores/<int:store_id>/products/<slug:slug>/",
         ProductDetailAPIView.as_view(),
-        name="product-detail",
+        name="store-product-detail",
     ),
 ]

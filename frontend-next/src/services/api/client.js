@@ -15,7 +15,7 @@ Responsibility:
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://127.0.0.1:8000/api/v1";
+  "http://127.0.0.1:9000/api/v1";
 
 /*
 =========================================================
@@ -61,7 +61,7 @@ async function request(endpoint, options = {}) {
     const error = new Error(
       typeof data === "string"
         ? data
-        : data?.detail || "خطایی در ارتباط با سرور رخ داد."
+        : data?.detail || "خطایی در ارتباط با سرور رخداد."
     );
 
     error.status = response.status;

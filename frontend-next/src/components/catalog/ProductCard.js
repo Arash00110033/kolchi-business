@@ -131,11 +131,11 @@ export default function ProductCard({ product }) {
 
             <div className="absolute right-4 top-4">
               {isAvailable ? (
-                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--theme-success)] shadow-sm backdrop-blur">
+                <span className="rounded-full bg-[var(--theme-surface)] px-3 py-1.5 text-xs font-bold text-[var(--theme-success)] shadow-sm backdrop-blur">
                   {t("common.available")}
                 </span>
               ) : (
-                <span className="rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--theme-danger)] shadow-sm backdrop-blur">
+                <span className="rounded-full bg-[var(--theme-surface)] px-3 py-1.5 text-xs font-bold text-[var(--theme-danger)] shadow-sm backdrop-blur">
                   {t("common.unavailable")}
                 </span>
               )}
@@ -232,3 +232,4 @@ export default function ProductCard({ product }) {
     </article>
   );
 }
+

@@ -1,4 +1,4 @@
-﻿from django.test import TestCase
+from django.test import TestCase
 from rest_framework.test import APIClient
 
 from apps.users.models import User
@@ -88,12 +88,12 @@ class AdminMembershipAPITests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 3)
 
-    def test_admin_can_list_members(self):
+    def test_admin_cannot_manage_members(self):
         self.auth(self.admin)
 
         response = self.client.get(self.members_url())
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
     def test_editor_cannot_manage_members(self):
         self.auth(self.editor)
@@ -129,7 +129,7 @@ class AdminMembershipAPITests(TestCase):
             ).exists()
         )
 
-    def test_admin_can_add_member(self):
+    def test_admin_cannot_add_member(self):
         new_user = User.objects.create_user(
             username="admin-added-member",
             email="admin-added-member@test.local",
@@ -147,7 +147,7 @@ class AdminMembershipAPITests(TestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 403)
 
     def test_owner_cannot_be_added_as_member(self):
         self.auth(self.admin)

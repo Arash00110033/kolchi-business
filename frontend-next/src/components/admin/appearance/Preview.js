@@ -1,4 +1,15 @@
-export default function Preview({ theme, storeName, slogan, page, device, activeHighlight }) {
+import { useStore } from "@/context/StoreContext";
+
+export default function Preview({
+  theme,
+  storeName,
+  slogan,
+  page,
+  device,
+  activeHighlight,
+}) {
+  const { storeCategories, storeProducts } = useStore();
+
   const width =
     device === "mobile"
       ? "390px"
@@ -20,6 +31,25 @@ export default function Preview({ theme, storeName, slogan, page, device, active
     buttonStyle === "outline"
       ? "border-2 border-[var(--theme-primary)] bg-transparent text-[var(--theme-primary)]"
       : "bg-[var(--theme-primary)] text-white";
+
+  const previewProduct = storeProducts[0] || null;
+
+  const formatPrice = (price) => {
+    if (price === undefined || price === null || price === "") {
+      return "قیمت نامشخص";
+    }
+
+    const numericPrice = Number(price);
+
+    if (!Number.isFinite(numericPrice)) {
+      return `${price} تومان`;
+    }
+
+    return `${new Intl.NumberFormat("fa-IR").format(numericPrice)} تومان`;
+  };
+
+  const productName = previewProduct?.name || "محصول نمونه";
+  const productPrice = formatPrice(previewProduct?.price);
 
   const Product = ({ name, price }) => (
     <div
@@ -50,7 +80,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
             color: "#fff",
           }}
         >
-          ?? {activeHighlight === "cardStyle" ? "سبک کارت" : "Radius"}
+          نمونه {activeHighlight === "cardStyle" ? "سبک کارت" : "Radius"}
         </span>
       )}
 
@@ -66,7 +96,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
           className="mt-2 text-sm"
           style={{ color: theme.colors.muted }}
         >
-          {price}
+          {formatPrice(price)}
         </div>
 
         <button
@@ -168,8 +198,8 @@ export default function Preview({ theme, storeName, slogan, page, device, active
             >
               <span>خانه</span>
               <span>محصولات</span>
-              <span>دسته‌بندي</span>
-              <span>سبد ??</span>
+              <span>دسته‌بندی</span>
+              <span>سبد خرید</span>
             </div>
           </div>
         </div>
@@ -185,15 +215,15 @@ export default function Preview({ theme, storeName, slogan, page, device, active
               }}
             >
               <div className="mb-2 text-xs opacity-75">
-                فروشگاه شما • Preview
+                فروشگاه شما • پیش‌نمایش
               </div>
 
               <h1 className="text-3xl font-black">
-                تجربه‌اي که مشتري يادش مي‌ماند
+                تجربه‌ای که مشتری یادش می‌ماند
               </h1>
 
               <p className="mt-3 max-w-xl text-sm opacity-85">
-                اين بخش با رنگ «بخش شعار» کنترل مي‌شود.
+                این بخش با رنگ «بخش شعار» کنترل می‌شود.
               </p>
 
               <button
@@ -205,10 +235,31 @@ export default function Preview({ theme, storeName, slogan, page, device, active
               </button>
             </div>
 
+            {storeCategories.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold">دسته‌بندی‌ها</h3>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {storeCategories.slice(0, 6).map((category) => (
+                    <span
+                      key={category.id}
+                      className="rounded-full border px-4 py-2 text-sm"
+                    >
+                      {category.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <Product name="محصول اول" price="?,???,??? تومان" />
-              <Product name="محصول دوم" price="???,??? تومان" />
-              <Product name="محصول سوم" price="?,???,??? تومان" />
+              {storeProducts.slice(0, 6).map((product) => (
+                <Product
+                  key={product.id}
+                  name={product.name}
+                  price={product.price}
+                />
+              ))}
             </div>
 
             <div
@@ -218,12 +269,13 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 border: `1px solid ${theme.colors.border}`,
               }}
             >
-              <div className="font-bold">يک بخش محتوايي نمونه</div>
+              <div className="font-bold">بخش محتوایی نمونه</div>
+
               <div
                 className="mt-2 text-sm"
                 style={{ color: theme.colors.muted }}
               >
-                براي نمايش تفاوت Surface و Surface Muted
+                برای نمایش تفاوت Surface و Surface Muted
               </div>
             </div>
           </div>
@@ -252,18 +304,19 @@ export default function Preview({ theme, storeName, slogan, page, device, active
               </span>
 
               <h1 className="mt-4 text-3xl font-black">
-                نام محصول نمونه
+                {productName}
               </h1>
 
               <p
                 className="mt-3 text-sm"
                 style={{ color: theme.colors.muted }}
               >
-                توضيحات محصول، ويژگي‌ها و اطلاعات مورد نياز مشتري.
+                {previewProduct?.description ||
+                  "توضیحات محصول، ویژگی‌ها و اطلاعات مورد نیاز مشتری."}
               </p>
 
               <div className="mt-5 text-2xl font-black">
-                ?,???,??? تومان
+                {productPrice}
               </div>
 
               <button
@@ -271,7 +324,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                 className="mt-6 w-full px-5 py-3 font-bold transition"
                 style={previewButtonStyle(["primary", "buttonStyle"])}
               >
-                افزودن به سبد خريد
+                افزودن به سبد خرید
               </button>
             </div>
           </div>
@@ -280,7 +333,7 @@ export default function Preview({ theme, storeName, slogan, page, device, active
         {/* CART */}
         {page === "cart" && (
           <div className="mx-auto max-w-3xl p-5">
-            <h1 className="text-2xl font-black">سبد خريد</h1>
+            <h1 className="text-2xl font-black">سبد خرید</h1>
 
             <div
               className={`mt-5 p-5 ${cardClass}`}
@@ -295,13 +348,13 @@ export default function Preview({ theme, storeName, slogan, page, device, active
                   borderBottom: `1px solid ${theme.colors.border}`,
                 }}
               >
-                <span className="font-bold">محصول نمونه</span>
-                <span>?,???,??? تومان</span>
+                <span className="font-bold">{productName}</span>
+                <span>{productPrice}</span>
               </div>
 
               <div className="mt-5 flex items-center justify-between font-black">
                 <span>مجموع</span>
-                <span>?,???,??? تومان</span>
+                <span>{productPrice}</span>
               </div>
 
               <button

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import wishlistService from "@/services/wishlist.service";
 import { useI18n } from "@/i18n";
+import BackToStoreButton from "@/components/common/BackToStoreButton";
 
 export default function WishlistPage() {
   const { loading: authLoading, isAuthenticated } = useAuth();
@@ -115,12 +116,7 @@ export default function WishlistPage() {
     >
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-block rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-primary)] transition hover:bg-[var(--theme-surface-muted)]"
-          >
-            {t("wishlist.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="wishlist.backToStore" />
         </div>
 
         <h1 className="text-3xl font-black text-[var(--theme-primary)]">
@@ -153,12 +149,7 @@ export default function WishlistPage() {
             {t("wishlist.emptyMessage")}
           </p>
 
-          <Link
-            href="/"
-            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white"
-          >
-            {t("wishlist.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="wishlist.backToStore" />
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -220,3 +211,5 @@ export default function WishlistPage() {
     </main>
   );
 }
+
+

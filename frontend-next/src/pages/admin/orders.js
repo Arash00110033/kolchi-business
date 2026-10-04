@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 
 import useAuth from "@/hooks/useAuth";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 import adminService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
@@ -142,13 +143,12 @@ export default function AdminOrdersPage() {
 
       if (requestError?.status === 400) {
         setError(
-          requestError?.data?.detail ||
-            t("adminOrders.statusChangeDenied")
+          getLocalizedErrorMessage(
+            requestError,
+            t,
+            "adminOrders.statusChangeDenied"
+          )
         );
-      } else if (requestError?.status === 403) {
-        setError(t("adminOrders.statusChangeForbidden"));
-      } else {
-        setError(t("adminOrders.statusChangeError"));
       }
     } finally {
       setSavingId(null);

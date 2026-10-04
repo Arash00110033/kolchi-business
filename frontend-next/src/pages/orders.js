@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import useAuth from "@/hooks/useAuth";
 import authService from "@/services/auth.service";
 import orderService from "@/services/order.service";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
+import BackToStoreButton from "@/components/common/BackToStoreButton";
 
 const STATUS_KEYS = {
   pending: "pending",
@@ -78,9 +80,11 @@ export default function OrdersPage() {
         if (active) {
           setOrders([]);
           setError(
-            err?.data?.detail ||
-              err?.message ||
-              t("orders.fetchError")
+            getLocalizedErrorMessage(
+              err,
+              t,
+              "orders.fetchError"
+            )
           );
         }
       } finally {
@@ -141,9 +145,11 @@ export default function OrdersPage() {
       );
     } catch (err) {
       setError(
-        err?.data?.detail ||
-          err?.message ||
-          t("orders.cancelError")
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "orders.cancelError"
+        )
       );
     } finally {
       setCancelLoadingId(null);
@@ -208,12 +214,7 @@ export default function OrdersPage() {
           </p>
         </div>
 
-        <Link
-          href="/"
-          className="w-fit rounded-xl border border-[var(--theme-border)] px-4 py-2.5 text-sm font-bold text-[var(--theme-primary)] transition hover:bg-[var(--theme-surface)]"
-        >
-          {t("orders.backToStore")}
-        </Link>
+        <BackToStoreButton t={t} translationKey="orders.backToStore" />
       </div>
 
       {error && (
@@ -232,12 +233,7 @@ export default function OrdersPage() {
             {t("orders.emptyMessage")}
           </p>
 
-          <Link
-            href="/"
-            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white transition hover:bg-[var(--theme-primary-hover)]"
-          >
-            {t("orders.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="orders.backToStore" />
         </div>
       ) : (
         <div className="space-y-5">
@@ -340,3 +336,6 @@ export default function OrdersPage() {
     </main>
   );
 }
+
+
+

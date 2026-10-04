@@ -5,38 +5,14 @@ import {
   isRTL,
 } from "./config";
 import fa from "./locales/fa";
-import en from "./locales/en";
-import es from "./locales/es";
-import it from "./locales/it";
-import he from "./locales/he";
-import zh from "./locales/zh";
-import ja from "./locales/ja";
-import ar from "./locales/ar";
 
 const translations = {
   fa,
-  en,
-  es,
-  it,
-  he,
-  zh,
-  ja,
-  ar,
 };
 
 const I18nContext = createContext(null);
 
 function getStoredLocale() {
-  if (typeof window === "undefined") {
-    return DEFAULT_LOCALE;
-  }
-
-  const stored = window.localStorage.getItem("kolchi_locale");
-
-  if (SUPPORTED_LOCALES.includes(stored)) {
-    return stored;
-  }
-
   return DEFAULT_LOCALE;
 }
 
@@ -52,14 +28,14 @@ export function I18nProvider({ children }) {
       return;
     }
 
-    window.localStorage.setItem("kolchi_locale", locale);
+    window.localStorage.setItem("kolchi_locale", DEFAULT_LOCALE);
 
-    document.documentElement.lang = locale;
-    document.documentElement.dir = isRTL(locale) ? "rtl" : "ltr";
-  }, [locale]);
+    document.documentElement.lang = DEFAULT_LOCALE;
+    document.documentElement.dir = isRTL(DEFAULT_LOCALE) ? "rtl" : "ltr";
+  }, []);
 
   const value = useMemo(() => {
-    const dictionary = translations[locale] || translations[DEFAULT_LOCALE];
+    const dictionary = translations[DEFAULT_LOCALE];
 
     function t(key) {
       return key.split(".").reduce(
@@ -69,13 +45,13 @@ export function I18nProvider({ children }) {
     }
 
     return {
-      locale,
-      setLocale,
+      locale: DEFAULT_LOCALE,
+      setLocale: () => {},
       t,
-      isRTL: isRTL(locale),
+      isRTL: true,
       supportedLocales: SUPPORTED_LOCALES,
     };
-  }, [locale]);
+  }, []);
 
   return (
     <I18nContext.Provider value={value}>

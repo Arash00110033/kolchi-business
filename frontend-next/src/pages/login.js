@@ -1,8 +1,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import BackToStoreButton from "@/components/common/BackToStoreButton";
 import useAuth from "@/hooks/useAuth";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 
 export default function LoginPage() {
@@ -24,9 +26,7 @@ export default function LoginPage() {
 <LanguageSwitcher />
           </div>
           <h1 className="text-2xl font-black text-[var(--theme-primary)]">{t("auth.alreadyLoggedIn")}</h1>
-          <Link href="/" className="mt-5 inline-block font-semibold text-[var(--theme-secondary)]">
-            {t("auth.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="auth.backToStore" />
         </div>
       </main>
     );
@@ -48,7 +48,13 @@ export default function LoginPage() {
       await login(form);
       await router.push("/");
     } catch (err) {
-      setError(err?.message || t("auth.loginFailed"));
+      setError(
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "auth.loginFailed"
+        )
+      );
     } finally {
       setSubmitting(false);
     }
@@ -62,12 +68,7 @@ export default function LoginPage() {
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-2xl font-black text-[var(--theme-primary)]">{t("auth.login")}</h1>
 
-          <Link
-            href="/"
-            className="text-sm font-bold text-[var(--theme-secondary)] hover:underline"
-          >
-            ← {t("auth.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="auth.backToStore" />
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -117,3 +118,5 @@ export default function LoginPage() {
     </main>
   );
 }
+
+

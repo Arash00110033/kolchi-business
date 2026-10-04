@@ -64,3 +64,26 @@ class StoreMembership(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.store.name} - {self.role}"
+class StoreMembershipPermission(models.Model):
+    membership = models.ForeignKey(
+        StoreMembership,
+        on_delete=models.CASCADE,
+        related_name="permissions",
+    )
+    code = models.CharField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["membership", "code"],
+                name="unique_membership_permission",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["membership", "code"]),
+            models.Index(fields=["code"]),
+        ]
+
+    def __str__(self):
+        return f"{self.membership_id}:{self.code}"

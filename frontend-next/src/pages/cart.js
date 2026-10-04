@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n";
+import BackToStoreButton from "@/components/common/BackToStoreButton";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 
 import Link from "next/link";
 
@@ -79,8 +81,7 @@ export default function CartPage() {
       setCart(data);
     } catch (err) {
       setError(
-        err?.data?.detail ||
-          t("common.errorGeneric")
+        getLocalizedErrorMessage(err, t, "common.errorGeneric")
       );
     }
   }
@@ -179,8 +180,7 @@ export default function CartPage() {
       window.location.href = `/orders/${order.id}`;
     } catch (err) {
       setError(
-        err?.data?.detail ||
-          t("auth.orderFailed")
+        getLocalizedErrorMessage(err, t, "auth.orderFailed")
       );
     } finally {
       setCheckoutLoading(false);
@@ -271,12 +271,7 @@ export default function CartPage() {
             {t("auth.emptyCartText")}
           </p>
 
-          <Link
-            href="/"
-            className="inline-block rounded-xl bg-[var(--theme-primary)] px-5 py-3 font-semibold text-white"
-          >
-            {t("auth.backToStore")}
-          </Link>
+          <BackToStoreButton t={t} translationKey="auth.backToStore" />
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -434,3 +429,5 @@ export default function CartPage() {
     </main>
   );
 }
+
+

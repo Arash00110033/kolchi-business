@@ -1,4 +1,4 @@
-import apiClient from "@/services/api/client";
+﻿import apiClient from "@/services/api/client";
 
 const adminService = {
   // ============================================================
@@ -39,6 +39,36 @@ const adminService = {
 
     return apiClient.get(
       `/admin/stores/${storeId}/members/`,
+      apiClient.withAuth(token)
+    );
+  },
+
+  async getAccessibleStores(token) {
+    return apiClient.get(
+      "/stores/accessible/",
+      apiClient.withAuth(token)
+    );
+  },
+
+  async getMemberPermissions(storeId, memberId, token) {
+    if (!storeId || !memberId) {
+      throw new Error("Store ID and member ID are required.");
+    }
+
+    return apiClient.get(
+      `/admin/stores/${storeId}/members/${memberId}/permissions/`,
+      apiClient.withAuth(token)
+    );
+  },
+
+  async updateMemberPermissions(storeId, memberId, permissions, token) {
+    if (!storeId || !memberId) {
+      throw new Error("Store ID and member ID are required.");
+    }
+
+    return apiClient.patch(
+      `/admin/stores/${storeId}/members/${memberId}/permissions/`,
+      { permissions },
       apiClient.withAuth(token)
     );
   },
@@ -245,3 +275,4 @@ const adminService = {
 };
 
 export default adminService;
+

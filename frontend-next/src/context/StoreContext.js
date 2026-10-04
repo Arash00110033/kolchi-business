@@ -1,4 +1,4 @@
-﻿import {
+import {
   createContext,
   useCallback,
   useContext,
@@ -19,6 +19,8 @@ export function StoreProvider({ children }) {
   const [storeConfig, setStoreConfig] = useState(null);
   const [storeConfigLoading, setStoreConfigLoading] = useState(true);
   const [storeConfigError, setStoreConfigError] = useState(null);
+  const [storeCategories, setStoreCategories] = useState([]);
+  const [storeProducts, setStoreProducts] = useState([]);
 
   const setStoreId = useCallback((value) => {
     const normalizedId = normalizeStoreId(value);
@@ -38,19 +40,27 @@ export function StoreProvider({ children }) {
       setStoreConfigError(null);
 
       try {
-        const config = await storeService.getPublicConfig(storeId);
+        const [config, categoryResponse, productResponse] = await Promise.all([
+          storeService.getPublicConfig(storeId),
+          storeService.getPublicCategories(storeId),
+          storeService.getPublicProducts(storeId, { page_size: 6 }),
+        ]);
 
         if (cancelled) {
           return;
         }
 
         setStoreConfig(config);
+        setStoreCategories(categoryResponse?.results ?? []);
+        setStoreProducts(productResponse?.results ?? []);
       } catch (error) {
         if (cancelled) {
           return;
         }
 
         setStoreConfig(null);
+        setStoreCategories([]);
+        setStoreProducts([]);
         setStoreConfigError(error);
       } finally {
         if (!cancelled) {
@@ -71,6 +81,8 @@ export function StoreProvider({ children }) {
       storeId,
       setStoreId,
       storeConfig,
+      storeCategories,
+      storeProducts,
       storeConfigLoading,
       storeConfigError,
     }),
@@ -78,6 +90,8 @@ export function StoreProvider({ children }) {
       storeId,
       setStoreId,
       storeConfig,
+      storeCategories,
+      storeProducts,
       storeConfigLoading,
       storeConfigError,
     ]

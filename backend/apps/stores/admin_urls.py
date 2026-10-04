@@ -1,13 +1,17 @@
-﻿from django.urls import path
+from django.urls import path
 
 from .admin_membership_views import (
     AdminMembershipDetailAPIView,
     AdminMembershipListCreateAPIView,
 )
+from .admin_permission_views import (
+    StoreMembershipPermissionAPIView,
+)
 from .admin_views import AdminStoreDetailAPIView
 
 
 urlpatterns = [
+
     path(
         "stores/<int:store_id>/",
         AdminStoreDetailAPIView.as_view(),
@@ -22,5 +26,10 @@ urlpatterns = [
         "stores/<int:store_id>/members/<int:pk>/",
         AdminMembershipDetailAPIView.as_view(),
         name="admin-store-member-detail",
+    ),
+    path(
+        "stores/<int:store_id>/members/<int:pk>/permissions/",
+        StoreMembershipPermissionAPIView.as_view(),
+        name="admin-store-member-permissions",
     ),
 ]

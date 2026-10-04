@@ -2,7 +2,11 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from apps.stores.models import Store, StoreMembership
+from apps.stores.models import (
+    Store,
+    StoreMembership,
+    StoreMembershipPermission,
+)
 
 from .models import Category, Product
 
@@ -45,10 +49,15 @@ class AdminCatalogAPITests(TestCase):
             slug="catalog-store-b",
         )
 
-        StoreMembership.objects.create(
+        editor_membership = StoreMembership.objects.create(
             store=self.store_a,
             user=self.editor_a,
             role=StoreMembership.Role.EDITOR,
+        )
+
+        StoreMembershipPermission.objects.create(
+            membership=editor_membership,
+            code="products",
         )
 
         self.category_a = Category.objects.create(
@@ -169,3 +178,175 @@ class AdminCatalogAPITests(TestCase):
         )
 
         self.assertEqual(response.status_code, 204)
+    def test_editor_without_products_permission_is_denied(self):
+        editor_no_permission = User.objects.create_user(
+            username="catalog_editor_no_permission",
+            email="catalog-editor-no-permission@test.local",
+            password="TestPassword123!",
+        )
+
+        StoreMembership.objects.create(
+            store=self.store_a,
+            user=editor_no_permission,
+            role=StoreMembership.Role.EDITOR,
+        )
+
+        self.auth(editor_no_permission)
+
+        response = self.client.get(
+            f"/api/v1/admin/stores/{self.store_a.id}/products/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_admin_with_products_can_manage_product(self):
+        admin_a = User.objects.create_user(
+            username="catalog_admin_products",
+            email="catalog-admin-products@test.local",
+            password="TestPassword123!",
+        )
+
+        membership = StoreMembership.objects.create(
+            store=self.store_a,
+            user=admin_a,
+            role=StoreMembership.Role.ADMIN,
+        )
+
+        StoreMembershipPermission.objects.create(
+            membership=membership,
+            code="products",
+        )
+
+        self.auth(admin_a)
+
+        create_response = self.client.post(
+            f"/api/v1/admin/stores/{self.store_a.id}/products/",
+            {
+                "category": self.category_a.id,
+                "name": "Admin Product",
+                "slug": "admin-products-test",
+                "description": "Created by store admin.",
+                "price": "150000.00",
+                "stock": 3,
+                "image_url": "",
+                "is_active": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(create_response.status_code, 201)
+
+        product_id = create_response.data["id"]
+
+        update_response = self.client.patch(
+            f"/api/v1/admin/stores/{self.store_a.id}/products/{product_id}/",
+            {"name": "Admin Product Updated"},
+            format="json",
+        )
+
+        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(
+            update_response.data["name"],
+            "Admin Product Updated",
+        )
+
+        delete_response = self.client.delete(
+            f"/api/v1/admin/stores/{self.store_a.id}/products/{product_id}/"
+        )
+
+        self.assertEqual(delete_response.status_code, 204)
+
+    def test_admin_without_products_permission_is_denied(self):
+        admin_no_products = User.objects.create_user(
+            username="catalog_admin_no_products",
+            email="catalog-admin-no-products@test.local",
+            password="TestPassword123!",
+        )
+
+        StoreMembership.objects.create(
+            store=self.store_a,
+            user=admin_no_products,
+            role=StoreMembership.Role.ADMIN,
+        )
+
+        self.auth(admin_no_products)
+
+        response = self.client.get(
+            f"/api/v1/admin/stores/{self.store_a.id}/products/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_admin_with_categories_can_manage_category(self):
+        admin_categories = User.objects.create_user(
+            username="catalog_admin_categories",
+            email="catalog-admin-categories@test.local",
+            password="TestPassword123!",
+        )
+
+        membership = StoreMembership.objects.create(
+            store=self.store_a,
+            user=admin_categories,
+            role=StoreMembership.Role.ADMIN,
+        )
+
+        StoreMembershipPermission.objects.create(
+            membership=membership,
+            code="categories",
+        )
+
+        self.auth(admin_categories)
+
+        create_response = self.client.post(
+            f"/api/v1/admin/stores/{self.store_a.id}/categories/",
+            {
+                "name": "Admin Category",
+                "slug": "admin-category-test",
+                "description": "Created by store admin.",
+                "is_active": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(create_response.status_code, 201)
+
+        category_id = create_response.data["id"]
+
+        update_response = self.client.patch(
+            f"/api/v1/admin/stores/{self.store_a.id}/categories/{category_id}/",
+            {"name": "Admin Category Updated"},
+            format="json",
+        )
+
+        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(
+            update_response.data["name"],
+            "Admin Category Updated",
+        )
+
+        delete_response = self.client.delete(
+            f"/api/v1/admin/stores/{self.store_a.id}/categories/{category_id}/"
+        )
+
+        self.assertEqual(delete_response.status_code, 204)
+
+    def test_admin_without_categories_permission_is_denied(self):
+        admin_no_categories = User.objects.create_user(
+            username="catalog_admin_no_categories",
+            email="catalog-admin-no-categories@test.local",
+            password="TestPassword123!",
+        )
+
+        StoreMembership.objects.create(
+            store=self.store_a,
+            user=admin_no_categories,
+            role=StoreMembership.Role.ADMIN,
+        )
+
+        self.auth(admin_no_categories)
+
+        response = self.client.get(
+            f"/api/v1/admin/stores/{self.store_a.id}/categories/"
+        )
+
+        self.assertEqual(response.status_code, 403)

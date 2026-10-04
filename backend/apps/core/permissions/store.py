@@ -1,4 +1,5 @@
-from apps.stores.models import Store, StoreMembership
+﻿from apps.stores.models import Store, StoreMembership
+
 
 
 def is_store_owner(user, store):
@@ -67,3 +68,7 @@ def can_access_store(user, store):
         StoreMembership.Role.ADMIN,
         StoreMembership.Role.EDITOR,
     }
+
+# Permission helpers remain separate from legacy role helpers.
+# Module-specific endpoints can adopt has_store_permission()
+# incrementally without changing existing RBAC behavior.

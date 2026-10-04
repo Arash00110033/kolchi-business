@@ -7,6 +7,7 @@ import authService from "@/services/auth.service";
 import orderService from "@/services/order.service";
 import paymentService from "@/services/payment.service";
 import { useI18n } from "@/i18n";
+import { getLocalizedErrorMessage } from "@/utils/errorMessage";
 
 const STATUS_KEYS = {
   pending: "pending",
@@ -225,9 +226,11 @@ export default function OrderDetailPage() {
       setOrder(data);
     } catch (err) {
       setPaymentError(
-        err?.data?.detail ||
-          err?.message ||
-          t("orders.paymentFailed")
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "orders.paymentFailed"
+        )
       );
     } finally {
       setPaymentLoading(false);
@@ -261,7 +264,11 @@ export default function OrderDetailPage() {
       setOrder(data);
     } catch (err) {
       setCancelError(
-        err?.message || t("orders.cancelFailed")
+        getLocalizedErrorMessage(
+          err,
+          t,
+          "orders.cancelFailed"
+        )
       );
     } finally {
       setCancelLoading(false);

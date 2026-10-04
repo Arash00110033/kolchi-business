@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { useI18n } from "@/i18n";
 
 export default function CatalogHeader({
@@ -9,7 +9,7 @@ export default function CatalogHeader({
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="rounded-3xl border border-[var(--theme-border)] bg-white p-6 shadow-sm sm:p-8"
+      className="rounded-[var(--theme-radius-large)] border border-[var(--theme-border)] bg-[var(--theme-surface)] p-6 shadow-sm sm:p-8"
     >
       <div className="flex flex-col gap-6">
 
@@ -36,7 +36,7 @@ export default function CatalogHeader({
             className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
               activeCategory === "all"
                 ? "border-[var(--theme-primary)] bg-[var(--theme-primary)] text-white"
-                : "border-[var(--theme-border)] bg-white text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
+                : "border-[var(--theme-border)] bg-[var(--theme-surface)] text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
             }`}
           >
             {t("common.allProducts")}
@@ -52,7 +52,7 @@ export default function CatalogHeader({
                 className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                   isActive
                     ? "border-[var(--theme-primary)] bg-[var(--theme-primary)] text-white"
-                    : "border-[var(--theme-border)] bg-white text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
+                    : "border-[var(--theme-border)] bg-[var(--theme-surface)] text-[var(--theme-primary)] hover:bg-[var(--theme-background)]"
                 }`}
               >
                 {category.name}
@@ -65,3 +65,4 @@ export default function CatalogHeader({
     </section>
   );
 }
+

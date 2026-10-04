@@ -1,10 +1,10 @@
-﻿from django.db import IntegrityError
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, permissions
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
-from apps.core.permissions.store import can_manage_store
+from apps.core.permissions.store import is_store_owner
 
 from .admin_membership_serializers import AdminMembershipSerializer
 from .models import Store, StoreMembership
@@ -19,7 +19,7 @@ class AdminMembershipStoreMixin:
         )
 
     def check_management_access(self, store):
-        if not can_manage_store(self.request.user, store):
+        if not is_store_owner(self.request.user, store):
             raise PermissionDenied(
                 "You do not have permission to manage this store."
             )

@@ -1,0 +1,53 @@
+export default function OwnerStoreSelector({
+  t,
+  stores,
+  storeId,
+  onChange,
+  selectedStore,
+}) {
+  return (
+    <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-lg font-black">
+            {t("adminOwner.switchStore")}
+          </h2>
+
+          <p className="mt-1 text-sm text-gray-500">
+            {t("adminOwner.store")}
+          </p>
+        </div>
+
+        <select
+          value={storeId}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold outline-none focus:border-black sm:max-w-md"
+        >
+          <option value="" disabled>
+            {t("adminOwner.store")}
+          </option>
+
+          {stores.map((store) => (
+            <option key={store.id} value={store.id}>
+              {store.name || store.title || `Store #${store.id}`}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedStore && (
+        <div className="mt-4 rounded-xl bg-gray-50 p-4 text-sm">
+          <div className="font-bold">
+            {selectedStore.name || selectedStore.title || `Store #${selectedStore.id}`}
+          </div>
+
+          {selectedStore.slug && (
+            <div className="mt-1 text-gray-500">
+              {selectedStore.slug}
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}

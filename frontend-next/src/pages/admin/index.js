@@ -1,7 +1,7 @@
-import { useStore } from "@/context/StoreContext";
+﻿import { useStore } from "@/context/StoreContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
+import BackToStoreButton from "@/components/common/BackToStoreButton";
 import useAuth from "@/hooks/useAuth";
 import { useI18n } from "@/i18n";
 import adminService from "@/services/admin.service";
@@ -26,6 +26,7 @@ export default function AdminPage() {
   const [store, setStore] = useState(null);
   const [stats, setStats] = useState({
     products: 0,
+    categories: 0,
     orders: 0,
     members: 0,
   });
@@ -61,10 +62,11 @@ export default function AdminPage() {
           return;
         }
 
-        const [storeData, productsData, ordersData, membersData] =
+        const [storeData, productsData, categoriesData, ordersData, membersData] =
           await Promise.all([
             adminService.getStore(storeId, token),
             adminService.getProducts(storeId, token),
+            adminService.getCategories(storeId, token),
             adminService.getOrders(storeId, token),
             adminService.getMembers(storeId, token),
           ]);
@@ -83,6 +85,7 @@ export default function AdminPage() {
 
         setStats({
           products: getList(productsData).length,
+          categories: getList(categoriesData).length,
           orders: getList(ordersData).length,
           members: getList(membersData).length,
         });
@@ -196,13 +199,7 @@ export default function AdminPage() {
             {error}
           </p>
 
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="mt-6 rounded-xl bg-[var(--theme-primary)] px-4 py-2 text-sm font-semibold text-white"
-          >
-            {t("adminDashboard.backToStore")}
-          </button>
+          <BackToStoreButton t={t} translationKey="adminDashboard.backToStore" />
         </div>
       </main>
     );
@@ -215,6 +212,13 @@ export default function AdminPage() {
       value: stats.products,
       href: "/admin/products",
       label: t("adminDashboard.manageProducts"),
+    },
+    {
+      title: t("adminDashboard.categories"),
+      description: t("adminDashboard.categoriesDescription"),
+      value: stats.categories,
+      href: "/admin/categories",
+      label: t("adminDashboard.manageCategories"),
     },
     {
       title: t("adminDashboard.orders"),
@@ -240,7 +244,7 @@ export default function AdminPage() {
     {
       title: t("adminDashboard.appearance"),
       description: t("adminDashboard.appearanceDescription"),
-      value: "🎨",
+      value: "ًںژ¨",
       href: "/admin/appearance",
       label: t("adminDashboard.manageAppearance"),
     },
@@ -269,13 +273,7 @@ export default function AdminPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => router.push("/")}
-                className="rounded-xl border border-[var(--theme-border)] px-4 py-2 text-sm font-semibold text-[var(--theme-muted)] transition hover:bg-[var(--theme-background)]"
-              >
-                {t("adminDashboard.backToStore")}
-              </button>
+              <BackToStoreButton t={t} translationKey="adminDashboard.backToStore" />
             </div>
           </div>
         </header>
